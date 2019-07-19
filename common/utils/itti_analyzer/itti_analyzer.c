@@ -1,23 +1,23 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -54,33 +54,33 @@ static void console_log_handler(const char *log_domain, GLogLevelFlags log_level
     struct tm *today;
     const char *level;
 
-    if (ui_main_data.log_flags & domain_log_level & log_level)
+    if(ui_main_data.log_flags & domain_log_level & log_level)
     {
-        switch (log_level & G_LOG_LEVEL_MASK)
+        switch(log_level & G_LOG_LEVEL_MASK)
         {
-        case G_LOG_LEVEL_ERROR:
-            level = "Err ";
-            break;
-        case G_LOG_LEVEL_CRITICAL:
-            level = "Crit";
-            break;
-        case G_LOG_LEVEL_WARNING:
-            level = "Warn";
-            break;
-        case G_LOG_LEVEL_MESSAGE:
-            level = "Msg ";
-            break;
-        case G_LOG_LEVEL_INFO:
-            level = "Info";
-            break;
-        case G_LOG_LEVEL_DEBUG:
-            level = "Dbg ";
-            break;
-        default:
-            fprintf(stderr, "unknown log_level %u\n", log_level);
-            level = NULL;
-            g_assert_not_reached();
-            break;
+            case G_LOG_LEVEL_ERROR:
+                level = "Err ";
+                break;
+            case G_LOG_LEVEL_CRITICAL:
+                level = "Crit";
+                break;
+            case G_LOG_LEVEL_WARNING:
+                level = "Warn";
+                break;
+            case G_LOG_LEVEL_MESSAGE:
+                level = "Msg ";
+                break;
+            case G_LOG_LEVEL_INFO:
+                level = "Info";
+                break;
+            case G_LOG_LEVEL_DEBUG:
+                level = "Dbg ";
+                break;
+            default:
+                fprintf(stderr, "unknown log_level %u\n", log_level);
+                level = NULL;
+                g_assert_not_reached();
+                break;
         }
 
         /* create a "timestamp" */
@@ -99,17 +99,17 @@ int main(int argc, char *argv[])
     GLogLevelFlags log_flags;
 
     log_flags = (GLogLevelFlags)
-        (G_LOG_LEVEL_ERROR      |
-        G_LOG_LEVEL_CRITICAL    |
-        G_LOG_LEVEL_WARNING     |
-        G_LOG_LEVEL_MESSAGE     |
-        G_LOG_LEVEL_INFO        |
-        G_LOG_LEVEL_DEBUG);
+                (G_LOG_LEVEL_ERROR      |
+                 G_LOG_LEVEL_CRITICAL    |
+                 G_LOG_LEVEL_WARNING     |
+                 G_LOG_LEVEL_MESSAGE     |
+                 G_LOG_LEVEL_INFO        |
+                 G_LOG_LEVEL_DEBUG);
 
-    /* This initialize the library and check potential ABI mismatches
-     * between the version it was compiled for and the actual shared
-     * library used.
-     */
+    /*  This initialize the library and check potential ABI mismatches
+        between the version it was compiled for and the actual shared
+        library used.
+    */
     LIBXML_TEST_VERSION;
     xmlInitParser();
 
@@ -117,29 +117,29 @@ int main(int argc, char *argv[])
     gtk_init(&argc, &argv);
 
     /* Parse command line options */
-    ui_gtk_parse_arg (argc, argv);
+    ui_gtk_parse_arg(argc, argv);
 
-    /* Set log handlers:
-     *                 Domain,      Levels,    Handler,             Domain enabled levels */
-    g_log_set_handler( NULL,        log_flags, console_log_handler, (gpointer) (G_LOG_LEVELS));
-    g_log_set_handler("BUFFERS",    log_flags, console_log_handler, (gpointer) (G_LOG_LEVELS & (~(G_LOG_LEVEL_DEBUG))));
-    g_log_set_handler("PARSER",     log_flags, console_log_handler, (gpointer) (G_LOG_LEVELS & (~(G_LOG_LEVEL_DEBUG))));
-    g_log_set_handler("RESOLVER",   log_flags, console_log_handler, (gpointer) (G_LOG_LEVELS & (~(G_LOG_LEVEL_DEBUG))));
-    g_log_set_handler("UI",         log_flags, console_log_handler, (gpointer) (G_LOG_LEVELS & (~(G_LOG_LEVEL_DEBUG))));
-    g_log_set_handler("UI_CB",      log_flags, console_log_handler, (gpointer) (G_LOG_LEVELS));
-    g_log_set_handler("UI_FILTER",  log_flags, console_log_handler, (gpointer) (G_LOG_LEVELS & (~(G_LOG_LEVEL_DEBUG))));
-    g_log_set_handler("UI_INTER",   log_flags, console_log_handler, (gpointer) (G_LOG_LEVELS));
-    g_log_set_handler("UI_TREE",    log_flags, console_log_handler, (gpointer) (G_LOG_LEVELS & (~(G_LOG_LEVEL_DEBUG))));
+    /*  Set log handlers:
+                       Domain,      Levels,    Handler,             Domain enabled levels */
+    g_log_set_handler(NULL,        log_flags, console_log_handler, (gpointer)(G_LOG_LEVELS));
+    g_log_set_handler("BUFFERS",    log_flags, console_log_handler, (gpointer)(G_LOG_LEVELS & (~(G_LOG_LEVEL_DEBUG))));
+    g_log_set_handler("PARSER",     log_flags, console_log_handler, (gpointer)(G_LOG_LEVELS & (~(G_LOG_LEVEL_DEBUG))));
+    g_log_set_handler("RESOLVER",   log_flags, console_log_handler, (gpointer)(G_LOG_LEVELS & (~(G_LOG_LEVEL_DEBUG))));
+    g_log_set_handler("UI",         log_flags, console_log_handler, (gpointer)(G_LOG_LEVELS & (~(G_LOG_LEVEL_DEBUG))));
+    g_log_set_handler("UI_CB",      log_flags, console_log_handler, (gpointer)(G_LOG_LEVELS));
+    g_log_set_handler("UI_FILTER",  log_flags, console_log_handler, (gpointer)(G_LOG_LEVELS & (~(G_LOG_LEVEL_DEBUG))));
+    g_log_set_handler("UI_INTER",   log_flags, console_log_handler, (gpointer)(G_LOG_LEVELS));
+    g_log_set_handler("UI_TREE",    log_flags, console_log_handler, (gpointer)(G_LOG_LEVELS & (~(G_LOG_LEVEL_DEBUG))));
 
     CHECK_FCT(ui_gtk_initialize(argc, argv));
 
     /* Enter the main event loop, and wait for user interaction */
-    gtk_main ();
+    gtk_main();
 
-    /* Free the global variables that may
-     * have been allocated by the parser.
-     */
-    xmlCleanupParser ();
+    /*  Free the global variables that may
+        have been allocated by the parser.
+    */
+    xmlCleanupParser();
 
     return ret;
 }

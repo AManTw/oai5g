@@ -1,23 +1,23 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 #ifndef UI_CALLBACKS_H_
 #define UI_CALLBACKS_H_
@@ -45,9 +45,9 @@ gboolean ui_callback_on_enable_filters(GtkWidget *widget,
 gboolean ui_callback_on_about(GtkWidget *widget,
                               gpointer   data);
 
-gint ui_callback_check_string (const char *string,
-                               const gint lenght,
-                               const guint message_number);
+gint ui_callback_check_string(const char *string,
+                              const gint lenght,
+                              const guint message_number);
 
 gboolean ui_pipe_callback(gint source, gpointer user_data);
 
@@ -63,8 +63,8 @@ gboolean ui_callback_on_disconnect(GtkWidget *widget,
                                    gpointer   data);
 
 gboolean ui_callback_on_tree_view_select(GtkWidget *widget,
-                                         GdkEvent  *event,
-                                         gpointer   data);
+        GdkEvent  *event,
+        gpointer   data);
 
 gboolean ui_callback_on_select_signal(GtkTreeSelection *selection,
                                       GtkTreeModel     *model,
@@ -75,9 +75,9 @@ gboolean ui_callback_on_select_signal(GtkTreeSelection *selection,
 void ui_signal_add_to_list(gpointer data,
                            gpointer user_data);
 
-gboolean ui_callback_on_menu_enable (GtkWidget *widget, gpointer data);
+gboolean ui_callback_on_menu_enable(GtkWidget *widget, gpointer data);
 
-gboolean ui_callback_on_menu_color (GtkWidget *widget, gpointer data);
+gboolean ui_callback_on_menu_color(GtkWidget *widget, gpointer data);
 
 gboolean ui_callback_signal_go_to_first(GtkWidget *widget,
                                         gpointer   data);
@@ -92,7 +92,7 @@ gboolean ui_callback_signal_go_to_last(GtkWidget *widget,
                                        gpointer   data);
 
 gboolean ui_callback_display_message_header(GtkWidget *widget,
-                                            gpointer data);
+        gpointer data);
 
 gboolean ui_callback_display_brace(GtkWidget *widget,
                                    gpointer data);
@@ -107,8 +107,8 @@ gboolean ui_callback_on_menu_all(GtkWidget *widget,
                                  gpointer data);
 
 gboolean ui_callback_on_menu_item_selected(GtkWidget *widget,
-                                           gpointer data);
+        gpointer data);
 
 gboolean ui_callback_on_tree_column_header_click(GtkWidget *widget,
-                                                 gpointer   data);
+        gpointer   data);
 #endif /* UI_CALLBACKS_H_ */

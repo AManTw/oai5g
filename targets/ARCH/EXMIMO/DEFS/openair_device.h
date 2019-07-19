@@ -1,35 +1,35 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 #ifndef OPENAIR_DEVICE_H
 #define OPENAIR_DEVICE_H
 
 
 // Maximum number of concurrently supported cards
-#define MAX_CARDS  16 
+#define MAX_CARDS  16
 #define INIT_ZEROS {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 
 /** PCIe subsystem configuration Space
- */
+*/
 // Vendor and System IDs
 //
 #define XILINX_VENDOR 0x10ee
@@ -39,25 +39,25 @@
 #define EURECOM_VENDOR           0x0001
 #define TELECOM_PARISTECH_VENDOR 0x0002
 /*
-   PCIe Subsystem ID = exmimo_id.board_exmimoversion(1,2) (4 bits) | exmimo_id.board_hwrev (4 bits) | exmimo_id.board_swrev (Protocol Revision, 8 bits)
+    PCIe Subsystem ID = exmimo_id.board_exmimoversion(1,2) (4 bits) | exmimo_id.board_hwrev (4 bits) | exmimo_id.board_swrev (Protocol Revision, 8 bits)
 
-   Board IDs (exmimo_id.board_exmimoversion(1,2) (4 bits) + exmimo_id.board_hwrev (4 bits))
+    Board IDs (exmimo_id.board_exmimoversion(1,2) (4 bits) + exmimo_id.board_hwrev (4 bits))
      0x11 => ExpressMIMO-1, first run/HW revision
      0x12 => ExpressMIMO-1, second run
      0x21 => ExpressMIMO-2, first run
      0x22 => ExpressMIMO-2, second run
 
-   SW/Protocol revisions: (exmimo_id.board_swrev (Protocol Revision, 8 bits)
+    SW/Protocol revisions: (exmimo_id.board_swrev (Protocol Revision, 8 bits)
 
-   BOARD_SWREV_LEGACY:
+    BOARD_SWREV_LEGACY:
      - IRQ Leon->PC Bit 7 (AHBPCIE_INTERRUPT_ASSERT_BIT) must be cleared in PC kernel driver
      - PC->Leon and Leon->PC commands share a single register CONTROL1
 
-   BOARD_SWREV_CMDREGISTERS:
+    BOARD_SWREV_CMDREGISTERS:
      - IRQ Leon->PC Bit 7 (AHBPCIE_INTERRUPT_ASSERT_BIT) is automatically cleared on PCIe read
      - PC->Leon and Leon->PC commands have separete command registers CONTROL1 (PC->Leon) and CONTROL2 (Leon->PC)
 
-   BOARD_SWREV_CMDFIFOS:
+    BOARD_SWREV_CMDFIFOS:
      - uses two command FIFOs (for PC->Leon and Leon->PC), by Telecom Paristech
 */
 #define BOARD_SWREV_LEGACY   0x07

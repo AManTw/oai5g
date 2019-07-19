@@ -15,16 +15,17 @@ int database_get_ids(void *database, char ***ids);
 int database_get_groups(void *database, char ***groups);
 int database_pos_to_id(void *database, int pos);
 void database_get_generic_description(void *database, int id,
-    char **name, char **desc);
+                                      char **name, char **desc);
 
 /****************************************************************************/
 /* get format of an event                                                   */
 /****************************************************************************/
 
-typedef struct {
-  char **type;
-  char **name;
-  int count;
+typedef struct
+{
+    char **type;
+    char **name;
+    int count;
 } database_event_format;
 
 database_event_format get_format(void *database, int event_id);

@@ -19,6 +19,6 @@ void iq_plot_add_energy_point_loop(void *_plot, int e, int pp);
 /* T gui functions */
 void t_gui_start(void);
 void t_gui_set_input_signal(int eNB, int frame, int subframe, int antenna,
-    int size, void *buf);
+                            int size, void *buf);
 
 #endif /* _TRACER_DEFS_H_ */

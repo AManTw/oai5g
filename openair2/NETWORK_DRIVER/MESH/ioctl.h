@@ -1,23 +1,23 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 #ifndef NAS_CTL_H
 #define NAS_CTL_H
@@ -68,176 +68,200 @@
 
 typedef unsigned short nasMsgType_t;
 
-struct nas_ioctl {
-  char name[IFNAMSIZ];
-  nasMsgType_t type;
-  char *msg;
+struct nas_ioctl
+{
+    char name[IFNAMSIZ];
+    nasMsgType_t type;
+    char *msg;
 };
 
-struct nas_msg_statistic_reply {
-  unsigned int rx_packets;
-  unsigned int tx_packets;
-  unsigned int rx_bytes;
-  unsigned int tx_bytes;
-  unsigned int rx_errors;
-  unsigned int tx_errors;
-  unsigned int rx_dropped;
-  unsigned int tx_dropped;
+struct nas_msg_statistic_reply
+{
+    unsigned int rx_packets;
+    unsigned int tx_packets;
+    unsigned int rx_bytes;
+    unsigned int tx_bytes;
+    unsigned int rx_errors;
+    unsigned int tx_errors;
+    unsigned int rx_dropped;
+    unsigned int tx_dropped;
 };
 
-struct nas_msg_cx_list_reply {
-  nasLocalConnectionRef_t lcr;  // Local Connection reference
-  unsigned char state;
-  nasCellID_t cellid;   // cell identification
-  unsigned int iid6[2];       // IPv6  interface identification
-  unsigned char iid4;       // IPv4 interface identification
-  unsigned short num_rb;
-  unsigned short nsclassifier;
+struct nas_msg_cx_list_reply
+{
+    nasLocalConnectionRef_t lcr;  // Local Connection reference
+    unsigned char state;
+    nasCellID_t cellid;   // cell identification
+    unsigned int iid6[2];       // IPv6  interface identification
+    unsigned char iid4;       // IPv4 interface identification
+    unsigned short num_rb;
+    unsigned short nsclassifier;
 };
-struct nas_msg_cx_establishment_reply {
-  int status;
+struct nas_msg_cx_establishment_reply
+{
+    int status;
 };
-struct nas_msg_cx_establishment_request {
-  nasLocalConnectionRef_t lcr;  // Local Connection reference
-  nasCellID_t cellid; // Cell identification
+struct nas_msg_cx_establishment_request
+{
+    nasLocalConnectionRef_t lcr;  // Local Connection reference
+    nasCellID_t cellid; // Cell identification
 };
-struct nas_msg_cx_release_reply {
-  int status;
+struct nas_msg_cx_release_reply
+{
+    int status;
 };
-struct nas_msg_cx_release_request {
-  nasLocalConnectionRef_t lcr; // Local Connection reference
-};
-
-struct nas_msg_rb_list_reply {
-  nasRadioBearerId_t rab_id;
-  nasSapId_t sapi;
-  nasQoSTrafficClass_t qos;
-  unsigned char state;
-};
-struct nas_msg_rb_list_request {
-  nasLocalConnectionRef_t lcr;  // Local Connection reference
-};
-struct nas_msg_rb_establishment_reply {
-  int status;
-};
-struct nas_msg_rb_establishment_request {
-  nasLocalConnectionRef_t lcr;  // Local Connection reference
-  nasRadioBearerId_t rab_id;
-  nasQoSTrafficClass_t qos;
+struct nas_msg_cx_release_request
+{
+    nasLocalConnectionRef_t lcr; // Local Connection reference
 };
 
-struct nas_msg_rb_release_reply {
-  int status;
+struct nas_msg_rb_list_reply
+{
+    nasRadioBearerId_t rab_id;
+    nasSapId_t sapi;
+    nasQoSTrafficClass_t qos;
+    unsigned char state;
 };
-struct nas_msg_rb_release_request {
-  nasLocalConnectionRef_t lcr; // Local Connection reference
-  nasRadioBearerId_t rab_id;
+struct nas_msg_rb_list_request
+{
+    nasLocalConnectionRef_t lcr;  // Local Connection reference
+};
+struct nas_msg_rb_establishment_reply
+{
+    int status;
+};
+struct nas_msg_rb_establishment_request
+{
+    nasLocalConnectionRef_t lcr;  // Local Connection reference
+    nasRadioBearerId_t rab_id;
+    nasQoSTrafficClass_t qos;
+};
+
+struct nas_msg_rb_release_reply
+{
+    int status;
+};
+struct nas_msg_rb_release_request
+{
+    nasLocalConnectionRef_t lcr; // Local Connection reference
+    nasRadioBearerId_t rab_id;
 };
 /*
-struct saddr {
+    struct saddr {
 
-  struct in6_addr ipv6;
-  unsigned int ipv4;
-};
-
-struct daddr {
-
-  struct in6_addr ipv6;
-  unsigned int ipv4;
-  unsigned int mpls_label;
-};
-*/
-struct nas_msg_class_add_request {
-  nasLocalConnectionRef_t lcr; // Local Connection reference
-  nasRadioBearerId_t rab_id;
-  nasRadioBearerId_t rab_id_rx;
-  unsigned char dir; // direction (send or receive, forward)
-  unsigned char dscp; // codepoint
-  unsigned char fct;
-  unsigned short classref;
-  unsigned char version;
-
-  //struct daddr daddr;
-  //struct saddr saddr;
-
-  unsigned char splen; // prefix length
-
-  union {
     struct in6_addr ipv6;
-
-    // begin navid
-    //in_addr_t    ipv4;
     unsigned int ipv4;
-    //end navid
+    };
 
+    struct daddr {
+
+    struct in6_addr ipv6;
+    unsigned int ipv4;
     unsigned int mpls_label;
-  } daddr; // IP destination address
+    };
+*/
+struct nas_msg_class_add_request
+{
+    nasLocalConnectionRef_t lcr; // Local Connection reference
+    nasRadioBearerId_t rab_id;
+    nasRadioBearerId_t rab_id_rx;
+    unsigned char dir; // direction (send or receive, forward)
+    unsigned char dscp; // codepoint
+    unsigned char fct;
+    unsigned short classref;
+    unsigned char version;
 
-  union {
-    struct in6_addr ipv6;
+    //struct daddr daddr;
+    //struct saddr saddr;
 
-    // begin navid
-    //in_addr_t    ipv4;
-    unsigned int ipv4;
-    //end navid
+    unsigned char splen; // prefix length
 
-  } saddr; // IP source address
+    union
+    {
+        struct in6_addr ipv6;
+
+        // begin navid
+        //in_addr_t    ipv4;
+        unsigned int ipv4;
+        //end navid
+
+        unsigned int mpls_label;
+    } daddr; // IP destination address
+
+    union
+    {
+        struct in6_addr ipv6;
+
+        // begin navid
+        //in_addr_t    ipv4;
+        unsigned int ipv4;
+        //end navid
+
+    } saddr; // IP source address
 
 
-  unsigned char dplen; // prefix length
+    unsigned char dplen; // prefix length
 
-  unsigned char protocol;            //!< transport layer protocol type (ANY,TCP,UDP,ICMPv4,ICMPv6)
-  unsigned char protocol_message_type;   //!< transport layer protocol message (ROUTER_ADV, ROUTER_SOLL, etc.)
-  unsigned short sport;            //!< source port
-  unsigned short dport;            //!< destination port
+    unsigned char protocol;            //!< transport layer protocol type (ANY,TCP,UDP,ICMPv4,ICMPv6)
+    unsigned char protocol_message_type;   //!< transport layer protocol message (ROUTER_ADV, ROUTER_SOLL, etc.)
+    unsigned short sport;            //!< source port
+    unsigned short dport;            //!< destination port
 };
 
-struct nas_msg_class_add_reply {
-  int status;
+struct nas_msg_class_add_reply
+{
+    int status;
 };
-struct nas_msg_class_del_request {
-  nasLocalConnectionRef_t lcr; // Local Connection reference
-  unsigned char dir; // direction (send or receive)
-  unsigned char dscp; // codepoint
-  unsigned short classref;
+struct nas_msg_class_del_request
+{
+    nasLocalConnectionRef_t lcr; // Local Connection reference
+    unsigned char dir; // direction (send or receive)
+    unsigned char dscp; // codepoint
+    unsigned short classref;
 };
-struct nas_msg_class_del_reply {
-  int status;
+struct nas_msg_class_del_reply
+{
+    int status;
 };
 #define nas_msg_class_list_reply nas_msg_class_add_request
-struct nas_msg_class_list_request {
-  nasLocalConnectionRef_t lcr;  // Local Connection reference
-  unsigned char dir;
-  unsigned char dscp;
+struct nas_msg_class_list_request
+{
+    nasLocalConnectionRef_t lcr;  // Local Connection reference
+    unsigned char dir;
+    unsigned char dscp;
 };
 
 
 // Messages for Measurement transfer - MW 01/04/2005
 typedef unsigned int nioctlProviderId_t;
 typedef unsigned short nioctlSignalLoss_t;
-typedef struct nioctlMeasures {
-  nasCellID_t cell_id;
-  nasSigLevel_t level;
-  nioctlProviderId_t provider_id;
+typedef struct nioctlMeasures
+{
+    nasCellID_t cell_id;
+    nasSigLevel_t level;
+    nioctlProviderId_t provider_id;
 } nioctlMeasures_t;
 
-struct nas_msg_measure_request {
-  nasNumRGsMeas_t num_cells;
-  nasCellID_t cellid[MAX_MEASURE_NB]; // Cell identification
-  unsigned short num_providers;
-  nioctlProviderId_t provider_id[MAX_MEASURE_NB]; // Provider identification
+struct nas_msg_measure_request
+{
+    nasNumRGsMeas_t num_cells;
+    nasCellID_t cellid[MAX_MEASURE_NB]; // Cell identification
+    unsigned short num_providers;
+    nioctlProviderId_t provider_id[MAX_MEASURE_NB]; // Provider identification
 };
-struct nas_msg_measure_reply {
-  nasNumRGsMeas_t num_cells;
-  nioctlMeasures_t measures[MAX_MEASURE_NB];
-  nioctlSignalLoss_t signal_lost_flag;
+struct nas_msg_measure_reply
+{
+    nasNumRGsMeas_t num_cells;
+    nioctlMeasures_t measures[MAX_MEASURE_NB];
+    nioctlSignalLoss_t signal_lost_flag;
 };
 
 // Messages for Measurement transfer - MW 01/04/2005
 typedef unsigned int nioctlL2Id_t[2];
 
-struct nas_msg_l2id_reply {
-  nioctlL2Id_t l2id;
+struct nas_msg_l2id_reply
+{
+    nioctlL2Id_t l2id;
 };
 
 

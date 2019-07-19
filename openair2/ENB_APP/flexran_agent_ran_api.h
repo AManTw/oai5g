@@ -1,30 +1,30 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */ 
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*! \file flexran_agent_ran_api.h
- * \brief FlexRAN RAN API abstraction header 
- * \author N. Nikaein, X. Foukas and S. SHARIAT BAGHERI
- * \date 2017
- * \version 0.1
- */
+    \brief FlexRAN RAN API abstraction header
+    \author N. Nikaein, X. Foukas and S. SHARIAT BAGHERI
+    \date 2017
+    \version 0.1
+*/
 
 #include <stdio.h>
 #include <time.h>
@@ -46,42 +46,42 @@
 #include "common/utils/LOG/log.h"
 
 /****************************
- * get generic info from RAN
+    get generic info from RAN
  ****************************/
 
 uint32_t flexran_get_current_time_ms(mid_t mod_id, int subframe_flag);
 
-/*Return the current frame number
- *Could be using implementation specific numbering of frames
- */
+/*  Return the current frame number
+    Could be using implementation specific numbering of frames
+*/
 frame_t flexran_get_current_frame(mid_t mod_id);
 
-/*Return the current SFN (0-1023)*/ 
+/*Return the current SFN (0-1023)*/
 frame_t flexran_get_current_system_frame_num(mid_t mod_id);
 
 sub_frame_t flexran_get_current_subframe(mid_t mod_id);
 
-/*Return the frame and subframe number in compact 16-bit format.
-  Bits 0-3 subframe, rest for frame. Required by FlexRAN protocol*/
+/*  Return the frame and subframe number in compact 16-bit format.
+    Bits 0-3 subframe, rest for frame. Required by FlexRAN protocol*/
 uint16_t flexran_get_sfn_sf(mid_t mod_id);
 
-/* Return a future frame and subframe number that is ahead_of_time
-   subframes later in compact 16-bit format. Bits 0-3 subframe,
-   rest for frame */
+/*  Return a future frame and subframe number that is ahead_of_time
+    subframes later in compact 16-bit format. Bits 0-3 subframe,
+    rest for frame */
 uint16_t flexran_get_future_sfn_sf(mid_t mod_id, int ahead_of_time);
 
 /* Return the number of attached UEs */
 int flexran_get_num_ues(mid_t mod_id);
 
-/* Return the UE id of attached UE as opposed to the index [0,NUM UEs] (i.e.,
- * the i'th active UE). Returns 0 if the i'th active UE could not be found. */
+/*  Return the UE id of attached UE as opposed to the index [0,NUM UEs] (i.e.,
+    the i'th active UE). Returns 0 if the i'th active UE could not be found. */
 int flexran_get_ue_id(mid_t mod_id, int i);
 
 /* Get the rnti of a UE with id ue_id */
 rnti_t flexran_get_ue_crnti(mid_t mod_id, mid_t ue_id);
 
-/* Get the RLC buffer status report in bytes of a ue for a designated
- * logical channel id */
+/*  Get the RLC buffer status report in bytes of a ue for a designated
+    logical channel id */
 int flexran_get_ue_bsr_ul_buffer_info(mid_t mod_id, mid_t ue_id, lcid_t lcid);
 
 /* Get power headroom of UE with id ue_id */
@@ -103,8 +103,8 @@ frame_t flexran_get_hol_delay(mid_t mod_id, mid_t ue_id, logical_chan_id_t chann
 int32_t flexran_get_TA(mid_t mod_id, mid_t ue_id, uint8_t cc_id);
 
 /* Update the timing advance status(find out whether a timing advance command is required) */
-/* currently broken
-void flexran_update_TA(mid_t mod_id, mid_t ue_id, uint8_t cc_id); */
+/*  currently broken
+    void flexran_update_TA(mid_t mod_id, mid_t ue_id, uint8_t cc_id); */
 
 /* Return timing advance MAC control element for a designated cell and UE */
 /* this function is broken */
@@ -224,8 +224,8 @@ uint8_t flexran_get_srs_BandwidthConfig(mid_t mod_id, uint8_t cc_id);
 /* See TS 36.211, table 5.5.3.3-1 and 2 */
 uint8_t flexran_get_srs_SubframeConfig(mid_t mod_id, uint8_t cc_id);
 
-/* Boolean value. See TS 36.211,
-   section 5.5.3.2. TDD only */
+/*  Boolean value. See TS 36.211,
+    section 5.5.3.2. TDD only */
 uint8_t flexran_get_srs_MaxUpPts(mid_t mod_id, uint8_t cc_id);
 
 /* Get number of DL resource blocks */
@@ -268,11 +268,11 @@ int flexran_get_tpc(mid_t mod_id, mid_t ue_id, uint8_t cc_id);
 
 uint8_t flexran_get_ue_wpmi(mid_t mod_id, mid_t ue_id, uint8_t cc_id);
 
-/* Get the first available HARQ process for a specific cell and UE during 
-   a designated frame and subframe. Returns 0 for success. The id and the 
-   status of the HARQ process are stored in id and status respectively */
-/* currently broken
-int flexran_get_harq(mid_t mod_id, uint8_t cc_id, mid_t ue_id, frame_t frame,
+/*  Get the first available HARQ process for a specific cell and UE during
+    a designated frame and subframe. Returns 0 for success. The id and the
+    status of the HARQ process are stored in id and status respectively */
+/*  currently broken
+    int flexran_get_harq(mid_t mod_id, uint8_t cc_id, mid_t ue_id, frame_t frame,
                      sub_frame_t subframe, unsigned char *id, unsigned char *round,
                      uint8_t harq_flag); */
 
@@ -301,13 +301,13 @@ PHICH_DURATION_t flexran_get_phich_duration(mid_t mod_id, uint8_t cc_id);
 
 /*
  * ************************************
- * Get Messages for UE Configuration Reply
+    Get Messages for UE Configuration Reply
  * ************************************
- */
+*/
 
-/* Get timer in subframes. Controls the synchronization
-   status of the UE, not the actual timing 
-   advance procedure. See TS 36.321 */
+/*  Get timer in subframes. Controls the synchronization
+    status of the UE, not the actual timing
+    advance procedure. See TS 36.321 */
 LTE_TimeAlignmentTimer_t flexran_get_time_alignment_timer(mid_t mod_id, mid_t ue_id);
 
 /* Get measurement gap configuration. See TS 36.133 */
@@ -316,12 +316,12 @@ Protocol__FlexMeasGapConfigPattern flexran_get_meas_gap_config(mid_t mod_id, mid
 /* Get measurement gap configuration offset if applicable */
 long flexran_get_meas_gap_config_offset(mid_t mod_id, mid_t ue_id);
 
-/* DL aggregated bit-rate of non-gbr bearer
-   per UE. See TS 36.413 */
+/*  DL aggregated bit-rate of non-gbr bearer
+    per UE. See TS 36.413 */
 uint64_t flexran_get_ue_aggregated_max_bitrate_dl(mid_t mod_id, mid_t ue_id);
 
-/* UL aggregated bit-rate of non-gbr bearer
-   per UE. See TS 36.413 */
+/*  UL aggregated bit-rate of non-gbr bearer
+    per UE. See TS 36.413 */
 uint64_t flexran_get_ue_aggregated_max_bitrate_ul(mid_t mod_id, mid_t ue_id);
 
 /* Only half-duplex support. FDD operation. Boolean value */
@@ -345,8 +345,8 @@ long flexran_get_ue_transmission_mode(mid_t mod_id, mid_t ue_id);
 /* Boolean value. See TS 36.321 */
 BOOLEAN_t flexran_get_tti_bundling(mid_t mod_id, mid_t ue_id);
 
-/* The max HARQ retransmission for UL.
-   See TS 36.321 */
+/*  The max HARQ retransmission for UL.
+    See TS 36.321 */
 long flexran_get_maxHARQ_TX(mid_t mod_id, mid_t ue_id);
 
 /* See TS 36.213 */
@@ -365,7 +365,7 @@ BOOLEAN_t flexran_get_simultaneous_ack_nack_cqi(mid_t mod_id, mid_t ue_id);
 BOOLEAN_t flexran_get_ack_nack_simultaneous_trans(mid_t mod_id, mid_t ue_id, uint8_t cc_id);
 
 /* Get aperiodic CQI report mode */
-LTE_CQI_ReportModeAperiodic_t flexran_get_aperiodic_cqi_rep_mode(mid_t mod_id,mid_t ue_id);
+LTE_CQI_ReportModeAperiodic_t flexran_get_aperiodic_cqi_rep_mode(mid_t mod_id, mid_t ue_id);
 
 /* Get ACK/NACK feedback mode. TDD only */
 long flexran_get_tdd_ack_nack_feedback_mode(mid_t mod_id, mid_t ue_id);
@@ -483,7 +483,7 @@ uint32_t flexran_get_pdcp_rx_oo(mid_t mod_id, mid_t ue_id, lcid_t lcid);
 /*Get primary cell measuremeant id flexRAN*/
 LTE_MeasId_t flexran_get_rrc_pcell_measid(mid_t mod_id, mid_t ue_id);
 
-/*Get primary cell RSRP measurement flexRAN*/  
+/*Get primary cell RSRP measurement flexRAN*/
 float flexran_get_rrc_pcell_rsrp(mid_t mod_id, mid_t ue_id);
 
 /*Get primary cell RSRQ measurement flexRAN*/
@@ -502,12 +502,12 @@ float flexran_get_rrc_neigh_rsrp(mid_t mod_id, mid_t ue_id, int cell_id);
 float flexran_get_rrc_neigh_rsrq(mid_t mod_id, mid_t ue_id, int cell_id);
 
 /*Get MCC PLMN identity neighbouring Cell*/
-/* currently not implemented
-int flexran_get_rrc_neigh_plmn_mcc(mid_t mod_id, mid_t ue_id, int cell_id); */
+/*  currently not implemented
+    int flexran_get_rrc_neigh_plmn_mcc(mid_t mod_id, mid_t ue_id, int cell_id); */
 
 /*Get MNC PLMN identity neighbouring Cell*/
-/* currently not implemented
-int flexran_get_rrc_neigh_plmn_mnc(mid_t mod_id, mid_t ue_id, int cell_id); */
+/*  currently not implemented
+    int flexran_get_rrc_neigh_plmn_mnc(mid_t mod_id, mid_t ue_id, int cell_id); */
 
 /************************** Slice configuration **************************/
 
@@ -581,8 +581,8 @@ int flexran_get_dl_slice_maxmcs(mid_t mod_id, int slice_idx);
 /* Set the maximum MCS for slice in DL */
 void flexran_set_dl_slice_maxmcs(mid_t mod_id, int slice_idx, int maxmcs);
 
-/* Get the sorting order of a slice in DL, return value is number of elements
- * in sorting_list */
+/*  Get the sorting order of a slice in DL, return value is number of elements
+    in sorting_list */
 int flexran_get_dl_slice_sorting(mid_t mod_id, int slice_idx, Protocol__FlexDlSorting **sorting_list);
 /* Set the sorting order of a slice in DL */
 void flexran_set_dl_slice_sorting(mid_t mod_id, int slice_idx, Protocol__FlexDlSorting *sorting_list, int n);
@@ -645,8 +645,8 @@ int flexran_get_ul_slice_maxmcs(mid_t mod_id, int slice_idx);
 /* Set the maximum MCS for slice in UL */
 void flexran_set_ul_slice_maxmcs(mid_t mod_id, int slice_idx, int maxmcs);
 
-/* TODO Get the sorting order of a slice in UL, return value is number of elements
- * in sorting_list */
+/*  TODO Get the sorting order of a slice in UL, return value is number of elements
+    in sorting_list */
 /*int flexran_get_ul_slice_sorting(mid_t mod_id, int slice_idx, Protocol__FlexUlSorting **sorting_list);*/
 /* TODO Set the sorting order of a slice in UL */
 /*void flexran_set_ul_slice_sorting(mid_t mod_id, int slice_idx, Protocol__FlexUlSorting *sorting_list, int n);*/

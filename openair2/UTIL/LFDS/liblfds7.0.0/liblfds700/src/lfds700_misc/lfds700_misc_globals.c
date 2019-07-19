@@ -7,5 +7,5 @@
 
 /****************************************************************************/
 struct lfds700_misc_globals
-  lfds700_misc_globals;
+    lfds700_misc_globals;
 

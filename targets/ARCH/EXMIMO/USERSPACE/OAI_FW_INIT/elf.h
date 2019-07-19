@@ -1,8 +1,8 @@
-/*============================================================================
-  File: elf.h
+/*  ============================================================================
+    File: elf.h
        Include file for ELF file.  Defines both 32-/64-bit files.
-  Copyright Hewlett-Packard Co. 1996.  All rights reserved.
-============================================================================*/
+    Copyright Hewlett-Packard Co. 1996.  All rights reserved.
+    ============================================================================*/
 
 #ifndef ELF_INCLUDED
 #define ELF_INCLUDED
@@ -13,9 +13,9 @@
 extern "C" {
 #endif
 
-/*============================================================================
-   Constant values for the sizes of fundamental types
-============================================================================*/
+/*  ============================================================================
+    Constant values for the sizes of fundamental types
+    ============================================================================*/
 
 #define ELF64_FSZ_ADDR    8
 #define ELF64_FSZ_HALF    2
@@ -32,10 +32,10 @@ extern "C" {
 #define ELF32_FSZ_WORD    4
 #define ELF32_FSZ_XWORD   4
 
-/*============================================================================
-   The EI_* macros define indices into the e_ident[] array of the
-   ElfXX_Ehdr structure.
-============================================================================*/
+/*  ============================================================================
+    The EI_* macros define indices into the e_ident[] array of the
+    ElfXX_Ehdr structure.
+    ============================================================================*/
 
 #define EI_MAG0   0 /* File identification */
 #define EI_MAG1   1 /* File identification */
@@ -51,48 +51,50 @@ extern "C" {
 #define EI_NIDENT 16 /* Size of e_ident[] */
 
 
-/*============================================================================
-   ElfXX_Ehdr - ELF file header structure.
-============================================================================*/
+/*  ============================================================================
+    ElfXX_Ehdr - ELF file header structure.
+    ============================================================================*/
 
-typedef struct {
-  unsigned char  e_ident[EI_NIDENT]; /* ELF identification */
-  Elf64_Half   e_type;   /* Object file type */
-  Elf64_Half   e_machine;  /* Machine type */
-  Elf64_Word   e_version;  /* Object file version */
-  Elf64_Addr   e_entry;  /* Entry point address */
-  Elf64_Off    e_phoff;  /* Program header offset */
-  Elf64_Off    e_shoff;  /* Section header offset */
-  Elf64_Word   e_flags;  /* Processor-specific flags */
-  Elf64_Half   e_ehsize; /* ELF header size */
-  Elf64_Half   e_phentsize;  /* Size of program header entry */
-  Elf64_Half   e_phnum;  /* Number of program header entries */
-  Elf64_Half   e_shentsize;  /* Size of section header entry */
-  Elf64_Half   e_shnum;  /* Number of section header entries */
-  Elf64_Half   e_shstrndx; /* Section name string table index */
+typedef struct
+{
+    unsigned char  e_ident[EI_NIDENT]; /* ELF identification */
+    Elf64_Half   e_type;   /* Object file type */
+    Elf64_Half   e_machine;  /* Machine type */
+    Elf64_Word   e_version;  /* Object file version */
+    Elf64_Addr   e_entry;  /* Entry point address */
+    Elf64_Off    e_phoff;  /* Program header offset */
+    Elf64_Off    e_shoff;  /* Section header offset */
+    Elf64_Word   e_flags;  /* Processor-specific flags */
+    Elf64_Half   e_ehsize; /* ELF header size */
+    Elf64_Half   e_phentsize;  /* Size of program header entry */
+    Elf64_Half   e_phnum;  /* Number of program header entries */
+    Elf64_Half   e_shentsize;  /* Size of section header entry */
+    Elf64_Half   e_shnum;  /* Number of section header entries */
+    Elf64_Half   e_shstrndx; /* Section name string table index */
 } Elf64_Ehdr;
 
-typedef struct {
-  unsigned char e_ident[EI_NIDENT]; /*16/ ELF "magic number" */
-  Elf32_Half  e_type;   /* 2/ Identifies object file type */
-  Elf32_Half  e_machine;  /* 2/ Specifies required architecture */
-  Elf32_Word  e_version;  /* 4/ Identifies object file version */
-  Elf32_Addr  e_entry;  /* 4/ Entry point virtual address */
-  Elf32_Off   e_phoff;  /* 4/ Program header table file offset */
-  Elf32_Off   e_shoff;  /* 4/ Section header table file offset */
-  Elf32_Word  e_flags;  /* 4/ Processor-specific flags */
-  Elf32_Half  e_ehsize; /* 2/ ELF header size in bytes */
-  Elf32_Half  e_phentsize;  /* 2/ Program header table entry size */
-  Elf32_Half    e_phnum;  /* 2/ Program header table entry count */
-  Elf32_Half  e_shentsize;  /* 2/ Section header table entry size */
-  Elf32_Half  e_shnum;  /* 2/ Section header table entry count */
-  Elf32_Half  e_shstrndx; /* 2/ Section header string table index */
+typedef struct
+{
+    unsigned char e_ident[EI_NIDENT]; /*16/ ELF "magic number" */
+    Elf32_Half  e_type;   /* 2/ Identifies object file type */
+    Elf32_Half  e_machine;  /* 2/ Specifies required architecture */
+    Elf32_Word  e_version;  /* 4/ Identifies object file version */
+    Elf32_Addr  e_entry;  /* 4/ Entry point virtual address */
+    Elf32_Off   e_phoff;  /* 4/ Program header table file offset */
+    Elf32_Off   e_shoff;  /* 4/ Section header table file offset */
+    Elf32_Word  e_flags;  /* 4/ Processor-specific flags */
+    Elf32_Half  e_ehsize; /* 2/ ELF header size in bytes */
+    Elf32_Half  e_phentsize;  /* 2/ Program header table entry size */
+    Elf32_Half    e_phnum;  /* 2/ Program header table entry count */
+    Elf32_Half  e_shentsize;  /* 2/ Section header table entry size */
+    Elf32_Half  e_shnum;  /* 2/ Section header table entry count */
+    Elf32_Half  e_shstrndx; /* 2/ Section header string table index */
 } Elf32_Ehdr;
 
 
-/*============================================================================
-   The ELFCLASS* macros are the defined values of e_ident[EI_CLASS].
-============================================================================*/
+/*  ============================================================================
+    The ELFCLASS* macros are the defined values of e_ident[EI_CLASS].
+    ============================================================================*/
 
 #define ELFCLASSNONE  0 /* Invalid class */
 #define ELFCLASS32  1 /* 32-bit objects */
@@ -101,18 +103,18 @@ typedef struct {
 #define ELFCLASS64_A  200 /* 64-bit objects (interim definition) */
 
 
-/*============================================================================
-   The ELFDATA* macros are the allowed values of e_ident[EI_DATA].
-============================================================================*/
+/*  ============================================================================
+    The ELFDATA* macros are the allowed values of e_ident[EI_DATA].
+    ============================================================================*/
 
 #define ELFDATANONE 0 /* Invalid data encoding */
 #define ELFDATA2LSB 1 /* 2's complement, LSB at lowest byte address */
 #define ELFDATA2MSB 2 /* 2's complement, MSB at lowest byte address */
 
 
-/*============================================================================
-   The ELFOSIABI* macros are the allowed values of e_ident[EI_OSABI].
-============================================================================*/
+/*  ============================================================================
+    The ELFOSIABI* macros are the allowed values of e_ident[EI_OSABI].
+    ============================================================================*/
 
 #define ELFOSABI_SYSV   0 /* System V ABI, third edition, no checking */
 #define ELFOSABI_HPUX   1 /* HP-UX operating system */
@@ -120,18 +122,18 @@ typedef struct {
 #define ELFOSABI_STANDALONE 255 /* STANDALONE operating system */
 
 
-/*============================================================================
-   The ELFABIVERSION* macros are the allowed values of e_ident[EI_ABIVERSION].
-============================================================================*/
+/*  ============================================================================
+    The ELFABIVERSION* macros are the allowed values of e_ident[EI_ABIVERSION].
+    ============================================================================*/
 
 #define ELFABI_HPUX_NONE  0 /* None specified */
 #define ELFABI_HPUX_REL11 1
 
 
-/*============================================================================
-   The ET_* macros define the values of the e_type field of the ElfXX_Ehdr
-   structure.
-============================================================================*/
+/*  ============================================================================
+    The ET_* macros define the values of the e_type field of the ElfXX_Ehdr
+    structure.
+    ============================================================================*/
 
 #define ET_NONE   0 /* No file type */
 #define ET_REL    1 /* Relocatable file */
@@ -146,18 +148,18 @@ typedef struct {
 #define ET_HIPROC 0xffff /* Processor-specific highest value */
 
 
-/*============================================================================
-   The EV_* macros are the allowed values of the e_version field of
-   ElfXX_Ehdr;
-============================================================================*/
+/*  ============================================================================
+    The EV_* macros are the allowed values of the e_version field of
+    ElfXX_Ehdr;
+    ============================================================================*/
 
 #define EV_NONE   0 /* Invalid version */
 #define EV_CURRENT  1 /* Current version */
 
 
-/*============================================================================
-   The ELFMAG* macros are the values of e_ident[EI_MAG0-4]
-============================================================================*/
+/*  ============================================================================
+    The ELFMAG* macros are the values of e_ident[EI_MAG0-4]
+    ============================================================================*/
 
 #define ELFMAG0     0x7f      /* magic number, byte 0 */
 #define ELFMAG1     'E'       /* magic number, byte 1 */
@@ -167,37 +169,39 @@ typedef struct {
 #define SELFMAG     4         /* magic string length */
 
 
-/*============================================================================
-   ElfXX_Phdr - program header structure.  Element of the array of
-   program headers.
-============================================================================*/
+/*  ============================================================================
+    ElfXX_Phdr - program header structure.  Element of the array of
+    program headers.
+    ============================================================================*/
 
-typedef struct {
-  Elf64_Word   p_type;   /* Type of segment */
-  Elf64_Word   p_flags;  /* Segment attributes */
-  Elf64_Off    p_offset; /* Offset in file */
-  Elf64_Addr   p_vaddr;  /* Virtual address in memory */
-  Elf64_Addr   p_paddr;  /* Reserved */
-  Elf64_Xword    p_filesz; /* Size of segment in file */
-  Elf64_Xword    p_memsz;  /* Size of segment in memory */
-  Elf64_Xword    p_align;  /* Alignment of segment */
+typedef struct
+{
+    Elf64_Word   p_type;   /* Type of segment */
+    Elf64_Word   p_flags;  /* Segment attributes */
+    Elf64_Off    p_offset; /* Offset in file */
+    Elf64_Addr   p_vaddr;  /* Virtual address in memory */
+    Elf64_Addr   p_paddr;  /* Reserved */
+    Elf64_Xword    p_filesz; /* Size of segment in file */
+    Elf64_Xword    p_memsz;  /* Size of segment in memory */
+    Elf64_Xword    p_align;  /* Alignment of segment */
 } Elf64_Phdr;
 
-typedef struct {
-  Elf32_Word   p_type;   /* Type of segment */
-  Elf32_Off    p_offset; /* Offset in file */
-  Elf32_Addr   p_vaddr;  /* Virtual address in memory */
-  Elf32_Addr   p_paddr;  /* Reserved */
-  Elf32_Xword    p_filesz; /* Size of segment in file */
-  Elf32_Xword    p_memsz;  /* Size of segment in memory */
-  Elf32_Word   p_flags;  /* Segment attributes */
-  Elf32_Xword    p_align;  /* Alignment of segment */
+typedef struct
+{
+    Elf32_Word   p_type;   /* Type of segment */
+    Elf32_Off    p_offset; /* Offset in file */
+    Elf32_Addr   p_vaddr;  /* Virtual address in memory */
+    Elf32_Addr   p_paddr;  /* Reserved */
+    Elf32_Xword    p_filesz; /* Size of segment in file */
+    Elf32_Xword    p_memsz;  /* Size of segment in memory */
+    Elf32_Word   p_flags;  /* Segment attributes */
+    Elf32_Xword    p_align;  /* Alignment of segment */
 } Elf32_Phdr;
 
 
-/*============================================================================
-   The PF_* macros are the segment flag bits in p_flags of ElfXX_Phdr.
-============================================================================*/
+/*  ============================================================================
+    The PF_* macros are the segment flag bits in p_flags of ElfXX_Phdr.
+    ============================================================================*/
 
 #define PF_X    0x1 /* Execute */
 #define PF_W    0x2 /* Write */
@@ -208,9 +212,9 @@ typedef struct {
 #define PF_MASKPROC 0xf0000000 /* Processor-specific */
 
 
-/*============================================================================
-   The PT_* macros are the values of p_type in ElfXX_Phdr.
-============================================================================*/
+/*  ============================================================================
+    The PT_* macros are the values of p_type in ElfXX_Phdr.
+    ============================================================================*/
 
 #define PT_NULL   0 /* Array element is unused.  Ignore. */
 #define PT_LOAD   1 /* Loadable segment. */
@@ -227,41 +231,43 @@ typedef struct {
 #define PT_HIPROC 0x7fffffff  /* Highest Processor-specific type */
 
 
-/*============================================================================
-   ElfXX_Shdr - structure for an ELF section header.  Element of the array
-   of section headers.
-============================================================================*/
+/*  ============================================================================
+    ElfXX_Shdr - structure for an ELF section header.  Element of the array
+    of section headers.
+    ============================================================================*/
 
-typedef struct {
-  Elf64_Word   sh_name;  /* Section name */
-  Elf64_Word   sh_type;  /* Section type */
-  Elf64_Xword    sh_flags; /* Section attributes */
-  Elf64_Addr   sh_addr;  /* Virtual address in memory */
-  Elf64_Off    sh_offset;  /* Offset in file */
-  Elf64_Xword    sh_size;  /* Size of section */
-  Elf64_Word   sh_link;  /* Link to other section */
-  Elf64_Word   sh_info;  /* Miscellaneous information */
-  Elf64_Xword    sh_addralign; /* Address alignment boundary */
-  Elf64_Xword    sh_entsize; /* Entry size, if section has table */
+typedef struct
+{
+    Elf64_Word   sh_name;  /* Section name */
+    Elf64_Word   sh_type;  /* Section type */
+    Elf64_Xword    sh_flags; /* Section attributes */
+    Elf64_Addr   sh_addr;  /* Virtual address in memory */
+    Elf64_Off    sh_offset;  /* Offset in file */
+    Elf64_Xword    sh_size;  /* Size of section */
+    Elf64_Word   sh_link;  /* Link to other section */
+    Elf64_Word   sh_info;  /* Miscellaneous information */
+    Elf64_Xword    sh_addralign; /* Address alignment boundary */
+    Elf64_Xword    sh_entsize; /* Entry size, if section has table */
 } Elf64_Shdr;
 
-typedef struct {
-  Elf32_Word   sh_name;  /* Section name */
-  Elf32_Word   sh_type;  /* Section type */
-  Elf32_Xword    sh_flags; /* Section attributes */
-  Elf32_Addr   sh_addr;  /* Virtual address in memory */
-  Elf32_Off    sh_offset;  /* Offset in file */
-  Elf32_Xword    sh_size;  /* Size of section */
-  Elf32_Word   sh_link;  /* Link to other section */
-  Elf32_Word   sh_info;  /* Miscellaneous information */
-  Elf32_Xword    sh_addralign; /* Address alignment boundary*/
-  Elf32_Xword    sh_entsize; /* Entry size, if section has table */
+typedef struct
+{
+    Elf32_Word   sh_name;  /* Section name */
+    Elf32_Word   sh_type;  /* Section type */
+    Elf32_Xword    sh_flags; /* Section attributes */
+    Elf32_Addr   sh_addr;  /* Virtual address in memory */
+    Elf32_Off    sh_offset;  /* Offset in file */
+    Elf32_Xword    sh_size;  /* Size of section */
+    Elf32_Word   sh_link;  /* Link to other section */
+    Elf32_Word   sh_info;  /* Miscellaneous information */
+    Elf32_Xword    sh_addralign; /* Address alignment boundary*/
+    Elf32_Xword    sh_entsize; /* Entry size, if section has table */
 } Elf32_Shdr;
 
 
-/*============================================================================
-   The ELF_STRING_xxx macros are names of common sections
-============================================================================*/
+/*  ============================================================================
+    The ELF_STRING_xxx macros are names of common sections
+    ============================================================================*/
 
 #define ELF_STRING_bss    ".bss"
 #define ELF_STRING_hbss   ".hbss"
@@ -298,10 +304,10 @@ typedef struct {
 #define ELF_STRING_rel    ".rel"
 
 
-/*============================================================================
-   The SHF_* macros are the allowed values of the sh_flags field of
-   ElfXX_Shdr.  These 1-bit flags define attributes of a section.
-============================================================================*/
+/*  ============================================================================
+    The SHF_* macros are the allowed values of the sh_flags field of
+    ElfXX_Shdr.  These 1-bit flags define attributes of a section.
+    ============================================================================*/
 
 #define SHF_WRITE 0x1 /* Writable during execution */
 #define SHF_ALLOC 0x2 /* Occupies memory during execution */
@@ -310,10 +316,10 @@ typedef struct {
 #define SHF_MASKPROC  0xf0000000 /* mask for processor-specific bits */
 
 
-/*============================================================================
-   SHN_* macros are reserved section header indices.  An object file will
-   not have sections for these special indices.
-============================================================================*/
+/*  ============================================================================
+    SHN_* macros are reserved section header indices.  An object file will
+    not have sections for these special indices.
+    ============================================================================*/
 
 #define SHN_UNDEF 0 /* undefined, e.g. undefined symbol */
 
@@ -331,9 +337,9 @@ typedef struct {
 #define SHN_HIRESERVE 0xffff /* Upper bound of reserved indices */
 
 
-/*============================================================================
-   SHT_* macros are the values of sh_type in ElfXX_Shdr
-============================================================================*/
+/*  ============================================================================
+    SHT_* macros are the values of sh_type in ElfXX_Shdr
+    ============================================================================*/
 
 #define SHT_NULL  0 /* Inactive section header */
 #define SHT_PROGBITS  1 /* Information defined by the program */
@@ -355,34 +361,36 @@ typedef struct {
 #define SHT_HIPROC  0x7fffffff /* Highest processor-specific section type */
 
 
-/*============================================================================
-   ElfXX_Sym - ELF symbol structure.
-============================================================================*/
+/*  ============================================================================
+    ElfXX_Sym - ELF symbol structure.
+    ============================================================================*/
 
-typedef struct {
-  Elf64_Word   st_name;  /* Symbol name */
-  unsigned char  st_info;  /* Type and Binding attributes */
-  unsigned char  st_other; /* Reserved */
-  Elf64_Half   st_shndx; /* Section table index */
-  Elf64_Addr   st_value; /* Symbol value */
-  Elf64_Xword    st_size;  /* Size of object (e.g., common) */
+typedef struct
+{
+    Elf64_Word   st_name;  /* Symbol name */
+    unsigned char  st_info;  /* Type and Binding attributes */
+    unsigned char  st_other; /* Reserved */
+    Elf64_Half   st_shndx; /* Section table index */
+    Elf64_Addr   st_value; /* Symbol value */
+    Elf64_Xword    st_size;  /* Size of object (e.g., common) */
 } Elf64_Sym;
 
-typedef struct {
-  Elf32_Word   st_name;  /* Symbol name */
-  Elf32_Addr   st_value; /* Symbol value */
-  Elf32_Xword    st_size;  /* Size of object (e.g., common) */
-  unsigned char  st_info;  /* Type and Binding attributes */
-  unsigned char  st_other; /* Reserved */
-  Elf32_Half   st_shndx; /* Section table index */
+typedef struct
+{
+    Elf32_Word   st_name;  /* Symbol name */
+    Elf32_Addr   st_value; /* Symbol value */
+    Elf32_Xword    st_size;  /* Size of object (e.g., common) */
+    unsigned char  st_info;  /* Type and Binding attributes */
+    unsigned char  st_other; /* Reserved */
+    Elf32_Half   st_shndx; /* Section table index */
 } Elf32_Sym;
 
 
-/*============================================================================
-   The ELFXX_ST_* macros operate on the st_info field of ElfXX_Sym
-   to extract binding attributes, type information and how to build
-   an st_info value from binding and type information.
-============================================================================*/
+/*  ============================================================================
+    The ELFXX_ST_* macros operate on the st_info field of ElfXX_Sym
+    to extract binding attributes, type information and how to build
+    an st_info value from binding and type information.
+    ============================================================================*/
 
 #define ELF64_ST_BIND(val)    ((val) >> 4)
 #define ELF64_ST_TYPE(val)    ((val) & 0xf)
@@ -393,18 +401,18 @@ typedef struct {
 #define ELF32_ST_INFO(bind,type)  (((bind) << 4) + ((type) & 0xf))
 
 
-/*============================================================================
-   STN_UNDEF (zero) designeates the first entry in the symbol table and serves
-   as the undefined symbol index.
-============================================================================*/
+/*  ============================================================================
+    STN_UNDEF (zero) designeates the first entry in the symbol table and serves
+    as the undefined symbol index.
+    ============================================================================*/
 
 #define STN_UNDEF 0
 
 
-/*============================================================================
-   The STB_* macros are the defined values of the binding information part
-   of st_info in ElfXX_Sym.
-============================================================================*/
+/*  ============================================================================
+    The STB_* macros are the defined values of the binding information part
+    of st_info in ElfXX_Sym.
+    ============================================================================*/
 
 #define STB_LOCAL 0 /* Local symbols */
 #define STB_GLOBAL  1 /* Globally visible symbols */
@@ -417,10 +425,10 @@ typedef struct {
 #define STB_HIPROC  15  /* Highest processor-specific value */
 
 
-/*===========================================================================
-   The STT_* macros are the allowed values of the type information part of
-   st_info in ElfXX_Sym.
-============================================================================*/
+/*  ===========================================================================
+    The STT_* macros are the allowed values of the type information part of
+    st_info in ElfXX_Sym.
+    ============================================================================*/
 
 #define STT_NOTYPE  0 /* Undefined symbol type */
 #define STT_OBJECT  1 /* A data object, variable, array, etc. */
@@ -435,42 +443,46 @@ typedef struct {
 #define STT_HIPROC  15  /* Highest processor-specific symbol type */
 
 
-/*============================================================================
-   ElfXX_Rel - ELF relocation without an explicit addend.
-============================================================================*/
+/*  ============================================================================
+    ElfXX_Rel - ELF relocation without an explicit addend.
+    ============================================================================*/
 
-typedef struct {
-  Elf64_Addr   r_offset; /* Address of reference */
-  Elf64_Xword    r_info;   /* Symbol index, relocation type */
+typedef struct
+{
+    Elf64_Addr   r_offset; /* Address of reference */
+    Elf64_Xword    r_info;   /* Symbol index, relocation type */
 } Elf64_Rel;
 
-typedef struct {
-  Elf32_Addr   r_offset; /* Address of reference */
-  Elf32_Xword    r_info;   /* Symbol index, reloc. type */
+typedef struct
+{
+    Elf32_Addr   r_offset; /* Address of reference */
+    Elf32_Xword    r_info;   /* Symbol index, reloc. type */
 } Elf32_Rel;
 
-/*============================================================================
-   ElfXX_Rela - ELF relocation with an explicit addend.
-============================================================================*/
+/*  ============================================================================
+    ElfXX_Rela - ELF relocation with an explicit addend.
+    ============================================================================*/
 
-typedef struct {
-  Elf64_Addr   r_offset; /* Address of reference */
-  Elf64_Xword    r_info;   /* Symbol index, relocation type */
-  Elf64_Sxword   r_addend; /* Constant part of expression */
+typedef struct
+{
+    Elf64_Addr   r_offset; /* Address of reference */
+    Elf64_Xword    r_info;   /* Symbol index, relocation type */
+    Elf64_Sxword   r_addend; /* Constant part of expression */
 } Elf64_Rela;
 
-typedef struct {
-  Elf32_Addr   r_offset; /* Address of reference */
-  Elf32_Xword    r_info;         /* Symbol index, reloc. type */
-  Elf32_Sword    r_addend; /* Constant part of expression */
+typedef struct
+{
+    Elf32_Addr   r_offset; /* Address of reference */
+    Elf32_Xword    r_info;         /* Symbol index, reloc. type */
+    Elf32_Sword    r_addend; /* Constant part of expression */
 } Elf32_Rela;
 
 
-/*============================================================================
-   The ELFXX_R_* macros show how to extract the type and index parts
-   of r_info in ElfXX_Rel and ElfXX_Rela and how to build r_info
-   from a symbol index and type.
-============================================================================*/
+/*  ============================================================================
+    The ELFXX_R_* macros show how to extract the type and index parts
+    of r_info in ElfXX_Rel and ElfXX_Rela and how to build r_info
+    from a symbol index and type.
+    ============================================================================*/
 
 #define ELF64_R_INFO(sym,type)  \
   ((((Elf64_Addr) (sym)) << 32) + ((Elf64_Addr) (type)))
@@ -484,35 +496,39 @@ typedef struct {
 #define ELF32_R_TYPE(info)  ((unsigned char) (info))
 
 
-/*============================================================================
-   ElfXX_Dyn - dynamic array entry.
-============================================================================*/
+/*  ============================================================================
+    ElfXX_Dyn - dynamic array entry.
+    ============================================================================*/
 
-typedef struct {
-  Elf32_Sword    d_tag;
-  union {
-    Elf32_Word  d_val;  /* unsigned word */
-    Elf32_Addr  d_ptr;  /* address */
-  }  d_un;
+typedef struct
+{
+    Elf32_Sword    d_tag;
+    union
+    {
+        Elf32_Word  d_val;  /* unsigned word */
+        Elf32_Addr  d_ptr;  /* address */
+    }  d_un;
 } Elf32_Dyn;
 
 extern Elf32_Dyn  _DYNAMIC32[];
 
-typedef struct {
-  Elf64_Sxword   d_tag;
-  union {
-    Elf64_Xword d_val;  /* unsigned word */
-    Elf64_Addr  d_ptr;  /* address */
-  }  d_un;
+typedef struct
+{
+    Elf64_Sxword   d_tag;
+    union
+    {
+        Elf64_Xword d_val;  /* unsigned word */
+        Elf64_Addr  d_ptr;  /* address */
+    }  d_un;
 } Elf64_Dyn;
 
 extern Elf64_Dyn        _DYNAMIC[];
 
 
-/*============================================================================
-   The DT_* defines are the allowed values of d_tag in ElfXX_dyn.
-   These are the Dynamic Array types.
-============================================================================*/
+/*  ============================================================================
+    The DT_* defines are the allowed values of d_tag in ElfXX_dyn.
+    These are the Dynamic Array types.
+    ============================================================================*/
 
 /* (i)gnore (m)andatory (o)ptional */
 /* d_un   Exec  DLL */
@@ -571,7 +587,7 @@ extern Elf64_Dyn        _DYNAMIC[];
 #endif /* ifndef _HP_NO_ELF_DEPRICATED */
 
 #if defined(ELF_TARGET_ALL) || defined(ELF_TARGET_PARISC)
-#include <elf_parisc.h>
+    #include <elf_parisc.h>
 #endif
 
 #endif /* ELF_INCLUDED */

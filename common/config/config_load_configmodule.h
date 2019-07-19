@@ -1,35 +1,35 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*! \file common/config/config_load_configmodule.h
- * \brief: configuration module, include file to be used by the source code calling the
- *  configuration module initialization
- * \author Francois TABURET
- * \date 2017
- * \version 0.1
- * \company NOKIA BellLabs France
- * \email: francois.taburet@nokia-bell-labs.com
- * \note
- * \warning
- */
+    \brief: configuration module, include file to be used by the source code calling the
+    configuration module initialization
+    \author Francois TABURET
+    \date 2017
+    \version 0.1
+    \company NOKIA BellLabs France
+    \email: francois.taburet@nokia-bell-labs.com
+    \note
+    \warning
+*/
 #ifndef INCLUDE_CONFIG_LOADCONFIGMODULE_H
 #define INCLUDE_CONFIG_LOADCONFIGMODULE_H
 
@@ -56,28 +56,29 @@
 #define CONFIG_HELP           (1<<20)           // print help message
 #define CONFIG_ABORT          (1<<21)           // config failed,abort execution 
 #define CONFIG_NOOOPT         (1<<22)           // no -O option found when parsing command line
-typedef int(*configmodule_initfunc_t)(char *cfgP[],int numP);
-typedef int(*configmodule_getfunc_t)(paramdef_t *,int numparams, char *prefix);
-typedef int(*configmodule_getlistfunc_t)(paramlist_def_t *, paramdef_t *,int numparams, char *prefix);
+typedef int(*configmodule_initfunc_t)(char *cfgP[], int numP);
+typedef int(*configmodule_getfunc_t)(paramdef_t *, int numparams, char *prefix);
+typedef int(*configmodule_getlistfunc_t)(paramlist_def_t *, paramdef_t *, int numparams, char *prefix);
 typedef void(*configmodule_endfunc_t)(void);
-typedef struct configmodule_interface {
-  int      argc;
-  char     **argv;
-  uint32_t *argv_info;
-  char     *cfgmode;
-  int      num_cfgP;
-  char     *cfgP[CONFIG_MAX_OOPT_PARAMS];
-  configmodule_initfunc_t         init;
-  configmodule_getfunc_t          get;
-  configmodule_getlistfunc_t      getlist;
-  configmodule_endfunc_t          end;
-  uint32_t numptrs;
-  uint32_t rtflags;
-  char     *ptrs[CONFIG_MAX_ALLOCATEDPTRS];
+typedef struct configmodule_interface
+{
+    int      argc;
+    char     **argv;
+    uint32_t *argv_info;
+    char     *cfgmode;
+    int      num_cfgP;
+    char     *cfgP[CONFIG_MAX_OOPT_PARAMS];
+    configmodule_initfunc_t         init;
+    configmodule_getfunc_t          get;
+    configmodule_getlistfunc_t      getlist;
+    configmodule_endfunc_t          end;
+    uint32_t numptrs;
+    uint32_t rtflags;
+    char     *ptrs[CONFIG_MAX_ALLOCATEDPTRS];
 } configmodule_interface_t;
 
 #ifdef CONFIG_LOADCONFIG_MAIN
-configmodule_interface_t *cfgptr=NULL;
+configmodule_interface_t *cfgptr = NULL;
 
 static char config_helpstr [] = "\n lte-softmodem -O [config mode]<:dbgl[debugflags]> \n \
           debugflags can also be defined in the config_libconfig section of the config file\n \
@@ -88,12 +89,13 @@ static char config_helpstr [] = "\n lte-softmodem -O [config mode]<:dbgl[debugfl
 #define CONFIGPARAM_DEBUGFLAGS_IDX        0
 
 
-static paramdef_t Config_Params[] = {
-  /*-----------------------------------------------------------------------------------------------------------------------*/
-  /*                                            config parameters for config module                                        */
-  /*   optname              helpstr           paramflags     XXXptr       defXXXval            type       numelt           */
-  /*-----------------------------------------------------------------------------------------------------------------------*/
-  {"debugflags",            config_helpstr,   0,             uptr:NULL,   defintval:0,        TYPE_MASK,  0},
+static paramdef_t Config_Params[] =
+{
+    /*-----------------------------------------------------------------------------------------------------------------------*/
+    /*                                            config parameters for config module                                        */
+    /*   optname              helpstr           paramflags     XXXptr       defXXXval            type       numelt           */
+    /*-----------------------------------------------------------------------------------------------------------------------*/
+    {"debugflags",            config_helpstr,   0,             uptr: NULL,   defintval: 0,        TYPE_MASK,  0},
 };
 
 #else

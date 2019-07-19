@@ -1,8 +1,8 @@
-/*============================================================================
-  File: elftypes.h
- Include file for Elf types. Define elf types for Elf structures.
-  Copyright Hewlett-Packard Co. 1995.  All rights reserved.
-============================================================================*/
+/*  ============================================================================
+    File: elftypes.h
+    Include file for Elf types. Define elf types for Elf structures.
+    Copyright Hewlett-Packard Co. 1995.  All rights reserved.
+    ============================================================================*/
 
 #ifndef ELFTYPES_INCLUDED
 #define ELFTYPES_INCLUDED

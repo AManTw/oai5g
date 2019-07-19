@@ -1,23 +1,23 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /***************************************************************************
                           local.h  -  description
@@ -59,51 +59,55 @@
 
 #define MAKE_VERSION(a,b,c) ((a)*256+(b)*16+(c))
 
-typedef struct ue_ip_priv_s {
-  int                        irq;
-  int                        rx_flags;
-  struct timer_list          timer;
-  spinlock_t                 lock;
-  struct net_device_stats    stats;
-  uint8_t                    retry_limit;
-  uint32_t                   timer_establishment;
-  uint32_t                   timer_release;
-  struct sock               *nl_sk;
-  uint8_t                    nlmsg[UE_IP_PRIMITIVE_MAX_LENGTH+sizeof(struct nlmsghdr)];
-  uint8_t                    xbuffer[UE_IP_PRIMITIVE_MAX_LENGTH]; // transmission buffer
-  uint8_t                    rbuffer[UE_IP_PRIMITIVE_MAX_LENGTH]; // reception buffer
+typedef struct ue_ip_priv_s
+{
+    int                        irq;
+    int                        rx_flags;
+    struct timer_list          timer;
+    spinlock_t                 lock;
+    struct net_device_stats    stats;
+    uint8_t                    retry_limit;
+    uint32_t                   timer_establishment;
+    uint32_t                   timer_release;
+    struct sock               *nl_sk;
+    uint8_t                    nlmsg[UE_IP_PRIMITIVE_MAX_LENGTH + sizeof(struct nlmsghdr)];
+    uint8_t                    xbuffer[UE_IP_PRIMITIVE_MAX_LENGTH]; // transmission buffer
+    uint8_t                    rbuffer[UE_IP_PRIMITIVE_MAX_LENGTH]; // reception buffer
 } ue_ip_priv_t;
 
-typedef struct ipversion_s {
+typedef struct ipversion_s
+{
 #if defined(__LITTLE_ENDIAN_BITFIELD)
-  uint8_t    reserved:4,
-             version:4;
+    uint8_t    reserved: 4,
+               version: 4;
 #else
-  uint8_t    version:4,
-             reserved:4;
+    uint8_t    version: 4,
+               reserved: 4;
 #endif
 } ipversion_t;
 
 
-typedef struct pdcp_data_req_header_s {
-  rb_id_t             rb_id;
-  sdu_size_t          data_size;
-  signed int          inst;
-  ip_traffic_type_t   traffic_type;
+typedef struct pdcp_data_req_header_s
+{
+    rb_id_t             rb_id;
+    sdu_size_t          data_size;
+    signed int          inst;
+    ip_traffic_type_t   traffic_type;
 #if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
-  uint32_t sourceL2Id;
-  uint32_t destinationL2Id;
+    uint32_t sourceL2Id;
+    uint32_t destinationL2Id;
 #endif
 } pdcp_data_req_header_t;
 
-typedef struct pdcp_data_ind_header_s {
-  rb_id_t             rb_id;
-  sdu_size_t          data_size;
-  signed int          inst;
-  ip_traffic_type_t   dummy_traffic_type;
+typedef struct pdcp_data_ind_header_s
+{
+    rb_id_t             rb_id;
+    sdu_size_t          data_size;
+    signed int          inst;
+    ip_traffic_type_t   dummy_traffic_type;
 #if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
-  uint32_t sourceL2Id;
-  uint32_t destinationL2Id;
+    uint32_t sourceL2Id;
+    uint32_t destinationL2Id;
 #endif
 } pdcp_data_ind_header_t;
 

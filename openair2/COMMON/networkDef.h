@@ -1,39 +1,39 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*****************************************************************************
 
-Source      networkDef.h
+    Source      networkDef.h
 
-Version     0.1
+    Version     0.1
 
-Date        2012/09/21
+    Date        2012/09/21
 
-Product     NAS stack
+    Product     NAS stack
 
-Subsystem   include
+    Subsystem   include
 
-Author      Frederic Maurel
+    Author      Frederic Maurel
 
-Description Contains network's global definitions
+    Description Contains network's global definitions
 
 *****************************************************************************/
 #ifndef __NETWORKDEF_H__
@@ -44,24 +44,24 @@ Description Contains network's global definitions
 /****************************************************************************/
 
 /*
- * ----------------------
- * Network selection mode
- * ----------------------
- */
+    ----------------------
+    Network selection mode
+    ----------------------
+*/
 #define NET_PLMN_AUTO           0
 #define NET_PLMN_MANUAL         1
 
 /*
- * ---------------------------
- * Network registration status
- * ---------------------------
- */
+    ---------------------------
+    Network registration status
+    ---------------------------
+*/
 /* not registered, not currently searching an operator to register to */
 #define NET_REG_STATE_OFF       0
 /* registered, home network                       */
 #define NET_REG_STATE_HN        1
-/* not registered, currently trying to attach or searching an operator
- * to register to                         */
+/*  not registered, currently trying to attach or searching an operator
+    to register to                         */
 #define NET_REG_STATE_ON        2
 /* registration denied                        */
 #define NET_REG_STATE_DENIED        3
@@ -77,10 +77,10 @@ Description Contains network's global definitions
 #define NET_REG_STATE_EMERGENCY     8
 
 /*
- * ------------------------------------
- * Network access technology indicators
- * ------------------------------------
- */
+    ------------------------------------
+    Network access technology indicators
+    ------------------------------------
+*/
 #define NET_ACCESS_UNAVAILABLE  (-1)    /* Not available        */
 #define NET_ACCESS_GSM      0   /* GSM              */
 #define NET_ACCESS_COMPACT  1   /* GSM Compact          */
@@ -92,10 +92,10 @@ Description Contains network's global definitions
 #define NET_ACCESS_EUTRAN   7   /* E-UTRAN          */
 
 /*
- * ---------------------------------------
- * Network operator representation formats
- * ---------------------------------------
- */
+    ---------------------------------------
+    Network operator representation formats
+    ---------------------------------------
+*/
 #define NET_FORMAT_LONG     0   /* long format alphanumeric */
 #define NET_FORMAT_SHORT    1   /* short format alphanumeric    */
 #define NET_FORMAT_NUM      2   /* numeric format       */
@@ -103,20 +103,20 @@ Description Contains network's global definitions
 #define NET_FORMAT_MAX_SIZE NET_FORMAT_LONG_SIZE
 
 /*
- * -----------------------------
- * Network operator availability
- * -----------------------------
- */
+    -----------------------------
+    Network operator availability
+    -----------------------------
+*/
 #define NET_OPER_UNKNOWN    0   /* unknown operator     */
 #define NET_OPER_AVAILABLE  1   /* available operator       */
 #define NET_OPER_CURRENT    2   /* currently selected operator  */
 #define NET_OPER_FORBIDDEN  3   /* forbidden operator       */
 
 /*
- * --------------------------------------
- * Network connection establishment cause
- * --------------------------------------
- */
+    --------------------------------------
+    Network connection establishment cause
+    --------------------------------------
+*/
 #define NET_ESTABLISH_CAUSE_EMERGENCY       0x01
 #define NET_ESTABLISH_CAUSE_HIGH_PRIO       0x02
 #define NET_ESTABLISH_CAUSE_MT_ACCESS       0x03
@@ -125,10 +125,10 @@ Description Contains network's global definitions
 #define NET_ESTABLISH_CAUSE_V1020       0x06
 
 /*
- * --------------------------------------
- * Network connection establishment type
- * --------------------------------------
- */
+    --------------------------------------
+    Network connection establishment type
+    --------------------------------------
+*/
 #define NET_ESTABLISH_TYPE_ORIGINATING_SIGNAL   0x10
 #define NET_ESTABLISH_TYPE_EMERGENCY_CALLS  0x20
 #define NET_ESTABLISH_TYPE_ORIGINATING_CALLS    0x30
@@ -136,10 +136,10 @@ Description Contains network's global definitions
 #define NET_ESTABLISH_TYPE_MO_CS_FALLBACK   0x50
 
 /*
- * -------------------
- * PDN connection type
- * -------------------
- */
+    -------------------
+    PDN connection type
+    -------------------
+*/
 #define NET_PDN_TYPE_IPV4   (0 + 1)
 #define NET_PDN_TYPE_IPV6   (1 + 1)
 #define NET_PDN_TYPE_IPV4V6 (2 + 1)
@@ -149,107 +149,116 @@ Description Contains network's global definitions
 /****************************************************************************/
 
 /*
- * ---------------------
- * PDN connection status
- * ---------------------
- */
-typedef enum {
-  /* MT = The Mobile Terminal, NW = The Network               */
-  NET_PDN_MT_DEFAULT_ACT = 1, /* MT has activated a PDN connection        */
-  NET_PDN_NW_DEFAULT_DEACT,   /* NW has deactivated a PDN connection      */
-  NET_PDN_MT_DEFAULT_DEACT,   /* MT has deactivated a PDN connection      */
-  NET_PDN_NW_DEDICATED_ACT,   /* NW has activated an EPS bearer context   */
-  NET_PDN_MT_DEDICATED_ACT,   /* MT has activated an EPS bearer context   */
-  NET_PDN_NW_DEDICATED_DEACT, /* NW has deactivated an EPS bearer context */
-  NET_PDN_MT_DEDICATED_DEACT, /* MT has deactivated an EPS bearer context */
+    ---------------------
+    PDN connection status
+    ---------------------
+*/
+typedef enum
+{
+    /* MT = The Mobile Terminal, NW = The Network               */
+    NET_PDN_MT_DEFAULT_ACT = 1, /* MT has activated a PDN connection        */
+    NET_PDN_NW_DEFAULT_DEACT,   /* NW has deactivated a PDN connection      */
+    NET_PDN_MT_DEFAULT_DEACT,   /* MT has deactivated a PDN connection      */
+    NET_PDN_NW_DEDICATED_ACT,   /* NW has activated an EPS bearer context   */
+    NET_PDN_MT_DEDICATED_ACT,   /* MT has activated an EPS bearer context   */
+    NET_PDN_NW_DEDICATED_DEACT, /* NW has deactivated an EPS bearer context */
+    NET_PDN_MT_DEDICATED_DEACT, /* MT has deactivated an EPS bearer context */
 } network_pdn_state_t;
 
 /*
- * ---------------------------
- * Network operator identifier
- * ---------------------------
- */
-typedef struct {
+    ---------------------------
+    Network operator identifier
+    ---------------------------
+*/
+typedef struct
+{
 #define NET_FORMAT_LONG_SIZE    16  /* Long alphanumeric format     */
 #define NET_FORMAT_SHORT_SIZE   8   /* Short alphanumeric format        */
 #define NET_FORMAT_NUM_SIZE 6   /* Numeric format (PLMN identifier  */
-  union {
-    unsigned char alpha_long[NET_FORMAT_LONG_SIZE+1];
-    unsigned char alpha_short[NET_FORMAT_SHORT_SIZE+1];
-    unsigned char num[NET_FORMAT_NUM_SIZE+1];
-  } id;
+    union
+    {
+        unsigned char alpha_long[NET_FORMAT_LONG_SIZE + 1];
+        unsigned char alpha_short[NET_FORMAT_SHORT_SIZE + 1];
+        unsigned char num[NET_FORMAT_NUM_SIZE + 1];
+    } id;
 } network_plmn_t;
 
 /*
- * -------------------------------
- * EPS bearer level QoS parameters
- * -------------------------------
- */
-typedef struct {
-  int gbrUL;      /* Guaranteed Bit Rate for uplink   */
-  int gbrDL;      /* Guaranteed Bit Rate for downlink */
-  int mbrUL;      /* Maximum Bit Rate for uplink      */
-  int mbrDL;      /* Maximum Bit Rate for downlink    */
-  int qci;        /* QoS Class Identifier         */
+    -------------------------------
+    EPS bearer level QoS parameters
+    -------------------------------
+*/
+typedef struct
+{
+    int gbrUL;      /* Guaranteed Bit Rate for uplink   */
+    int gbrDL;      /* Guaranteed Bit Rate for downlink */
+    int mbrUL;      /* Maximum Bit Rate for uplink      */
+    int mbrDL;      /* Maximum Bit Rate for downlink    */
+    int qci;        /* QoS Class Identifier         */
 } network_qos_t;
 
 /*
- * -----------------------------
- * IPv4 packet filter parameters
- * -----------------------------
- */
-typedef struct {
-  unsigned char protocol; /* Protocol identifier      */
-  unsigned char tos;      /* Type of service      */
+    -----------------------------
+    IPv4 packet filter parameters
+    -----------------------------
+*/
+typedef struct
+{
+    unsigned char protocol; /* Protocol identifier      */
+    unsigned char tos;      /* Type of service      */
 #define NET_PACKET_FILTER_IPV4_ADDR_SIZE    4
-  unsigned char addr[NET_PACKET_FILTER_IPV4_ADDR_SIZE];
-  unsigned char mask[NET_PACKET_FILTER_IPV4_ADDR_SIZE];
+    unsigned char addr[NET_PACKET_FILTER_IPV4_ADDR_SIZE];
+    unsigned char mask[NET_PACKET_FILTER_IPV4_ADDR_SIZE];
 } network_ipv4_data_t;
 
 /*
- * -----------------------------
- * IPv6 packet filter parameters
- * -----------------------------
- */
-typedef struct {
-  unsigned char nh;       /* Next header type     */
-  unsigned char tf;       /* Traffic class        */
+    -----------------------------
+    IPv6 packet filter parameters
+    -----------------------------
+*/
+typedef struct
+{
+    unsigned char nh;       /* Next header type     */
+    unsigned char tf;       /* Traffic class        */
 #define NET_PACKET_FILTER_IPV6_ADDR_SIZE    16
-  unsigned char addr[NET_PACKET_FILTER_IPV6_ADDR_SIZE];
-  unsigned char mask[NET_PACKET_FILTER_IPV6_ADDR_SIZE];
-  unsigned int ipsec;     /* IPSec security parameter index */
-  unsigned int fl;        /* Flow label             */
+    unsigned char addr[NET_PACKET_FILTER_IPV6_ADDR_SIZE];
+    unsigned char mask[NET_PACKET_FILTER_IPV6_ADDR_SIZE];
+    unsigned int ipsec;     /* IPSec security parameter index */
+    unsigned int fl;        /* Flow label             */
 } network_ipv6_data_t;
 
 /*
- * -------------
- * Packet Filter
- * -------------
- */
-typedef struct {
-  unsigned char id;       /* Packet filter identifier */
+    -------------
+    Packet Filter
+    -------------
+*/
+typedef struct
+{
+    unsigned char id;       /* Packet filter identifier */
 #define NET_PACKET_FILTER_DOWNLINK  0x01
 #define NET_PACKET_FILTER_UPLINK    0x02
 #define NET_PACKET_FILTER_BIDIR     0x03
-  unsigned char dir;      /* Packet filter direction  */
-  unsigned char precedence;   /* Evaluation precedence    */
-  union {
-    network_ipv4_data_t ipv4;
-    network_ipv6_data_t ipv6;
-  } data;
-  unsigned short lport;   /* Local (UE) port number   */
-  unsigned short rport;   /* Remote (network) port number */
+    unsigned char dir;      /* Packet filter direction  */
+    unsigned char precedence;   /* Evaluation precedence    */
+    union
+    {
+        network_ipv4_data_t ipv4;
+        network_ipv6_data_t ipv6;
+    } data;
+    unsigned short lport;   /* Local (UE) port number   */
+    unsigned short rport;   /* Remote (network) port number */
 } network_pkf_t;
 
 /*
- * ---------------------
- * Traffic Flow Template
- * ---------------------
- */
-typedef struct {
-  int n_pkfs;
+    ---------------------
+    Traffic Flow Template
+    ---------------------
+*/
+typedef struct
+{
+    int n_pkfs;
 #define NET_PACKET_FILTER_MAX   16
-  network_pkf_t* pkf[NET_PACKET_FILTER_MAX];
+    network_pkf_t *pkf[NET_PACKET_FILTER_MAX];
 } network_tft_t;
 
 /****************************************************************************/

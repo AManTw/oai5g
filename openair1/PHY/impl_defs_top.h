@@ -1,111 +1,111 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*! \file PHY/impl_defs_top.h
-* \brief More defines and structure definitions
-* \author R. Knopp, F. Kaltenberger
-* \date 2011
-* \version 0.1
-* \company Eurecom
-* \email: knopp@eurecom.fr,florian.kaltenberger@eurecom.fr
-* \note
-* \warning
+    \brief More defines and structure definitions
+    \author R. Knopp, F. Kaltenberger
+    \date 2011
+    \version 0.1
+    \company Eurecom
+    \email: knopp@eurecom.fr,florian.kaltenberger@eurecom.fr
+    \note
+    \warning
 */
 
 #ifndef __PHY_IMPLEMENTATION_DEFS_H__
 #define __PHY_IMPLEMENTATION_DEFS_H__
 
 /** @defgroup _ref_implementation_ OpenAirInterface LTE Implementation
- * @{
+    @{
 
- * @defgroup _PHY_RF_INTERFACE_ PHY - RF Interface
- * @ingroup _PHY_RF_INTERFACE_
- * @{
- * @defgroup _GENERIC_PHY_RF_INTERFACE_ Generic PHY - RF Interface
- * @defgroup _USRP_PHY_RF_INTERFACE_    PHY - USRP RF Interface
- * @defgroup _BLADERF_PHY_RF_INTERFACE_    PHY - BLADERF RF Interface
- * @defgroup _LMSSDR_PHY_RF_INTERFACE_    PHY - LMSSDR RF Interface
- * @}
- *
- * @ingroup _ref_implementation_
- * @{
- * This module is responsible for defining the generic interface between PHY and RF Target
- * @}
- 
- * @defgroup _openair1_ openair1 Reference Implementation 
- * @ingroup _ref_implementation_
- * @{
+    @defgroup _PHY_RF_INTERFACE_ PHY - RF Interface
+    @ingroup _PHY_RF_INTERFACE_
+    @{
+    @defgroup _GENERIC_PHY_RF_INTERFACE_ Generic PHY - RF Interface
+    @defgroup _USRP_PHY_RF_INTERFACE_    PHY - USRP RF Interface
+    @defgroup _BLADERF_PHY_RF_INTERFACE_    PHY - BLADERF RF Interface
+    @defgroup _LMSSDR_PHY_RF_INTERFACE_    PHY - LMSSDR RF Interface
+    @}
 
+    @ingroup _ref_implementation_
+    @{
+    This module is responsible for defining the generic interface between PHY and RF Target
+    @}
 
- * @defgroup _physical_layer_ref_implementation_ Physical Layer Reference Implementation
- * @ingroup _openair1_
- * @{
+    @defgroup _openair1_ openair1 Reference Implementation
+    @ingroup _ref_implementation_
+    @{
 
 
- * @defgroup _PHY_STRUCTURES_ Basic Structures and Memory Initialization
- * @ingroup _physical_layer_ref_implementation_
- * @{
- * This module is responsible for defining and initializing the PHY variables during static configuration of OpenAirInterface.
- * @}
+    @defgroup _physical_layer_ref_implementation_ Physical Layer Reference Implementation
+    @ingroup _openair1_
+    @{
 
- * @defgroup _PHY_DSP_TOOLS_ DSP Tools
- * @ingroup _physical_layer_ref_implementation_
- * @{
- * This module is responsible for basic signal processing related to inner-MODEM processing.
- * @}
 
- * @defgroup _PHY_MODULATION_ Modulation and Demodulation
- * @ingroup _physical_layer_ref_implementation_
- * @{
- * This module is responsible for procedures related to OFDMA modulation and demodulation.
- * @}
+    @defgroup _PHY_STRUCTURES_ Basic Structures and Memory Initialization
+    @ingroup _physical_layer_ref_implementation_
+    @{
+    This module is responsible for defining and initializing the PHY variables during static configuration of OpenAirInterface.
+    @}
 
- * @defgroup _PHY_PARAMETER_ESTIMATION_BLOCKS_ Parameter Estimation
- * @ingroup _physical_layer_ref_implementation_
- * @{
- * This module is responsible for procedures related to OFDMA frequency-domain channel estimation for LTE Downlink Channels.
- * @}
+    @defgroup _PHY_DSP_TOOLS_ DSP Tools
+    @ingroup _physical_layer_ref_implementation_
+    @{
+    This module is responsible for basic signal processing related to inner-MODEM processing.
+    @}
 
- * @defgroup _PHY_CODING_BLOCKS_ Channel Coding/Decoding Functions
- * @ingroup _physical_layer_ref_implementation_
- * @{
- * This module is responsible for procedures related to channel coding/decoding, rate-matching, segementation and interleaving.
- * @}
+    @defgroup _PHY_MODULATION_ Modulation and Demodulation
+    @ingroup _physical_layer_ref_implementation_
+    @{
+    This module is responsible for procedures related to OFDMA modulation and demodulation.
+    @}
 
- * @defgroup _PHY_TRANSPORT_ Transport/Physical Channel Processing
- * @ingroup _physical_layer_ref_implementation_
- * @{
- * This module is responsible for defining and processing the PHY procedures (TX/RX) related to transport and physical channels.
- * @}
+    @defgroup _PHY_PARAMETER_ESTIMATION_BLOCKS_ Parameter Estimation
+    @ingroup _physical_layer_ref_implementation_
+    @{
+    This module is responsible for procedures related to OFDMA frequency-domain channel estimation for LTE Downlink Channels.
+    @}
 
- * @defgroup _PHY_PROCEDURES_ Physical Layer Procedures
- * @ingroup _physical_layer_ref_implementation_
- * @{
- * This module is responsible for defining and processing the PHY procedures (TX/RX) related to transport and physical channels.
- * @}
+    @defgroup _PHY_CODING_BLOCKS_ Channel Coding/Decoding Functions
+    @ingroup _physical_layer_ref_implementation_
+    @{
+    This module is responsible for procedures related to channel coding/decoding, rate-matching, segementation and interleaving.
+    @}
 
- * @}
- * @}
- * @}
- */
+    @defgroup _PHY_TRANSPORT_ Transport/Physical Channel Processing
+    @ingroup _physical_layer_ref_implementation_
+    @{
+    This module is responsible for defining and processing the PHY procedures (TX/RX) related to transport and physical channels.
+    @}
+
+    @defgroup _PHY_PROCEDURES_ Physical Layer Procedures
+    @ingroup _physical_layer_ref_implementation_
+    @{
+    This module is responsible for defining and processing the PHY procedures (TX/RX) related to transport and physical channels.
+    @}
+
+    @}
+    @}
+    @}
+*/
 
 #include "defs_eNB.h"
 #include "types.h"
@@ -113,7 +113,7 @@
 
 
 /** @addtogroup _PHY_STRUCTURES_
- * @{
+    @{
 */
 #define NUMBER_OF_OFDM_CARRIERS (frame_parms->ofdm_symbol_size)
 #define NUMBER_OF_SYMBOLS_PER_FRAME (frame_parms->symbols_per_tti*LTE_NUMBER_OF_SUBFRAMES_PER_FRAME)
@@ -177,13 +177,13 @@
 #define NB_ANTENNA_PORTS_ENB  6                                         // total number of eNB antenna ports
 
 #ifdef EXMIMO
-#define TARGET_RX_POWER 55    // Target digital power for the AGC
-#define TARGET_RX_POWER_MAX 55    // Maximum digital power, such that signal does not saturate (value found by simulation)
-#define TARGET_RX_POWER_MIN 50    // Minimum digital power, anything below will be discarded (value found by simulation)
+    #define TARGET_RX_POWER 55    // Target digital power for the AGC
+    #define TARGET_RX_POWER_MAX 55    // Maximum digital power, such that signal does not saturate (value found by simulation)
+    #define TARGET_RX_POWER_MIN 50    // Minimum digital power, anything below will be discarded (value found by simulation)
 #else
-#define TARGET_RX_POWER 50    // Target digital power for the AGC
-#define TARGET_RX_POWER_MAX 65    // Maximum digital power, such that signal does not saturate (value found by simulation)
-#define TARGET_RX_POWER_MIN 35    // Minimum digital power, anything below will be discarded (value found by simulation)
+    #define TARGET_RX_POWER 50    // Target digital power for the AGC
+    #define TARGET_RX_POWER_MAX 65    // Maximum digital power, such that signal does not saturate (value found by simulation)
+    #define TARGET_RX_POWER_MIN 35    // Minimum digital power, anything below will be discarded (value found by simulation)
 #endif
 
 //the min and max gains have to match the calibrated gain table
@@ -232,9 +232,9 @@
 
 
 #ifdef BIT8_RXMUX
-#define PERROR_SHIFT 0
+    #define PERROR_SHIFT 0
 #else
-#define PERROR_SHIFT 10
+    #define PERROR_SHIFT 10
 #endif
 
 #define BIT8_TX_SHIFT 2
@@ -243,9 +243,9 @@
 //#define CHBCH_RSSI_MIN -75
 
 #ifdef BIT8_TX
-#define AMP 128
+    #define AMP 128
 #else
-#define AMP 512//1024 //4096
+    #define AMP 512//1024 //4096
 #endif
 
 #define AMP_OVER_SQRT2 ((AMP*ONE_OVER_SQRT2_Q15)>>15)
@@ -257,17 +257,19 @@
 #define PUCCH1a_THRES 4
 
 /// Data structure for transmission.
-typedef struct {
-  /// RAW TX sample buffer
-  char *TX_DMA_BUFFER[2];
+typedef struct
+{
+    /// RAW TX sample buffer
+    char *TX_DMA_BUFFER[2];
 } TX_VARS ;
 
 /// Data structure for reception.
-typedef struct {
-  /// RAW TX sample buffer
-  char *TX_DMA_BUFFER[2];
-  /// RAW RX sample buffer
-  int *RX_DMA_BUFFER[2];
+typedef struct
+{
+    /// RAW TX sample buffer
+    char *TX_DMA_BUFFER[2];
+    /// RAW RX sample buffer
+    int *RX_DMA_BUFFER[2];
 } TX_RX_VARS;
 
 /// Measurement Variables
@@ -286,11 +288,11 @@ typedef struct {
 #define min(a,b) cmin(a,b)
 
 #ifndef malloc16
-#  ifdef __AVX2__
-#    define malloc16(x) memalign(32,x+32)
-#  else
-#    define malloc16(x) memalign(16,x+16)
-#  endif
+    #ifdef __AVX2__
+        #define malloc16(x) memalign(32,x+32)
+    #else
+        #define malloc16(x) memalign(16,x+16)
+    #endif
 #endif
 #define free16(y,x) free(y)
 #define bigmalloc malloc
@@ -303,18 +305,18 @@ typedef struct {
         PtR = NULL;        \
       }                    \
     } while (0)
-static inline void* malloc16_clear( size_t size )
+static inline void *malloc16_clear(size_t size)
 {
 #ifdef __AVX2__
-  void* ptr = memalign(32, size+32);
+    void *ptr = memalign(32, size + 32);
 #else
-  void* ptr = memalign(16, size+16);
+    void *ptr = memalign(16, size + 16);
 #endif
-  DevAssert(ptr);
-  memset( ptr, 0, size );
-  return ptr;
+    DevAssert(ptr);
+    memset(ptr, 0, size);
+    return ptr;
 }
 
 #endif //__PHY_IMPLEMENTATION_DEFS_H__ 
-/**@} 
+/** @}
 */

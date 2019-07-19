@@ -2,8 +2,8 @@
 #define EMM_TIMERS_H
 
 /*
- * Retransmission timer handlers
- */
+    Retransmission timer handlers
+*/
 
 void *emm_attach_t3410_handler(void *);
 void *emm_service_t3417_handler(void *);

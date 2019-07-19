@@ -7,16 +7,16 @@
 /****************************************************************************/
 #if (!defined WIN_KERNEL_BUILD)
 
-/* TRD : any OS except Windows kernel on any CPU with any compiler
+/*  TRD : any OS except Windows kernel on any CPU with any compiler
 
          !WIN_KERNEL_BUILD  indicates not Windows kernel
 */
 
-void lfds611_abstraction_free( void *memory )
+void lfds611_abstraction_free(void *memory)
 {
-  free( memory );
+    free(memory);
 
-  return;
+    return;
 }
 
 #endif
@@ -28,16 +28,16 @@ void lfds611_abstraction_free( void *memory )
 /****************************************************************************/
 #if (defined WIN_KERNEL_BUILD)
 
-/* TRD : any Windows (kernel) on any CPU with the Microsoft C compiler
+/*  TRD : any Windows (kernel) on any CPU with the Microsoft C compiler
 
          WIN_KERNEL_BUILD  indicates Windows kernel
 */
 
-void lfds611_abstraction_free( void *memory )
+void lfds611_abstraction_free(void *memory)
 {
-  ExFreePoolWithTag( memory, 'sdfl' );
+    ExFreePoolWithTag(memory, 'sdfl');
 
-  return;
+    return;
 }
 
 #endif

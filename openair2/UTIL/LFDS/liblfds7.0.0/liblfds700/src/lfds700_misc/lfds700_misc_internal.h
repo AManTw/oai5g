@@ -6,5 +6,5 @@
 #define EXPONENTIAL_BACKOFF_TIMESLOT_LENGTH_IN_INCS_FOR_DWCAS  16
 
 /***** private prototypes *****/
-void lfds700_misc_prng_internal_big_slow_high_quality_init( int long long unsigned seed );
+void lfds700_misc_prng_internal_big_slow_high_quality_init(int long long unsigned seed);
 

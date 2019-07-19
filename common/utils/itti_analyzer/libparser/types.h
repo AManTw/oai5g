@@ -1,23 +1,23 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 #include <stdio.h>
 
@@ -38,9 +38,9 @@
 #define ENABLE_DISPLAY_BRACE        1
 
 #if (ENABLE_DISPLAY_TYPE != 0)
-# define DISPLAY_TYPE(tYPE) ui_set_signal_text_cb(user_data, tYPE" ", strlen(tYPE) + 1);
+    #define DISPLAY_TYPE(tYPE) ui_set_signal_text_cb(user_data, tYPE" ", strlen(tYPE) + 1);
 #else
-# define DISPLAY_TYPE(tYPE)
+    #define DISPLAY_TYPE(tYPE)
 #endif
 
 #define DISPLAY_TAB_SIZE        (2)
@@ -57,12 +57,13 @@
 #endif
 
 #if (ENABLE_DISPLAY_BRACE != 0)
-# define DISPLAY_BRACE(cODE) if (ui_main_data.display_brace) {cODE}
+    #define DISPLAY_BRACE(cODE) if (ui_main_data.display_brace) {cODE}
 #else
-# define DISPLAY_BRACE(cODE)
+    #define DISPLAY_BRACE(cODE)
 #endif
 
-enum type_e {
+enum type_e
+{
     TYPE_ENUMERATION,
     TYPE_ENUMERATION_VALUE,
     TYPE_STRUCT,
@@ -86,19 +87,20 @@ typedef int (*type_ui_display_t)(struct types_s *type, int indent);
 typedef int (*type_file_print_t)(struct types_s *type, int indent, FILE *file);
 
 /**
- * type_dissect_from_buffer_t
- * @param type The current type
- * @param ui_set_signal_text_cb GUI display function
- * @param user_data Transparent data to pass to the GUI display function
- * @param buffer The buffer containing data to dissect
- * @param offset offset of field from the beginning of the parent
- * @param parent_offset offset of the parent from begining
+    type_dissect_from_buffer_t
+    @param type The current type
+    @param ui_set_signal_text_cb GUI display function
+    @param user_data Transparent data to pass to the GUI display function
+    @param buffer The buffer containing data to dissect
+    @param offset offset of field from the beginning of the parent
+    @param parent_offset offset of the parent from begining
  **/
 typedef int (*type_dissect_from_buffer_t)(
     struct types_s *type, ui_set_signal_text_cb_t ui_set_signal_text_cb, gpointer user_data,
     buffer_t *buffer, uint32_t offset, uint32_t parent_offset, int indent, gboolean new_line);
 
-typedef struct types_s {
+typedef struct types_s
+{
     /* The type of the current description */
     enum type_e type;
 
@@ -137,9 +139,9 @@ typedef struct types_s {
     /* Line number of the current definition */
     int   line;
 
-    /* offset of the field in the parent type
-     * -1 means no parent
-     */
+    /*  offset of the field in the parent type
+        -1 means no parent
+    */
     int offset;
 
     struct types_s *previous;

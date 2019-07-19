@@ -35,12 +35,12 @@
 #include "flexran_agent.h"
 
 #if defined(ENABLE_ITTI)
-  #if defined(ENABLE_USE_MME)
-    #include "s1ap_eNB.h"
-    #ifdef PDCP_USE_NETLINK
-      #include "SIMULATION/ETH_TRANSPORT/proto.h"
+    #if defined(ENABLE_USE_MME)
+        #include "s1ap_eNB.h"
+        #ifdef PDCP_USE_NETLINK
+            #include "SIMULATION/ETH_TRANSPORT/proto.h"
+        #endif
     #endif
-  #endif
 #endif
 
 /* help strings definition for command line options, used in CMDLINE_XXX_DESC macros and printed when -h option is used */
@@ -101,8 +101,8 @@
 #define CONFIG_HLP_USRP_CLK_SRC              "USRP clock source: 'internal' or 'external'\n"
 
 /***************************************************************************************************************************************/
-/* command line options definitions, CMDLINE_XXXX_DESC macros are used to initialize paramdef_t arrays which are then used as argument
-   when calling config_get or config_getlist functions                                                                                 */
+/*  command line options definitions, CMDLINE_XXXX_DESC macros are used to initialize paramdef_t arrays which are then used as argument
+    when calling config_get or config_getlist functions                                                                                 */
 
 
 /*------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -245,21 +245,22 @@
 #define SOFTMODEM_NOS1_BIT            (1<<0)
 #define SOFTMODEM_NOKRNMOD_BIT        (1<<1)
 #define SOFTMODEM_NONBIOT_BIT         (1<<2)
-typedef struct {
-  uint64_t       optmask;
-  THREAD_STRUCT  thread_struct;
-  char           rf_config_file[1024];
-  int            phy_test;
-  uint8_t        usim_test;
-  int            emulate_rf;
-  int            wait_for_sync; //eNodeB only
-  int            single_thread_flag; //eNodeB only
-  int            chain_offset;
-  uint32_t       do_forms;
-  int            numerology;
-  unsigned int   start_msc;
-  uint32_t       clock_source;
-  int            hw_timing_advance;
+typedef struct
+{
+    uint64_t       optmask;
+    THREAD_STRUCT  thread_struct;
+    char           rf_config_file[1024];
+    int            phy_test;
+    uint8_t        usim_test;
+    int            emulate_rf;
+    int            wait_for_sync; //eNodeB only
+    int            single_thread_flag; //eNodeB only
+    int            chain_offset;
+    uint32_t       do_forms;
+    int            numerology;
+    unsigned int   start_msc;
+    uint32_t       clock_source;
+    int            hw_timing_advance;
 } softmodem_params_t;
 
 #define IS_SOFTMODEM_NOS1            ( get_softmodem_optmask() & SOFTMODEM_NOS1_BIT)
@@ -294,7 +295,7 @@ extern int transmission_mode;
 extern double cpuf;
 
 // In lte-enb.c
-extern void init_eNB(int single_thread_flag,int wait_for_sync);
+extern void init_eNB(int single_thread_flag, int wait_for_sync);
 extern void stop_eNB(int);
 extern void kill_eNB_proc(int inst);
 
@@ -311,7 +312,7 @@ extern void set_function_spec_param(RU_t *ru);
 extern int setup_ue_buffers(PHY_VARS_UE **phy_vars_ue, openair0_config_t *openair0_cfg);
 extern void fill_ue_band_info(void);
 
-extern void init_UE(int nb_inst,int eMBMS_active, int uecap_xer_in, int timing_correction, int phy_test, int UE_scan, int UE_scan_carrier, runmode_t mode,int rxgain,int txpowermax,
+extern void init_UE(int nb_inst, int eMBMS_active, int uecap_xer_in, int timing_correction, int phy_test, int UE_scan, int UE_scan_carrier, runmode_t mode, int rxgain, int txpowermax,
                     LTE_DL_FRAME_PARMS *fp);
 extern void init_thread(int sched_runtime, int sched_deadline, int sched_fifo, cpu_set_t *cpuset, char *name);
 
@@ -325,7 +326,7 @@ extern void kill_td_thread(PHY_VARS_eNB *);
 extern void kill_te_thread(PHY_VARS_eNB *);
 
 extern void RCConfig_sim(void);
-extern void init_ocm(double,double);
+extern void init_ocm(double, double);
 extern void init_ue_devices(PHY_VARS_UE *);
 
 PHY_VARS_UE *init_ue_vars(LTE_DL_FRAME_PARMS *frame_parms,
@@ -341,7 +342,7 @@ extern int stop_L1L2(module_id_t enb_id);
 extern int restart_L1L2(module_id_t enb_id);
 
 
-extern void init_UE_stub_single_thread(int nb_inst,int eMBMS_active, int uecap_xer_in, char *emul_iface);
+extern void init_UE_stub_single_thread(int nb_inst, int eMBMS_active, int uecap_xer_in, char *emul_iface);
 
 extern PHY_VARS_UE *init_ue_vars(LTE_DL_FRAME_PARMS *frame_parms,
                                  uint8_t UE_id,

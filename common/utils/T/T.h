@@ -8,7 +8,7 @@
 #include "T_defs.h"
 
 #ifdef T_SEND_TIME
-  #include <time.h>
+    #include <time.h>
 #endif
 
 /* T message IDs */
@@ -103,20 +103,21 @@ extern int T_stdout;
 #define T(...) do { if (T_stdout == 0) TN(__VA_ARGS__); } while (0)
 
 /* type used to send arbitrary buffer data */
-typedef struct {
-  void *addr;
-  int length;
+typedef struct
+{
+    void *addr;
+    int length;
 } T_buffer;
 
 extern volatile int *T_freelist_head;
 extern T_cache_t *T_cache;
 extern int *T_active;
-/* When running the basic simulator, we may fill the T cache too fast.
- * Let's serialize write accesses to the T cache. For that, we use a
- * 'ticket' mechanism. To acquire a T slot the caller needs to own the
- * current active ticket. We also wait for the slot to be free if
- * it is already in use.
- */
+/*  When running the basic simulator, we may fill the T cache too fast.
+    Let's serialize write accesses to the T cache. For that, we use a
+    'ticket' mechanism. To acquire a T slot the caller needs to own the
+    current active ticket. We also wait for the slot to be free if
+    it is already in use.
+*/
 #if BASIC_SIMULATOR
 #  define T_GET_SLOT \
   do { \
@@ -177,12 +178,12 @@ extern int *T_active;
     abort(); \
   }
 
-/* we have 4 versions of T_HEADER:
- * - bad quality C++ version with time
- * - good quality C version with time
- * - bad quality C++ version without time
- * - good quality C version without time
- */
+/*  we have 4 versions of T_HEADER:
+    - bad quality C++ version with time
+    - good quality C version with time
+    - bad quality C++ version without time
+    - good quality C version without time
+*/
 
 #ifdef T_SEND_TIME
 

@@ -1,23 +1,23 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 #include <pthread.h>
 #include <stdlib.h>
@@ -79,12 +79,17 @@ uint64_t buffer_get_uint64_t(buffer_t *buffer, uint32_t offset)
 static
 int buffer_fetch(buffer_t *buffer, uint32_t offset, int size, void *value)
 {
-    if (buffer == NULL || value == NULL)
+    if(buffer == NULL || value == NULL)
+    {
         return -1;
-    if (size <= 0)
+    }
+    if(size <= 0)
+    {
         return -1;
+    }
 
-    if (buffer->size_bytes < ((offset >> 3) + size)) {
+    if(buffer->size_bytes < ((offset >> 3) + size))
+    {
         g_warning("Not enough data to fetch");
         return -1;
     }
@@ -97,7 +102,8 @@ int buffer_fetch(buffer_t *buffer, uint32_t offset, int size, void *value)
 
 int buffer_fetch_nbytes(buffer_t *buffer, uint32_t offset, int n_bytes, uint8_t *value)
 {
-    if (buffer->size_bytes < ((offset >> 3) + n_bytes)) {
+    if(buffer->size_bytes < ((offset >> 3) + n_bytes))
+    {
         g_warning("Not enough data to fetch");
         return -1;
     }
@@ -111,14 +117,18 @@ int buffer_fetch_bits(buffer_t *buffer, uint32_t offset, int nbits, uint32_t *va
     uint32_t temp = 0;
     int i;
 
-    if (buffer == NULL || value == NULL)
+    if(buffer == NULL || value == NULL)
+    {
         return RC_BAD_PARAM;
+    }
 
     /* We cannot fetch more than 32 bits */
-    if (nbits > 32)
+    if(nbits > 32)
+    {
         return RC_BAD_PARAM;
+    }
 
-    for (i = 0; i < nbits; i++)
+    for(i = 0; i < nbits; i++)
     {
         temp |= ((buffer->data[(offset + i) / 8] >> ((offset + i) % 8)) & 1) << i;
     }
@@ -129,32 +139,40 @@ int buffer_fetch_bits(buffer_t *buffer, uint32_t offset, int nbits, uint32_t *va
 }
 
 /**
- * @brief Create a new buffer from data
- * @param buffer caller reference where created buffer will be stored
- * @param data Data to attach to the new buffer
- * @param length Length of data buffer
- * @param data_static flag that indicates if data pointer has been statically (= 0) or not (!= 0)
- */
+    @brief Create a new buffer from data
+    @param buffer caller reference where created buffer will be stored
+    @param data Data to attach to the new buffer
+    @param length Length of data buffer
+    @param data_static flag that indicates if data pointer has been statically (= 0) or not (!= 0)
+*/
 int buffer_new_from_data(buffer_t **buffer, uint8_t *data, const uint32_t length,
                          int data_static)
 {
     buffer_t *new;
 
-    if (!buffer)
+    if(!buffer)
+    {
         return RC_BAD_PARAM;
+    }
 
     new = malloc(sizeof(buffer_t));
 
     new->size_bytes = length;
-    if (data && length > 0) {
-        if (data_static == 0) {
+    if(data && length > 0)
+    {
+        if(data_static == 0)
+        {
             new->data = malloc(sizeof(uint8_t) * new->size_bytes);
             memcpy(new->data, data, new->size_bytes);
-        } else {
+        }
+        else
+        {
             new->data = data;
         }
         new->buffer_current = &new->data[0];
-    } else {
+    }
+    else
+    {
         new->buffer_current = NULL;
     }
 
@@ -177,39 +195,55 @@ void buffer_dump(buffer_t *buffer, FILE *to)
     FILE *file = to;
     uint32_t i;
 
-    if (!buffer)
+    if(!buffer)
+    {
         return;
-    if (!to)
+    }
+    if(!to)
+    {
         to = stdout;
+    }
 
     fprintf(file, "<Buffer>\n");
     INDENTED(file, 4, fprintf(file, "<Length>%u<Length>\n", buffer->size_bytes));
     INDENTED(file, 4, fprintf(file, "<Bytes>\n"));
-    for (i = 0; i < buffer->size_bytes; i++)
+    for(i = 0; i < buffer->size_bytes; i++)
     {
-        if ((i % INDENT_BREAK) == 0)
+        if((i % INDENT_BREAK) == 0)
+        {
             fprintf(file, "        ");
+        }
         fprintf(file, "0x%02x ", buffer->data[i]);
-        if ((i % INDENT_BREAK) == (INDENT_BREAK - 1))
+        if((i % INDENT_BREAK) == (INDENT_BREAK - 1))
+        {
             fprintf(file, "\n");
+        }
     }
-    if ((i % INDENT_BREAK) != (INDENT_BREAK - 1))
+    if((i % INDENT_BREAK) != (INDENT_BREAK - 1))
+    {
         fprintf(file, "\n");
+    }
     INDENTED(file, 4, fprintf(file, "</Bytes>\n"));
     fprintf(file, "</Buffer>\n");
 }
 
 int buffer_append_data(buffer_t *buffer, const uint8_t *data, const uint32_t length)
 {
-    if (!buffer)
+    if(!buffer)
+    {
         return -1;
+    }
 
-    if (data && length > 0) {
-        if (!buffer->data) {
+    if(data && length > 0)
+    {
+        if(!buffer->data)
+        {
             buffer->size_bytes = length;
             buffer->data = malloc(sizeof(uint8_t) * buffer->size_bytes);
             memcpy(buffer->data, data, buffer->size_bytes);
-        } else {
+        }
+        else
+        {
             buffer->data = realloc(buffer->data, sizeof(uint8_t) * (buffer->size_bytes + length));
             memcpy(&buffer->data[buffer->size_bytes], data, length);
             buffer->size_bytes += length;
@@ -223,10 +257,12 @@ int buffer_append_data(buffer_t *buffer, const uint8_t *data, const uint32_t len
 int buffer_has_enouch_data(buffer_t *buffer, uint32_t offset, uint32_t to_get)
 {
     int underflow;
-    if (!buffer)
+    if(!buffer)
+    {
         return -1;
+    }
     underflow = (buffer->size_bytes >= ((offset + to_get) / 8)) ? 0 : -1;
-    if (underflow && debug_buffers)
+    if(underflow && debug_buffers)
         g_warning("Detected Underflow offset %u, to_get %u, buffer size %u\n",
                   offset, to_get, buffer->size_bytes);
     return underflow;
@@ -234,8 +270,8 @@ int buffer_has_enouch_data(buffer_t *buffer, uint32_t offset, uint32_t to_get)
 
 void *buffer_at_offset(buffer_t *buffer, uint32_t offset)
 {
-//     if (buffer_has_enouch_data(buffer, 0, offset) != 0) {
-//         return NULL;
-//     }
+    //     if (buffer_has_enouch_data(buffer, 0, offset) != 0) {
+    //         return NULL;
+    //     }
     return &buffer->data[offset / 8];
 }

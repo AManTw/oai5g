@@ -1,29 +1,29 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*! \file classifier.c
-* \brief Classify IP packets
-* \author  Navid Nikaein, Lionel GAUTHIER,  Raymond knopp
-* \company Eurecom
-* \email:  navid.nikaein@eurecom.fr, lionel.gauthier@eurecom.fr, knopp@eurecom.fr
+    \brief Classify IP packets
+    \author  Navid Nikaein, Lionel GAUTHIER,  Raymond knopp
+    \company Eurecom
+    \email:  navid.nikaein@eurecom.fr, lionel.gauthier@eurecom.fr, knopp@eurecom.fr
 */
 
 
@@ -32,7 +32,7 @@
 #include <net/ip6_fib.h>
 #include <net/route.h>
 #ifdef MPLS
-#include <net/mpls.h>
+    #include <net/mpls.h>
 #endif
 
 
@@ -144,51 +144,59 @@
 // Find the IP traffic type (UNICAST, MULTICAST, BROADCAST)
 ip_traffic_type_t oai_nw_drv_find_traffic_type(struct sk_buff  *skb)
 {
-  //---------------------------------------------------------------------------
-  ip_traffic_type_t            traffic_type = TRAFFIC_IPVX_TYPE_UNKNOWN;
+    //---------------------------------------------------------------------------
+    ip_traffic_type_t            traffic_type = TRAFFIC_IPVX_TYPE_UNKNOWN;
 
-  if (skb!=NULL) {
-    switch (ntohs(skb->protocol))  {
-    case ETH_P_IPV6:
-      traffic_type = TRAFFIC_IPV6_TYPE_UNKNOWN;
+    if(skb != NULL)
+    {
+        switch(ntohs(skb->protocol))
+        {
+            case ETH_P_IPV6:
+                traffic_type = TRAFFIC_IPV6_TYPE_UNKNOWN;
 #ifdef OAI_DRV_DEBUG_CLASS
-      printk("SOURCE ADDR %X:%X:%X:%X:%X:%X:%X:%X",NIP6ADDR(&(ipv6_hdr(skb)->saddr)));
-      printk("    DEST   ADDR %X:%X:%X:%X:%X:%X:%X:%X\n",NIP6ADDR(&(ipv6_hdr(skb)->daddr)));
+                printk("SOURCE ADDR %X:%X:%X:%X:%X:%X:%X:%X", NIP6ADDR(&(ipv6_hdr(skb)->saddr)));
+                printk("    DEST   ADDR %X:%X:%X:%X:%X:%X:%X:%X\n", NIP6ADDR(&(ipv6_hdr(skb)->daddr)));
 #endif
 
-      if (IN6_IS_ADDR_MULTICAST(&ipv6_hdr(skb)->daddr.in6_u.u6_addr32[0])) {
-        traffic_type = TRAFFIC_IPV6_TYPE_MULTICAST;
+                if(IN6_IS_ADDR_MULTICAST(&ipv6_hdr(skb)->daddr.in6_u.u6_addr32[0]))
+                {
+                    traffic_type = TRAFFIC_IPV6_TYPE_MULTICAST;
 
-      } else {
-        traffic_type = TRAFFIC_IPV6_TYPE_UNICAST;
-      }
+                }
+                else
+                {
+                    traffic_type = TRAFFIC_IPV6_TYPE_UNICAST;
+                }
 
-      break;
+                break;
 
 
-    case ETH_P_IP:
-      traffic_type = TRAFFIC_IPV4_TYPE_UNKNOWN;
+            case ETH_P_IP:
+                traffic_type = TRAFFIC_IPV4_TYPE_UNKNOWN;
 
-      //print_TOOL_pk_ipv4((struct iphdr *)skb->network_header);
-      if (IN_MULTICAST(htonl(ip_hdr(skb)->daddr))) {
-        traffic_type = TRAFFIC_IPV4_TYPE_MULTICAST;
-      } else {
-        traffic_type = TRAFFIC_IPV4_TYPE_UNICAST;
-      }
+                //print_TOOL_pk_ipv4((struct iphdr *)skb->network_header);
+                if(IN_MULTICAST(htonl(ip_hdr(skb)->daddr)))
+                {
+                    traffic_type = TRAFFIC_IPV4_TYPE_MULTICAST;
+                }
+                else
+                {
+                    traffic_type = TRAFFIC_IPV4_TYPE_UNICAST;
+                }
 
-      // TO DO BROADCAST
+                // TO DO BROADCAST
 
-      break;
+                break;
 
-    case ETH_P_ARP:
-      traffic_type = TRAFFIC_IPV4_TYPE_BROADCAST;
-      break;
+            case ETH_P_ARP:
+                traffic_type = TRAFFIC_IPV4_TYPE_BROADCAST;
+                break;
 
-    default:
-      ;
+            default:
+                ;
+        }
     }
-  }
 
-  return traffic_type;
+    return traffic_type;
 }
 

@@ -1,23 +1,23 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 #include <string.h>
 
@@ -61,7 +61,7 @@ ui_text_view_t *ui_signal_dissect_new(GtkWidget *hbox)
 
     gtk_container_add(GTK_CONTAINER(scrolled_window), new_text_view->text_view);
 
-    gtk_paned_pack2 (GTK_PANED (hbox), scrolled_window, TRUE, FALSE);
+    gtk_paned_pack2(GTK_PANED(hbox), scrolled_window, TRUE, FALSE);
 
     return new_text_view;
 }
@@ -72,7 +72,7 @@ int ui_signal_dissect_clear_view(ui_text_view_t *text_view)
 
     g_assert(text_view != NULL);
 
-    if (text_view->text_view != NULL)
+    if(text_view->text_view != NULL)
     {
         /* Create an empty text buffer */
         text_buffer = gtk_text_buffer_new(NULL);
@@ -89,8 +89,10 @@ gboolean ui_signal_set_text(gpointer user_data, gchar *text, gint length)
     GtkTextBuffer  *text_buffer;
     ui_text_view_t *text_view;
 
-    if (length < 0)
+    if(length < 0)
+    {
         return FALSE;
+    }
 
     text_view = (ui_text_view_t *)user_data;
 
@@ -102,10 +104,13 @@ gboolean ui_signal_set_text(gpointer user_data, gchar *text, gint length)
 
     text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view->text_view));
 
-    if (text_buffer) {
+    if(text_buffer)
+    {
         /* We already have a text buffer, use it */
         gtk_text_buffer_insert_at_cursor(text_buffer, text, length);
-    } else {
+    }
+    else
+    {
         /* No buffer currently in use, create a new one */
         text_buffer = gtk_text_buffer_new(NULL);
         gtk_text_buffer_set_text(text_buffer, text, length);

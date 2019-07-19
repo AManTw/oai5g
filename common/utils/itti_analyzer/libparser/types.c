@@ -1,23 +1,23 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,7 +46,8 @@ types_t *type_new(enum type_e type)
 
     new_p->type = type;
 
-    switch(type) {
+    switch(type)
+    {
         case TYPE_FUNCTION:
             /* Nothing to do for now. Display is done by pointer type */
             break;
@@ -83,7 +84,7 @@ types_t *type_new(enum type_e type)
         case TYPE_FILE:
             new_p->type_hr_display = file_type_hr_display;
             new_p->type_file_print = file_type_file_print;
-//             new_p->type_dissect_from_buffer = file_dissect_from_buffer;
+            //             new_p->type_dissect_from_buffer = file_dissect_from_buffer;
             break;
         case TYPE_FIELD:
             new_p->type_hr_display = field_type_hr_display;
@@ -114,13 +115,19 @@ types_t *type_new(enum type_e type)
 
 int types_insert_tail(types_t **head, types_t *to_insert)
 {
-    if (to_insert == NULL || head == NULL)
+    if(to_insert == NULL || head == NULL)
+    {
         return -1;
-    if (*head == NULL) {
+    }
+    if(*head == NULL)
+    {
         *head = to_insert;
-    } else {
+    }
+    else
+    {
         types_t *last = *head;
-        while(last->next != NULL) {
+        while(last->next != NULL)
+        {
             last = last->next;
         }
         last->next = to_insert;
@@ -134,7 +141,8 @@ void types_hr_display(types_t *head)
 {
     types_t *current = head;
 
-    if (head == NULL) {
+    if(head == NULL)
+    {
         printf("Empty list\n");
         /* Empty list */
         return;

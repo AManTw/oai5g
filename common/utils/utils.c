@@ -4,22 +4,26 @@
 #include <stdint.h>
 #include "utils.h"
 
-void *calloc_or_fail(size_t size) {
-  void *ptr = calloc(1, size);
-  if (ptr == NULL) {
-    fprintf(stderr, "[UE] Failed to calloc %zu bytes", size);
-    exit(EXIT_FAILURE);
-  }
-  return ptr;
+void *calloc_or_fail(size_t size)
+{
+    void *ptr = calloc(1, size);
+    if(ptr == NULL)
+    {
+        fprintf(stderr, "[UE] Failed to calloc %zu bytes", size);
+        exit(EXIT_FAILURE);
+    }
+    return ptr;
 }
 
-void *malloc_or_fail(size_t size) {
-  void *ptr = malloc(size);
-  if (ptr == NULL) {
-    fprintf(stderr, "[UE] Failed to malloc %zu bytes", size);
-    exit(EXIT_FAILURE);
-  }
-  return ptr;
+void *malloc_or_fail(size_t size)
+{
+    void *ptr = malloc(size);
+    if(ptr == NULL)
+    {
+        fprintf(stderr, "[UE] Failed to malloc %zu bytes", size);
+        exit(EXIT_FAILURE);
+    }
+    return ptr;
 }
 
 /****************************************************************************
@@ -36,21 +40,26 @@ void *malloc_or_fail(size_t size) {
  **              Others:        None                                       **
  **                                                                        **
  ***************************************************************************/
-int hex_char_to_hex_value (char c)
+int hex_char_to_hex_value(char c)
 {
-  if (!((c >= 'a' && c <= 'f') ||
-        (c >= 'A' && c <= 'F') ||
-        (c >= '0' && c <= '9')))
-    return -1;
+    if(!((c >= 'a' && c <= 'f') ||
+            (c >= 'A' && c <= 'F') ||
+            (c >= '0' && c <= '9')))
+    {
+        return -1;
+    }
 
-  if (c >= 'A') {
-    /* Remove case bit */
-    c &= ~('a' ^ 'A');
+    if(c >= 'A')
+    {
+        /* Remove case bit */
+        c &= ~('a' ^ 'A');
 
-    return (c - 'A' + 10);
-  } else {
-    return (c - '0');
-  }
+        return (c - 'A' + 10);
+    }
+    else
+    {
+        return (c - '0');
+    }
 }
 
 /****************************************************************************
@@ -69,39 +78,48 @@ int hex_char_to_hex_value (char c)
  **              Others:        None                                       **
  **                                                                        **
  ***************************************************************************/
-int hex_string_to_hex_value (uint8_t *hex_value, const char *hex_string, int size)
+int hex_string_to_hex_value(uint8_t *hex_value, const char *hex_string, int size)
 {
-  int i;
+    int i;
 
-  if (strlen(hex_string) != size*2) {
-    fprintf(stderr, "the string '%s' should be of length %d\n", hex_string, size*2);
-    return -1;
-  }
+    if(strlen(hex_string) != size * 2)
+    {
+        fprintf(stderr, "the string '%s' should be of length %d\n", hex_string, size * 2);
+        return -1;
+    }
 
-  for (i=0; i < size; i++) {
-    int a = hex_char_to_hex_value(hex_string[2 * i]);
-    int b = hex_char_to_hex_value(hex_string[2 * i + 1]);
-    if (a == -1 || b == -1) goto error;
-    hex_value[i] = (a << 4) | b;
-  }
-  return 0;
+    for(i = 0; i < size; i++)
+    {
+        int a = hex_char_to_hex_value(hex_string[2 * i]);
+        int b = hex_char_to_hex_value(hex_string[2 * i + 1]);
+        if(a == -1 || b == -1)
+        {
+            goto error;
+        }
+        hex_value[i] = (a << 4) | b;
+    }
+    return 0;
 
 error:
-  fprintf(stderr, "the string '%s' is not a valid hexadecimal string\n", hex_string);
-  for (i=0; i < size; i++)
-    hex_value[i] = 0;
-  return -1;
+    fprintf(stderr, "the string '%s' is not a valid hexadecimal string\n", hex_string);
+    for(i = 0; i < size; i++)
+    {
+        hex_value[i] = 0;
+    }
+    return -1;
 }
 
-char *itoa(int i) {
-  char buffer[64];
-  int ret;
+char *itoa(int i)
+{
+    char buffer[64];
+    int ret;
 
-  ret = snprintf(buffer, sizeof(buffer), "%d",i);
-  if ( ret <= 0 ) {
-    return NULL;
-  }
+    ret = snprintf(buffer, sizeof(buffer), "%d", i);
+    if(ret <= 0)
+    {
+        return NULL;
+    }
 
-  return strdup(buffer);
+    return strdup(buffer);
 }
 

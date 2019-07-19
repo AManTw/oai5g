@@ -1,23 +1,23 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 #include <pthread.h>
 #include <stdio.h>
@@ -62,10 +62,12 @@ static ssize_t socket_read_data(socket_data_t *socket_data, void *buffer, size_t
     ssize_t recv_ret;
 
     recv_ret = recv(socket_data->sd, buffer, size, flags);
-    if (recv_ret == -1) {
+    if(recv_ret == -1)
+    {
         /* Failure case */
-        switch (errno) {
-//             case EWOULDBLOCK:
+        switch(errno)
+        {
+            //             case EWOULDBLOCK:
             case EAGAIN:
                 return -1;
             default:
@@ -73,7 +75,9 @@ static ssize_t socket_read_data(socket_data_t *socket_data, void *buffer, size_t
                 pthread_exit(NULL);
                 break;
         }
-    } else if (recv_ret == 0) {
+    }
+    else if(recv_ret == 0)
+    {
         /* We lost the connection with other peer or shutdown asked */
         ui_pipe_write_message(socket_data->pipe_fd,
                               UI_PIPE_CONNECTION_LOST, NULL, 0);
@@ -118,40 +122,47 @@ static int socket_read_itti_message(socket_data_t        *socket_data,
     g_debug("Attempting to read signal header from socket");
 
     /* Read the sub-header of signal */
-    while (data_read != sizeof(itti_signal_header_t)) {
+    while(data_read != sizeof(itti_signal_header_t))
+    {
         data_read = socket_read_data(socket_data, &itti_signal_header,
-                                       sizeof(itti_signal_header_t), 0);
+                                     sizeof(itti_signal_header_t), 0);
     }
 
     data_length = message_header->message_size - sizeof(itti_socket_header_t) - sizeof(itti_signal_header_t);
     data = malloc(sizeof(uint8_t) * data_length);
 
-    while (total_data_read < data_length) {
+    while(total_data_read < data_length)
+    {
         data_read = socket_read_data(socket_data, &data[total_data_read],
                                      data_length - total_data_read, 0);
         /* We are waiting for data */
-        if (data_read < 0) {
+        if(data_read < 0)
+        {
             usleep(10);
-        } else {
+        }
+        else
+        {
             total_data_read += data_read;
         }
     }
 
     /* Create the new buffer */
-    if (buffer_new_from_data(&buffer, data, data_length - sizeof(itti_message_types_t), 1) != RC_OK) {
+    if(buffer_new_from_data(&buffer, data, data_length - sizeof(itti_message_types_t), 1) != RC_OK)
+    {
         g_error("Failed to create new buffer");
         g_assert_not_reached();
     }
 
-    sscanf (itti_signal_header.message_number_char, MESSAGE_NUMBER_CHAR_FORMAT, &buffer->message_number);
-//     buffer_dump(buffer, stdout);
+    sscanf(itti_signal_header.message_number_char, MESSAGE_NUMBER_CHAR_FORMAT, &buffer->message_number);
+    //     buffer_dump(buffer, stdout);
 
     /* Update the number of signals received since last GUI update */
     socket_data->nb_signals_since_last_update++;
 
     socket_data->signal_list = g_list_append(socket_data->signal_list, (gpointer)buffer);
 
-    if (socket_data->nb_signals_since_last_update >= SOCKET_NB_SIGNALS_BEFORE_SIGNALLING) {
+    if(socket_data->nb_signals_since_last_update >= SOCKET_NB_SIGNALS_BEFORE_SIGNALLING)
+    {
         socket_notify_gui_update(socket_data);
     }
 
@@ -177,17 +188,22 @@ static int socket_read_xml_definition(socket_data_t *socket_data,
 
     /* XML definition is a long message... so function may take some time */
 
-    do {
+    do
+    {
         data_read = socket_read_data(socket_data, &xml_definition[total_data_read],
                                      xml_definition_length - total_data_read, 0);
 
         /* We are waiting for data */
-        if (data_read < 0) {
+        if(data_read < 0)
+        {
             usleep(10);
-        } else {
+        }
+        else
+        {
             total_data_read += data_read;
         }
-    } while (total_data_read != xml_definition_length);
+    }
+    while(total_data_read != xml_definition_length);
 
     pipe_xml_definition_message.xml_definition        = xml_definition;
     pipe_xml_definition_message.xml_definition_length = xml_definition_length - sizeof(itti_message_types_t);
@@ -206,14 +222,17 @@ static int socket_read(socket_data_t *socket_data)
     int ret = 0;
     itti_socket_header_t message_header;
 
-    while (ret >= 0) {
+    while(ret >= 0)
+    {
         ret = socket_read_data(socket_data, &message_header, sizeof(message_header), 0);
 
-        if (ret == -1) {
+        if(ret == -1)
+        {
             return 0;
         }
 
-        switch(message_header.message_type) {
+        switch(message_header.message_type)
+        {
             case ITTI_DUMP_XML_DEFINITION:
                 socket_read_xml_definition(socket_data, &message_header);
                 break;
@@ -258,7 +277,8 @@ static int pipe_read_message(socket_data_t *socket_data)
     size_t               input_data_length = 0;
 
     /* Read the header */
-    if (read(socket_data->pipe_fd, &input_header, sizeof(input_header)) < 0) {
+    if(read(socket_data->pipe_fd, &input_header, sizeof(input_header)) < 0)
+    {
         g_warning("Failed to read from pipe %d: %s", socket_data->pipe_fd,
                   g_strerror(errno));
         return -1;
@@ -267,17 +287,20 @@ static int pipe_read_message(socket_data_t *socket_data)
     input_data_length = input_header.message_size - sizeof(input_header);
 
     /* Checking for non-header part */
-    if (input_data_length > 0) {
+    if(input_data_length > 0)
+    {
         input_data = malloc(sizeof(uint8_t) * input_data_length);
 
-        if (read(socket_data->pipe_fd, input_data, input_data_length) < 0) {
+        if(read(socket_data->pipe_fd, input_data, input_data_length) < 0)
+        {
             g_warning("Failed to read from pipe %d: %s", socket_data->pipe_fd,
                       g_strerror(errno));
             return -1;
         }
     }
 
-    switch (input_header.message_type) {
+    switch(input_header.message_type)
+    {
         case UI_PIPE_DISCONNECT_EVT:
             return socket_handle_disconnect_evt(socket_data);
         default:
@@ -306,7 +329,8 @@ void *socket_thread_fct(void *arg)
     g_assert(socket_data != NULL);
 
     /* Preparing the socket */
-    if ((socket_data->sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
+    if((socket_data->sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1)
+    {
         g_warning("socket failed: %s", g_strerror(errno));
         free(socket_data->ip_address);
         free(socket_data);
@@ -316,7 +340,8 @@ void *socket_thread_fct(void *arg)
 
     si_me.sin_family = AF_INET;
     si_me.sin_port = htons(socket_data->port);
-    if (inet_aton(socket_data->ip_address, &si_me.sin_addr) == 0) {
+    if(inet_aton(socket_data->ip_address, &si_me.sin_addr) == 0)
+    {
         g_warning("inet_aton() failed\n");
         free(socket_data->ip_address);
         free(socket_data);
@@ -336,18 +361,22 @@ void *socket_thread_fct(void *arg)
     /* Update the fd_max with the MAX of socket/pipe */
     fd_max = MAX(socket_data->pipe_fd, socket_data->sd);
 
-    /* Setup the timeout for select.
-     * When a timeout is caught, check for new notifications to send to GUI.
-     */
+    /*  Setup the timeout for select.
+        When a timeout is caught, check for new notifications to send to GUI.
+    */
     tv.tv_sec = 0;
     tv.tv_usec = 1000 * SOCKET_MS_BEFORE_SIGNALLING;
 
-    do {
+    do
+    {
         /* Connecting to remote peer */
         ret = connect(socket_data->sd, (struct sockaddr *) &si_me, sizeof(struct sockaddr_in));
-        if (ret < 0) {
-            if ((socket_abort_connection) || (retry < 0)) {
-                if (retry < 0) {
+        if(ret < 0)
+        {
+            if((socket_abort_connection) || (retry < 0))
+            {
+                if(retry < 0)
+                {
                     g_warning("Failed to connect to peer %s:%d", socket_data->ip_address, socket_data->port);
                     ui_pipe_write_message(socket_data->pipe_fd, UI_PIPE_CONNECTION_FAILED, NULL, 0);
                 }
@@ -360,26 +389,32 @@ void *socket_thread_fct(void *arg)
             usleep(SOCKET_US_BEFORE_CONNECT_RETRY);
             retry--;
         }
-    } while (ret < 0);
+    }
+    while(ret < 0);
 
     /* Set the socket as non-blocking */
     fcntl(socket_data->sd, F_SETFL, O_NONBLOCK);
 
-    while (1) {
+    while(1)
+    {
         memcpy(&read_fds, &master_fds, sizeof(master_fds));
 
         ret = select(fd_max + 1, &read_fds, NULL, NULL, &tv);
-        if (ret < 0) {
+        if(ret < 0)
+        {
             g_warning("Error in select: %s", g_strerror(errno));
             free(socket_data->ip_address);
             free(socket_data);
             /* Quit the thread */
             pthread_exit(NULL);
-        } else if (ret == 0) {
-            /* Timeout for select: check if there is new incoming messages
-             * since last GUI update
-             */
-            if (socket_data->nb_signals_since_last_update > 0) {
+        }
+        else if(ret == 0)
+        {
+            /*  Timeout for select: check if there is new incoming messages
+                since last GUI update
+            */
+            if(socket_data->nb_signals_since_last_update > 0)
+            {
                 g_debug("Timout on select and data new signal in list");
                 g_debug("-> notify GUI");
                 socket_notify_gui_update(socket_data);
@@ -390,26 +425,32 @@ void *socket_thread_fct(void *arg)
         }
 
         /* Checking if there is data to read from the pipe */
-        if (FD_ISSET(socket_data->pipe_fd, &read_fds)) {
+        if(FD_ISSET(socket_data->pipe_fd, &read_fds))
+        {
             FD_CLR(socket_data->pipe_fd, &read_fds);
             pipe_read_message(socket_data);
         }
 
         /* Checking if there is data to read from the socket */
-        if (FD_ISSET(socket_data->sd, &read_fds)) {
+        if(FD_ISSET(socket_data->sd, &read_fds))
+        {
             FD_CLR(socket_data->sd, &read_fds);
             socket_read(socket_data);
 
             /* Update the timeout of select if there is data not notify to GUI */
-            if (socket_data->nb_signals_since_last_update > 0) {
+            if(socket_data->nb_signals_since_last_update > 0)
+            {
                 gint64 current_time;
 
                 current_time = g_get_monotonic_time();
 
-                if ((current_time - socket_data->last_data_notification) > SOCKET_MS_BEFORE_SIGNALLING) {
+                if((current_time - socket_data->last_data_notification) > SOCKET_MS_BEFORE_SIGNALLING)
+                {
                     socket_notify_gui_update(socket_data);
                     tv.tv_usec = 1000 * SOCKET_MS_BEFORE_SIGNALLING;
-                } else {
+                }
+                else
+                {
                     /* Update tv */
                     tv.tv_usec = (1000 * SOCKET_MS_BEFORE_SIGNALLING) - (current_time - socket_data->last_data_notification);
                 }
@@ -433,7 +474,8 @@ int socket_connect_to_remote_host(const char *remote_ip, const uint16_t port,
     socket_data->port    = port;
     socket_data->sd      = -1;
 
-    if (pthread_create(&socket_data->thread, NULL, socket_thread_fct, socket_data) != 0) {
+    if(pthread_create(&socket_data->thread, NULL, socket_thread_fct, socket_data) != 0)
+    {
         g_warning("Failed to create thread %d:%s", errno, strerror(errno));
         free(socket_data->ip_address);
         free(socket_data);

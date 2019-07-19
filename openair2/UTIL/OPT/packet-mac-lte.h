@@ -1,34 +1,35 @@
-/* packet-mac-lte.h
- *
- * Martin Mathieson
- *
- * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@wireshark.org>
- * Copyright 1998 Gerald Combs
- *
- * SPDX-License-Identifier: GPL-2.0-or-later
- *
- * This header file may also be distributed under
- * the terms of the BSD Licence as follows:
- *
- * Copyright (C) 2009 Martin Mathieson. All rights reserved.
- *
- * SPDX-License-Identifier: BSD-2-Clause
- */
- 
- /* 
- this is wireshark, commit: commit eda834b6e29c36e05a63a6056afa98390ff79357 
- Date:   Wed Aug 22 14:36:20 2018 +0200
- modified to be used in OpenAir to create the LTE MAC/RLC encapsulated in UDP as per Wireshark feature 
- */
+/*  packet-mac-lte.h
+
+    Martin Mathieson
+
+    Wireshark - Network traffic analyzer
+    By Gerald Combs <gerald@wireshark.org>
+    Copyright 1998 Gerald Combs
+
+    SPDX-License-Identifier: GPL-2.0-or-later
+
+    This header file may also be distributed under
+    the terms of the BSD Licence as follows:
+
+    Copyright (C) 2009 Martin Mathieson. All rights reserved.
+
+    SPDX-License-Identifier: BSD-2-Clause
+*/
+
+/*
+    this is wireshark, commit: commit eda834b6e29c36e05a63a6056afa98390ff79357
+    Date:   Wed Aug 22 14:36:20 2018 +0200
+    modified to be used in OpenAir to create the LTE MAC/RLC encapsulated in UDP as per Wireshark feature
+*/
 
 
 #include "ws_symbol_export.h"
 
 /** data structure to hold time values with nanosecond resolution*/
-typedef struct {
-	time_t	secs;
-	int	nsecs;
+typedef struct
+{
+    time_t	secs;
+    int	nsecs;
 } nstime_t;
 
 
@@ -53,19 +54,22 @@ typedef struct {
 #define WS_SC_RNTI     9
 #define WS_G_RNTI      10
 
-typedef enum mac_lte_oob_event {
+typedef enum mac_lte_oob_event
+{
     ltemac_send_preamble,
     ltemac_send_sr,
     ltemac_sr_failure
 } mac_lte_oob_event;
 
-typedef enum mac_lte_dl_retx {
+typedef enum mac_lte_dl_retx
+{
     dl_retx_no,
     dl_retx_yes,
     dl_retx_unknown
 } mac_lte_dl_retx;
 
-typedef enum mac_lte_crc_status {
+typedef enum mac_lte_crc_status
+{
     crc_fail = 0,
     crc_success = 1,
     crc_high_code_rate = 2,
@@ -75,7 +79,8 @@ typedef enum mac_lte_crc_status {
 } mac_lte_crc_status;
 
 /* N.B. for SCellIndex-r13 extends to 31 */
-typedef enum mac_lte_carrier_id {
+typedef enum mac_lte_carrier_id
+{
     carrier_id_primary,
     carrier_id_secondary_1,
     carrier_id_secondary_2,
@@ -86,13 +91,15 @@ typedef enum mac_lte_carrier_id {
     carrier_id_secondary_7
 } mac_lte_carrier_id;
 
-typedef enum mac_lte_ce_mode {
+typedef enum mac_lte_ce_mode
+{
     no_ce_mode = 0,
     ce_mode_a = 1,
     ce_mode_b = 2
 } mac_lte_ce_mode;
 
-typedef enum mac_lte_nb_mode {
+typedef enum mac_lte_nb_mode
+{
     no_nb_mode = 0,
     nb_mode = 1
 } mac_lte_nb_mode;
@@ -117,8 +124,8 @@ typedef struct mac_lte_info
     gboolean        subframeNumberOfGrantPresent;
     guint16         subframeNumberOfGrant;
 
-    /* Flag set only if doing PHY-level data test - i.e. there may not be a
-       well-formed MAC PDU so just show as raw data */
+    /*  Flag set only if doing PHY-level data test - i.e. there may not be a
+        well-formed MAC PDU so just show as raw data */
     gboolean        isPredefinedData;
 
     /* Length of DL PDU or UL grant size in bytes */
@@ -137,8 +144,8 @@ typedef struct mac_lte_info
     /* UL only.  Indicates if the R10 extendedBSR-Sizes parameter is set for PSCell */
     gboolean        isSimultPUCCHPUSCHPSCell;
 
-    /* Status of CRC check. For UE it is DL only. For eNodeB it is UL
-       only. For an analyzer, it is present for both DL and UL. */
+    /*  Status of CRC check. For UE it is DL only. For eNodeB it is UL
+        only. For an analyzer, it is present for both DL and UL. */
     gboolean        crcStatusValid;
     mac_lte_crc_status crcStatus;
 
@@ -158,7 +165,8 @@ typedef struct mac_lte_info
     guint8          nUlRb;
 
     /* More Physical layer info (see direction above for which side of union to use) */
-    union {
+    union
+    {
         struct mac_lte_ul_phy_info
         {
             guint8 present;  /* Remaining UL fields are present and should be displayed */
@@ -189,14 +197,15 @@ typedef struct mac_lte_info
     mac_lte_oob_event  oob_event;
     guint8             rapid;
     guint8             rach_attempt_number;
-    #define MAX_SRs 20
+#define MAX_SRs 20
     guint16            number_of_srs;
     guint16            oob_ueid[MAX_SRs];
     guint16            oob_rnti[MAX_SRs];
 } mac_lte_info;
 
 
-typedef struct mac_lte_tap_info {
+typedef struct mac_lte_tap_info
+{
     /* Info from context */
     guint16  rnti;
     guint16  ueid;
@@ -240,22 +249,22 @@ typedef struct mac_lte_tap_info {
 /*****************************************************************/
 
 
-/* Signature.  Rather than try to define a port for this, or make the
-   port number a preference, frames will start with this string (with no
-   terminating NULL */
+/*  Signature.  Rather than try to define a port for this, or make the
+    port number a preference, frames will start with this string (with no
+    terminating NULL */
 #define MAC_LTE_START_STRING "mac-lte"
 
-/* Fixed fields.  This is followed by the following 3 mandatory fields:
-   - radioType (1 byte)
-   - direction (1 byte)
-   - rntiType (1 byte)
-   (where the allowed values are defined above */
+/*  Fixed fields.  This is followed by the following 3 mandatory fields:
+    - radioType (1 byte)
+    - direction (1 byte)
+    - rntiType (1 byte)
+    (where the allowed values are defined above */
 
-/* Optional fields. Attaching this info to frames will allow you
-   to show you display/filter/plot/add-custom-columns on these fields, so should
-   be added if available.
-   The format is to have the tag, followed by the value (there is no length field,
-   it's implicit from the tag) */
+/*  Optional fields. Attaching this info to frames will allow you
+    to show you display/filter/plot/add-custom-columns on these fields, so should
+    be added if available.
+    The format is to have the tag, followed by the value (there is no length field,
+    it's implicit from the tag) */
 
 #define MAC_LTE_RNTI_TAG            0x02
 /* 2 bytes, network order */
@@ -285,10 +294,10 @@ typedef struct mac_lte_tap_info {
 /* 1 byte */
 
 #define MAC_LTE_PHY_TAG             0x0B
-/* variable length, length (1 byte) then depending on direction
-   in UL: modulation type (1 byte), TBS index (1 byte), RB length (1 byte),
+/*  variable length, length (1 byte) then depending on direction
+    in UL: modulation type (1 byte), TBS index (1 byte), RB length (1 byte),
           RB start (1 byte), HARQ id (1 byte), NDI (1 byte)
-   in DL: DCI format (1 byte), resource allocation type (1 byte), aggregation level (1 byte),
+    in DL: DCI format (1 byte), resource allocation type (1 byte), aggregation level (1 byte),
           MCS index (1 byte), redundancy version (1 byte), resource block length (1 byte),
           HARQ id (1 byte), NDI (1 byte), TB (1 byte), DL reTx (1 byte) */
 
@@ -311,8 +320,8 @@ typedef struct mac_lte_tap_info {
 /* 2 bytes for the number of items, followed by that number of ueid, rnti (2 bytes each) */
 
 
-/* MAC PDU. Following this tag comes the actual MAC PDU (there is no length, the PDU
-   continues until the end of the frame) */
+/*  MAC PDU. Following this tag comes the actual MAC PDU (there is no length, the PDU
+    continues until the end of the frame) */
 #define MAC_LTE_PAYLOAD_TAG 0x01
 
 
@@ -340,10 +349,11 @@ typedef struct drb_mapping_t
 
 
 
-/* Dedicated DRX config. Used to verify that a sensible config is given.
-   Also, beginning to configure MAC with this config and (optionally) show
-   DRX config and state (cycles/timers) attached to each UL/DL PDU! */
-typedef struct drx_config_t {
+/*  Dedicated DRX config. Used to verify that a sensible config is given.
+    Also, beginning to configure MAC with this config and (optionally) show
+    DRX config and state (cycles/timers) attached to each UL/DL PDU! */
+typedef struct drx_config_t
+{
     gboolean    configured;
     guint32     frameNum;
     guint32     previousFrameNum;
@@ -360,19 +370,20 @@ typedef struct drx_config_t {
 } drx_config_t;
 
 /* RRC can indicate whether simultaneous PUCCH/PUSCH is used */
-typedef enum {
+typedef enum
+{
     SIMULT_PUCCH_PUSCH_PCELL = 0,
     SIMULT_PUCCH_PUSCH_PSCELL
 } simult_pucch_pusch_cell_type;
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
- *
- * Local variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * vi: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */
+    Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+
+    Local variables:
+    c-basic-offset: 4
+    tab-width: 8
+    indent-tabs-mode: nil
+    End:
+
+    vi: set shiftwidth=4 tabstop=8 expandtab:
+    :indentSize=4:tabSize=8:noTabs=true:
+*/

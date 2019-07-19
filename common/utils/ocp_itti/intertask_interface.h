@@ -1,6 +1,6 @@
 /*
-  Author: Laurent THOMAS, Open Cells
-  Copyleft: OpenAirInterface software alliance and it's licence 
+    Author: Laurent THOMAS, Open Cells
+    Copyleft: OpenAirInterface software alliance and it's licence
 */
 #ifndef INTERTASK_INTERFACE_H_
 #define INTERTASK_INTERFACE_H_
@@ -11,45 +11,52 @@
 #include <assertions.h>
 
 
-typedef enum timer_type_s {
-  TIMER_PERIODIC,
-  TIMER_ONE_SHOT,
-  TIMER_TYPE_MAX,
+typedef enum timer_type_s
+{
+    TIMER_PERIODIC,
+    TIMER_ONE_SHOT,
+    TIMER_TYPE_MAX,
 } timer_type_t;
 
-typedef struct {
-  void *arg;
-  long  timer_id;
+typedef struct
+{
+    void *arg;
+    long  timer_id;
 } timer_has_expired_t;
 
-typedef struct {
-  uint32_t      interval_sec;
-  uint32_t      interval_us;
-  long     task_id;
-  int32_t       instance;
-  timer_type_t  type;
-  void         *timer_arg;
-  long          timer_id;
+typedef struct
+{
+    uint32_t      interval_sec;
+    uint32_t      interval_us;
+    long     task_id;
+    int32_t       instance;
+    timer_type_t  type;
+    void         *timer_arg;
+    long          timer_id;
 } timer_create_t;
 
-typedef struct {
-  long     task_id;
-  long          timer_id;
+typedef struct
+{
+    long     task_id;
+    long          timer_id;
 } timer_delete_t;
 
 
-typedef struct itti_lte_time_s {
-  uint32_t frame;
-  uint8_t slot;
+typedef struct itti_lte_time_s
+{
+    uint32_t frame;
+    uint8_t slot;
 } itti_lte_time_t;
 
 
-typedef struct IttiMsgEmpty_s {
+typedef struct IttiMsgEmpty_s
+{
 } IttiMsgEmpty;
 
-typedef struct IttiMsgText_s {
-  uint32_t  size;
-  char      text[];
+typedef struct IttiMsgText_s
+{
+    uint32_t  size;
+    char      text[];
 } IttiMsgText;
 
 #include <openair2/COMMON/phy_messages_types.h>
@@ -202,7 +209,7 @@ typedef struct IttiMsgText_s {
 #include <openair3/NAS/COMMON/API/NETWORK/nas_message.h>
 #include <openair2/COMMON/nas_messages_types.h>
 #if ENABLE_RAL
-  #include <ral_messages_types.h>
+    #include <ral_messages_types.h>
 #endif
 #include <openair2/COMMON/s1ap_messages_types.h>
 #include <openair2/COMMON/x2ap_messages_types.h>
@@ -239,9 +246,9 @@ void *rrc_enb_process_itti_msg(void *);
 #include <openair3/S1AP/s1ap_eNB.h>
 
 /*
-  static const char *const messages_definition_xml = {
-  #include <messages_xml.h>
-  };
+    static const char *const messages_definition_xml = {
+    #include <messages_xml.h>
+    };
 */
 
 typedef uint32_t MessageHeaderSize;
@@ -249,23 +256,25 @@ typedef uint32_t itti_message_types_t;
 typedef unsigned long message_number_t;
 #define MESSAGE_NUMBER_SIZE (sizeof(unsigned long))
 
-typedef enum task_priorities_e {
-  TASK_PRIORITY_MAX       = 100,
-  TASK_PRIORITY_MAX_LEAST = 85,
-  TASK_PRIORITY_MED_PLUS  = 70,
-  TASK_PRIORITY_MED       = 55,
-  TASK_PRIORITY_MED_LEAST = 40,
-  TASK_PRIORITY_MIN_PLUS  = 25,
-  TASK_PRIORITY_MIN       = 10,
+typedef enum task_priorities_e
+{
+    TASK_PRIORITY_MAX       = 100,
+    TASK_PRIORITY_MAX_LEAST = 85,
+    TASK_PRIORITY_MED_PLUS  = 70,
+    TASK_PRIORITY_MED       = 55,
+    TASK_PRIORITY_MED_LEAST = 40,
+    TASK_PRIORITY_MIN_PLUS  = 25,
+    TASK_PRIORITY_MIN       = 10,
 } task_priorities_t;
 
-typedef struct {
-  task_priorities_t priority;
-  unsigned int queue_size;
-  /* Printable name */
-  char name[256];
-  void *(*func)(void *) ;
-  void *(*threadFunc)(void *) ;
+typedef struct
+{
+    task_priorities_t priority;
+    unsigned int queue_size;
+    /* Printable name */
+    char name[256];
+    void *(*func)(void *) ;
+    void *(*threadFunc)(void *) ;
 } task_info_t;
 //
 //TASK_DEF(TASK_RRC_ENB,  TASK_PRIORITY_MED,  200, NULL,NULL)
@@ -305,27 +314,30 @@ typedef struct {
 #define TASK_DEF(TaskID, pRIO, qUEUEsIZE, FuNc, ThreadFunc)          { pRIO, qUEUEsIZE, #TaskID, FuNc, ThreadFunc },
 
 /* Map task id to printable name. */
-static const task_info_t tasks_info[] = {
-  FOREACH_TASK(TASK_DEF)
+static const task_info_t tasks_info[] =
+{
+    FOREACH_TASK(TASK_DEF)
 };
 
 #define TASK_ENUM(TaskID, pRIO, qUEUEsIZE, FuNc,ThreadFunc ) TaskID,
 //! Tasks id of each task
-typedef enum {
-  FOREACH_TASK(TASK_ENUM)
+typedef enum
+{
+    FOREACH_TASK(TASK_ENUM)
 } task_id_t;
 
 
 typedef task_id_t thread_id_t;
 
-typedef enum message_priorities_e {
-  MESSAGE_PRIORITY_MAX       = 100,
-  MESSAGE_PRIORITY_MAX_LEAST = 85,
-  MESSAGE_PRIORITY_MED_PLUS  = 70,
-  MESSAGE_PRIORITY_MED       = 55,
-  MESSAGE_PRIORITY_MED_LEAST = 40,
-  MESSAGE_PRIORITY_MIN_PLUS  = 25,
-  MESSAGE_PRIORITY_MIN       = 10,
+typedef enum message_priorities_e
+{
+    MESSAGE_PRIORITY_MAX       = 100,
+    MESSAGE_PRIORITY_MAX_LEAST = 85,
+    MESSAGE_PRIORITY_MED_PLUS  = 70,
+    MESSAGE_PRIORITY_MED       = 55,
+    MESSAGE_PRIORITY_MED_LEAST = 40,
+    MESSAGE_PRIORITY_MIN_PLUS  = 25,
+    MESSAGE_PRIORITY_MIN       = 10,
 } message_priorities_t;
 
 
@@ -338,50 +350,56 @@ typedef enum message_priorities_e {
   INTERNAL_MSG(MESSAGE_TEST,       MESSAGE_PRIORITY_MED, IttiMsgEmpty, message_test)
 
 /* This enum defines messages ids. Each one is unique. */
-typedef enum {
+typedef enum
+{
 #define MESSAGE_DEF(iD, pRIO, sTRUCT, fIELDnAME) iD,
-  FOREACH_MSG(MESSAGE_DEF)
+    FOREACH_MSG(MESSAGE_DEF)
 #include <all_msg.h>
 #undef MESSAGE_DEF
-  MESSAGES_ID_MAX,
+    MESSAGES_ID_MAX,
 } MessagesIds;
 
-typedef union msg_s {
+typedef union msg_s
+{
 #define MESSAGE_DEF(iD, pRIO, sTRUCT, fIELDnAME) sTRUCT fIELDnAME;
-  FOREACH_MSG(MESSAGE_DEF)
+    FOREACH_MSG(MESSAGE_DEF)
 #include <all_msg.h>
 #undef MESSAGE_DEF
 } msg_t;
 
-typedef struct MessageHeader_s {
-  MessagesIds messageId;          /**< Unique message id as referenced in enum MessagesIds */
-  task_id_t  originTaskId;        /**< ID of the sender task */
-  task_id_t  destinationTaskId;   /**< ID of the destination task */
-  instance_t instance;            /**< Task instance for virtualization */
-  itti_lte_time_t lte_time;
-  MessageHeaderSize ittiMsgSize;         /**< Message size (not including header size) */
+typedef struct MessageHeader_s
+{
+    MessagesIds messageId;          /**< Unique message id as referenced in enum MessagesIds */
+    task_id_t  originTaskId;        /**< ID of the sender task */
+    task_id_t  destinationTaskId;   /**< ID of the destination task */
+    instance_t instance;            /**< Task instance for virtualization */
+    itti_lte_time_t lte_time;
+    MessageHeaderSize ittiMsgSize;         /**< Message size (not including header size) */
 } MessageHeader;
 
-typedef struct message_info_s {
-  int id;
-  message_priorities_t priority;
-  /* Message payload size */
-  MessageHeaderSize size;
-  /* Printable name */
-  const char name[256];
+typedef struct message_info_s
+{
+    int id;
+    message_priorities_t priority;
+    /* Message payload size */
+    MessageHeaderSize size;
+    /* Printable name */
+    const char name[256];
 } message_info_t;
 
 /* Map message id to message information */
-static const message_info_t messages_info[] = {
+static const message_info_t messages_info[] =
+{
 #define MESSAGE_DEF(iD, pRIO, sTRUCT, fIELDnAME) { iD, pRIO, sizeof(sTRUCT), #iD },
-  FOREACH_MSG(MESSAGE_DEF)
+    FOREACH_MSG(MESSAGE_DEF)
 #include <all_msg.h>
 #undef MESSAGE_DEF
 };
 
-typedef struct __attribute__ ((__packed__)) MessageDef_s {
-  MessageHeader ittiMsgHeader; /**< Message header */
-  msg_t         ittiMsg;
+typedef struct __attribute__((__packed__)) MessageDef_s
+{
+    MessageHeader ittiMsgHeader; /**< Message header */
+    msg_t         ittiMsg;
 } MessageDef;
 
 
@@ -399,8 +417,9 @@ typedef struct __attribute__ ((__packed__)) MessageDef_s {
 
 #define INSTANCE_DEFAULT    (UINT16_MAX - 1)
 
-static inline int64_t clock_difftime_ns(struct timespec start, struct timespec end) {
-  return (int64_t)( end.tv_sec-start.tv_sec) * (int64_t)(1000*1000*1000) + end.tv_nsec-start.tv_nsec;
+static inline int64_t clock_difftime_ns(struct timespec start, struct timespec end)
+{
+    return (int64_t)(end.tv_sec - start.tv_sec) * (int64_t)(1000 * 1000 * 1000) + end.tv_nsec - start.tv_nsec;
 }
 
 #ifdef __cplusplus
@@ -408,15 +427,15 @@ extern "C" {
 #endif
 
 /** \brief Send a message to a task (could be itself)
-  \param task_id Task ID
-  \param instance Instance of the task used for virtualization
-  \param message Pointer to the message to send
-  @returns -1 on failure, 0 otherwise
+    \param task_id Task ID
+    \param instance Instance of the task used for virtualization
+    \param message Pointer to the message to send
+    @returns -1 on failure, 0 otherwise
  **/
 int itti_send_msg_to_task(task_id_t task_id, instance_t instance, MessageDef *message);
 
 /** \brief Add a new fd to monitor.
-   NOTE: it is up to the user to read data associated with the fd
+    NOTE: it is up to the user to read data associated with the fd
     \param task_id Task ID of the receiving task
     \param fd The file descriptor to monitor
  **/
@@ -436,26 +455,26 @@ void itti_unsubscribe_event_fd(task_id_t task_id, int fd);
 int itti_get_events(task_id_t task_id, struct epoll_event **events);
 
 /** \brief Retrieves a message in the queue associated to task_id.
-   If the queue is empty, the thread is blocked till a new message arrives.
-  \param task_id Task ID of the receiving task
-  \param received_msg Pointer to the allocated message
+    If the queue is empty, the thread is blocked till a new message arrives.
+    \param task_id Task ID of the receiving task
+    \param received_msg Pointer to the allocated message
  **/
 void itti_receive_msg(task_id_t task_id, MessageDef **received_msg);
 
 /** \brief Try to retrieves a message in the queue associated to task_id.
-  \param task_id Task ID of the receiving task
-  \param received_msg Pointer to the allocated message
+    \param task_id Task ID of the receiving task
+    \param received_msg Pointer to the allocated message
  **/
 void itti_poll_msg(task_id_t task_id, MessageDef **received_msg);
 
 /** \brief Start thread associated to the task
-   \param task_id task to start
-   \param start_routine entry point for the task
-   \param args_p Optional argument to pass to the start routine
-   @returns -1 on failure, 0 otherwise
+    \param task_id task to start
+    \param start_routine entry point for the task
+    \param args_p Optional argument to pass to the start routine
+    @returns -1 on failure, 0 otherwise
  **/
 int itti_create_task(task_id_t task_id,
-                     void *(*start_routine) (void *),
+                     void *(*start_routine)(void *),
                      void *args_p);
 
 /** \brief Exit the current task.
@@ -463,7 +482,7 @@ int itti_create_task(task_id_t task_id,
 void itti_exit_task(void);
 
 /** \brief Initiate termination of all tasks.
-   \param task_id task that is completed
+    \param task_id task that is completed
  **/
 void itti_terminate_tasks(task_id_t task_id);
 
@@ -472,44 +491,44 @@ void itti_wait_ready(int wait_tasks);
 void itti_mark_task_ready(task_id_t task_id);
 
 /** \brief Return the printable string associated with the message
-   \param message_id Id of the message
+    \param message_id Id of the message
  **/
 const char *itti_get_message_name(MessagesIds message_id);
 
 /** \brief Return the printable string associated with a task id
-   \param thread_id Id of the task
+    \param thread_id Id of the task
  **/
 const char *itti_get_task_name(task_id_t task_id);
 
 /** \brief Alloc and memset(0) a new itti message.
-   \param origin_task_id Task ID of the sending task
-   \param message_id Message ID
-   @returns NULL in case of failure or newly allocated mesage ref
+    \param origin_task_id Task ID of the sending task
+    \param message_id Message ID
+    @returns NULL in case of failure or newly allocated mesage ref
  **/
 MessageDef *itti_alloc_new_message(
-  task_id_t         origin_task_id,
-  MessagesIds       message_id);
+    task_id_t         origin_task_id,
+    MessagesIds       message_id);
 
 /** \brief Alloc and memset(0) a new itti message.
-   \param origin_task_id Task ID of the sending task
-   \param message_id Message ID
-   \param size size of the payload to send
-   @returns NULL in case of failure or newly allocated mesage ref
+    \param origin_task_id Task ID of the sending task
+    \param message_id Message ID
+    \param size size of the payload to send
+    @returns NULL in case of failure or newly allocated mesage ref
  **/
 MessageDef *itti_alloc_new_message_sized(
-  task_id_t         origin_task_id,
-  MessagesIds       message_id,
-  MessageHeaderSize size);
+    task_id_t         origin_task_id,
+    MessagesIds       message_id,
+    MessageHeaderSize size);
 
 /** \brief handle signals and wait for all threads to join when the process complete.
-   This function should be called from the main thread after having created all ITTI tasks.
+    This function should be called from the main thread after having created all ITTI tasks.
  **/
 void itti_wait_tasks_end(void);
 #define  THREAD_MAX 0 //for compatibility
 void itti_set_task_real_time(task_id_t task_id);
 
 /** \brief Send a termination message to all tasks.
-   \param task_id task that is broadcasting the message.
+    \param task_id task that is broadcasting the message.
  **/
 void itti_send_terminate_message(task_id_t task_id);
 
@@ -522,13 +541,13 @@ int itti_free(task_id_t task_id, void *ptr);
 int itti_init(task_id_t task_max, thread_id_t thread_max, MessagesIds messages_id_max, const task_info_t *tasks_info,
               const message_info_t *messages_info);
 int timer_setup(
-  uint32_t      interval_sec,
-  uint32_t      interval_us,
-  task_id_t     task_id,
-  int32_t       instance,
-  timer_type_t  type,
-  void         *timer_arg,
-  long         *timer_id);
+    uint32_t      interval_sec,
+    uint32_t      interval_us,
+    task_id_t     task_id,
+    int32_t       instance,
+    timer_type_t  type,
+    void         *timer_arg,
+    long         *timer_id);
 
 
 int timer_remove(long timer_id);

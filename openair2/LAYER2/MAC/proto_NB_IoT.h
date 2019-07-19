@@ -1,31 +1,31 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*! \file LAYER2/MAC/proto_NB_IoT.h
- * \brief MAC functions prototypes for eNB and UE
- * \author Navid Nikaein and Raymond Knopp
- * \date 2010 - 2014
- * \email navid.nikaein@eurecom.fr
- * \version 1.0
- */
+    \brief MAC functions prototypes for eNB and UE
+    \author Navid Nikaein and Raymond Knopp
+    \date 2010 - 2014
+    \email navid.nikaein@eurecom.fr
+    \version 1.0
+*/
 
 #ifndef __LAYER2_MAC_PROTO_NB_IoT_H__
 #define __LAYER2_MAC_PROTO_NB_IoT_H__
@@ -35,8 +35,8 @@
 #include "COMMON/platform_types.h"
 #include "openair2/RRC/LTE/defs_NB_IoT.h"
 /** \addtogroup _mac
- *  @{
- */
+    @{
+*/
 
 int l2_init_eNB_NB_IoT(void);
 
@@ -64,7 +64,7 @@ uint8_t register_mac_inst(eNB_MAC_INST_NB_IoT *inst, uint8_t order);
 void init_tool(sib1_NB_IoT_sched_t *config);
 void UE_info_setting(UE_TEMPLATE_NB_IoT *UE_info);
 UE_TEMPLATE_NB_IoT *get_ue_from_rnti(eNB_MAC_INST_NB_IoT *inst, rnti_t rnti);
-	
+
 ///scheduler
 void eNB_dlsch_ulsch_scheduler_NB_IoT(eNB_MAC_INST_NB_IoT *mac_inst, uint32_t abs_subframe);
 void eNB_scheduler_computing_flag_NB_IoT(eNB_MAC_INST_NB_IoT *mac_inst, uint32_t abs_subframe, uint32_t *scheduler_flags, uint32_t *common_flags, uint32_t *max_subframe);
@@ -104,13 +104,13 @@ void receive_msg4_ack_NB_IoT(eNB_MAC_INST_NB_IoT *mac_inst, rnti_t rnti);
 void schedule_uss_NB_IoT(module_id_t module_id, eNB_MAC_INST_NB_IoT *mac_inst, uint32_t subframe, uint32_t frame, uint32_t hypersfn, int index_ss);
 
 //DATA
-uint8_t *parse_ulsch_header( uint8_t *mac_header,
-                             uint8_t *num_ce,
-                             uint8_t *num_sdu,
-                             uint8_t *rx_ces,
-                             uint8_t *rx_lcids,
-                             uint16_t *rx_lengths,
-                             uint16_t tb_length );
+uint8_t *parse_ulsch_header(uint8_t *mac_header,
+                            uint8_t *num_ce,
+                            uint8_t *num_sdu,
+                            uint8_t *rx_ces,
+                            uint8_t *rx_lcids,
+                            uint16_t *rx_lengths,
+                            uint16_t tb_length);
 
 /*******UL Scheduler**********/
 void print_scheduling_result_UL(void);
@@ -118,7 +118,7 @@ void print_available_UL_resource(void);
 /*set nprach configuration at intial time*/
 void setting_nprach(void);
 /*Uplink main scheduler*/
-int schedule_UL_NB_IoT(eNB_MAC_INST_NB_IoT *mac_inst,UE_TEMPLATE_NB_IoT *UE_info, uint32_t subframe, uint32_t frame, uint32_t H_SFN);
+int schedule_UL_NB_IoT(eNB_MAC_INST_NB_IoT *mac_inst, UE_TEMPLATE_NB_IoT *UE_info, uint32_t subframe, uint32_t frame, uint32_t H_SFN);
 /*Check available uplink resource list, if there is available uplink resource, return 0, otherwise, return 1*/
 int Check_UL_resource(uint32_t DL_end, int total_ru, sched_temp_UL_NB_IoT_t *NPUSCH_info, int multi_tone, int fmt2_flag);
 /*Get I Repetition number in DCI*/
@@ -126,11 +126,11 @@ int get_I_REP(int N_rep);
 /*Get N REP from preamble repeat*/
 int get_N_REP(int CE_level);
 /*Get TBS from mcs, multi-tone, Iru*/
-int get_TBS_UL_NB_IoT(uint32_t mcs,uint32_t multi_tone,int Iru);
+int get_TBS_UL_NB_IoT(uint32_t mcs, uint32_t multi_tone, int Iru);
 /*get I tbs from mcs and multi-tone*/
-int get_I_TBS_NB_IoT(int x,int y);
+int get_I_TBS_NB_IoT(int x, int y);
 /*Get DCI REP from R max and R*/
-int get_DCI_REP(uint32_t R,uint32_t R_max);
+int get_DCI_REP(uint32_t R, uint32_t R_max);
 /*Check single tone resource list*/
 int single_tone_ru_allocation(uint32_t uplink_time, int total_ru, sched_temp_UL_NB_IoT_t *NPUSCH_info, int fmt2_flag);
 /*Check multi tone resource list*/
@@ -161,27 +161,27 @@ uint32_t get_num_sf(uint32_t I_sf);
 uint32_t get_scheduling_delay(uint32_t I_delay, uint32_t R_max);
 uint32_t get_HARQ_delay(int subcarrier_spacing, uint32_t HARQ_delay_index);
 //void generate_scheduling_result_DL(uint32_t DCI_subframe, uint32_t NPDSCH_subframe, uint32_t HARQ_subframe, DCIFormatN1_t *DCI, rnti_t rnti, uint32_t TBS, uint8_t *DLSCH_pdu);
-void generate_scheduling_result_DL(sched_temp_DL_NB_IoT_t* DCI_info, sched_temp_DL_NB_IoT_t* NPDSCH_info, sched_temp_UL_NB_IoT_t* HARQ_info, DCIFormatN1_t *DCI_inst, rnti_t rnti, uint32_t TBS, uint8_t *DLSCH_pdu);
+void generate_scheduling_result_DL(sched_temp_DL_NB_IoT_t *DCI_info, sched_temp_DL_NB_IoT_t *NPDSCH_info, sched_temp_UL_NB_IoT_t *HARQ_info, DCIFormatN1_t *DCI_inst, rnti_t rnti, uint32_t TBS, uint8_t *DLSCH_pdu);
 void fill_DCI_N1(DCIFormatN1_t *DCI_N1, UE_TEMPLATE_NB_IoT *UE_info, uint32_t scheddly, uint32_t I_sf, uint32_t I_harq);
 //Transfrom source into hyperSF, Frame, Subframe format
-void convert_system_number(uint32_t source_sf,uint32_t *hyperSF, uint32_t *frame, uint32_t *subframe);
+void convert_system_number(uint32_t source_sf, uint32_t *hyperSF, uint32_t *frame, uint32_t *subframe);
 //Trnasform hyperSF, Frame, Subframe format into subframe unit
 uint32_t convert_system_number_sf(uint32_t hyperSF, uint32_t frame, uint32_t subframe);
 /*input start position amd num_dlsf DL subframe, caculate the last subframe number*/
-uint32_t cal_num_dlsf(eNB_MAC_INST_NB_IoT *mac_inst, uint32_t hyperSF, uint32_t frame, uint32_t subframe, uint32_t* hyperSF_result, uint32_t* frame_result, uint32_t* subframe_result, uint32_t num_dlsf_require);
+uint32_t cal_num_dlsf(eNB_MAC_INST_NB_IoT *mac_inst, uint32_t hyperSF, uint32_t frame, uint32_t subframe, uint32_t *hyperSF_result, uint32_t *frame_result, uint32_t *subframe_result, uint32_t num_dlsf_require);
 void init_dlsf_info(eNB_MAC_INST_NB_IoT *mac_inst, DLSF_INFO_t *DLSF_info);
 uint32_t generate_dlsch_header_NB_IoT(uint8_t *pdu, uint32_t num_sdu, logical_chan_id_t *logical_channel, uint32_t *sdu_length, uint8_t flag_drx, uint8_t flag_ta, uint32_t TBS);
 void maintain_resource_DL(eNB_MAC_INST_NB_IoT *mac_inst, sched_temp_DL_NB_IoT_t *NPDCCH_info, sched_temp_DL_NB_IoT_t *NPDSCH_info);
 void init_tool_sib1(eNB_MAC_INST_NB_IoT *mac_inst);
 //int is_dlsf(eNB_MAC_INST_NB_IoT *mac_inst, int abs_subframe);
 /**DL test , delete**/
-available_resource_DL_t* new_dl_node(uint32_t start_subframe, uint32_t end_subframe, uint32_t dlsf);
+available_resource_DL_t *new_dl_node(uint32_t start_subframe, uint32_t end_subframe, uint32_t dlsf);
 void initialize_dl_resource(available_resource_DL_t *DL_Resource_node, uint32_t start_subframe, uint32_t end_subframe, uint32_t dlsf);
 void insert_dl_resource(available_resource_DL_t *DL_Resource_node);
 void insert_schedule_result(schedule_result_t **list, int subframe, schedule_result_t *node);
 //interface with IF
 
-uint8_t *parse_ulsch_header_NB_IoT( uint8_t *mac_header, uint8_t *num_ce, uint8_t *num_sdu, uint8_t *rx_ces, uint8_t *rx_lcids, uint16_t *rx_lengths, uint16_t tb_length);
+uint8_t *parse_ulsch_header_NB_IoT(uint8_t *mac_header, uint8_t *num_ce, uint8_t *num_sdu, uint8_t *rx_ces, uint8_t *rx_lcids, uint16_t *rx_lengths, uint16_t tb_length);
 
 void rx_sdu_NB_IoT(module_id_t module_id, int CC_id, frame_t frame, sub_frame_t subframe, uint16_t rnti, uint8_t *sdu, uint16_t  length);
 
@@ -190,9 +190,9 @@ int output_handler(eNB_MAC_INST_NB_IoT *mac_inst, module_id_t module_id, int CC_
 
 void mac_top_init_eNB_NB_IoT(void);
 
-uint32_t to_earfcn_NB_IoT(int eutra_bandP,uint32_t dl_CarrierFreq, float m_dl);
+uint32_t to_earfcn_NB_IoT(int eutra_bandP, uint32_t dl_CarrierFreq, float m_dl);
 
-uint32_t from_earfcn_NB_IoT(int eutra_bandP,uint32_t dl_earfcn, float m_dl);
+uint32_t from_earfcn_NB_IoT(int eutra_bandP, uint32_t dl_earfcn, float m_dl);
 
 int32_t get_uldl_offset_NB_IoT(int eutra_band);
 #endif

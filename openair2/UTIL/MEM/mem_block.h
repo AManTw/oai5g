@@ -1,30 +1,30 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /***************************************************************************
                           mem_block.h  -  description
                              -------------------
-  AUTHOR  : Lionel GAUTHIER
-  COMPANY : EURECOM
-  EMAIL   : Lionel.Gauthier@eurecom.fr
+    AUTHOR  : Lionel GAUTHIER
+    COMPANY : EURECOM
+    EMAIL   : Lionel.Gauthier@eurecom.fr
 
 
  ***************************************************************************/
@@ -39,27 +39,28 @@ extern "C" {
 #include "openair2/COMMON/platform_constants.h"
 //-----------------------------------------------------------------------------
 
-typedef struct mem_block_t {
-  struct mem_block_t *next;
-  struct mem_block_t *previous;
-  size_t size;
-  unsigned char pool_id;
-  unsigned char *data;
+typedef struct mem_block_t
+{
+    struct mem_block_t *next;
+    struct mem_block_t *previous;
+    size_t size;
+    unsigned char pool_id;
+    unsigned char *data;
 } mem_block_t;
 
 //-----------------------------------------------------------------------------
 
-void        *pool_buffer_init (void);
-void        *pool_buffer_clean (void *arg);
-void         free_mem_block (mem_block_t * leP, const char* caller);
-mem_block_t* get_free_mem_block (uint32_t sizeP, const char* caller);
-mem_block_t *get_free_copy_mem_block (void);
-mem_block_t *get_free_copy_mem_block_up (void);
-mem_block_t *copy_mem_block (mem_block_t * leP, mem_block_t * destP);
-void         display_mem_load (void);
+void        *pool_buffer_init(void);
+void        *pool_buffer_clean(void *arg);
+void         free_mem_block(mem_block_t *leP, const char *caller);
+mem_block_t *get_free_mem_block(uint32_t sizeP, const char *caller);
+mem_block_t *get_free_copy_mem_block(void);
+mem_block_t *get_free_copy_mem_block_up(void);
+mem_block_t *copy_mem_block(mem_block_t *leP, mem_block_t *destP);
+void         display_mem_load(void);
 
-void         check_mem_area (void);
-void        check_free_mem_block (mem_block_t * leP);
+void         check_mem_area(void);
+void        check_free_mem_block(mem_block_t *leP);
 #    define MEM_SCALE MAX_MOBILES_PER_ENB
 // definition of the size of the allocated memory area
 #    define MEM_MNGT_MB0_BLOCK_SIZE     64
@@ -140,41 +141,44 @@ void        check_free_mem_block (mem_block_t * leP);
 #define LIST_NAME_MAX_CHAR 32
 
 
-typedef struct {
-  struct mem_block_t *head;
-  struct mem_block_t *tail;
-  int                nb_elements;
-  char               name[LIST_NAME_MAX_CHAR];
+typedef struct
+{
+    struct mem_block_t *head;
+    struct mem_block_t *tail;
+    int                nb_elements;
+    char               name[LIST_NAME_MAX_CHAR];
 } list2_t;
 //-----------------------------------------------------------------------------
-typedef struct {
-  struct mem_block_t *head;
-  struct mem_block_t *tail;
-  int                nb_elements;
-  char               name[LIST_NAME_MAX_CHAR];
+typedef struct
+{
+    struct mem_block_t *head;
+    struct mem_block_t *tail;
+    int                nb_elements;
+    char               name[LIST_NAME_MAX_CHAR];
 } list_t;
 
 
 
-typedef struct {
-  //-----------------------------------------------------------
-  // basic memory management
-  //-----------------------------------------------------------
-  char              mem_pool0[MEM_MNGT_MB0_NB_BLOCKS][MEM_MNGT_MB0_BLOCK_SIZE];
-  char              mem_pool1[MEM_MNGT_MB1_NB_BLOCKS][MEM_MNGT_MB1_BLOCK_SIZE];
-  char              mem_pool2[MEM_MNGT_MB2_NB_BLOCKS][MEM_MNGT_MB2_BLOCK_SIZE];
-  char              mem_pool3[MEM_MNGT_MB3_NB_BLOCKS][MEM_MNGT_MB3_BLOCK_SIZE];
-  char              mem_pool4[MEM_MNGT_MB4_NB_BLOCKS][MEM_MNGT_MB4_BLOCK_SIZE];
-  char              mem_pool5[MEM_MNGT_MB5_NB_BLOCKS][MEM_MNGT_MB5_BLOCK_SIZE];
-  char              mem_pool6[MEM_MNGT_MB6_NB_BLOCKS][MEM_MNGT_MB6_BLOCK_SIZE];
-  char              mem_pool7[MEM_MNGT_MB7_NB_BLOCKS][MEM_MNGT_MB7_BLOCK_SIZE];
-  char              mem_pool8[MEM_MNGT_MB8_NB_BLOCKS][MEM_MNGT_MB8_BLOCK_SIZE];
-  char              mem_pool9[MEM_MNGT_MB9_NB_BLOCKS][MEM_MNGT_MB9_BLOCK_SIZE];
-  char              mem_pool10[MEM_MNGT_MB10_NB_BLOCKS][MEM_MNGT_MB10_BLOCK_SIZE];
-  char              mem_pool11[MEM_MNGT_MB11_NB_BLOCKS][MEM_MNGT_MB11_BLOCK_SIZE];
-  char              mem_pool12[MEM_MNGT_MB12_NB_BLOCKS][MEM_MNGT_MB12_BLOCK_SIZE];
-  mem_block_t     mem_blocks[MEM_MNGT_NB_ELEMENTS];
-  list_t          mem_lists[14];
+typedef struct
+{
+    //-----------------------------------------------------------
+    // basic memory management
+    //-----------------------------------------------------------
+    char              mem_pool0[MEM_MNGT_MB0_NB_BLOCKS][MEM_MNGT_MB0_BLOCK_SIZE];
+    char              mem_pool1[MEM_MNGT_MB1_NB_BLOCKS][MEM_MNGT_MB1_BLOCK_SIZE];
+    char              mem_pool2[MEM_MNGT_MB2_NB_BLOCKS][MEM_MNGT_MB2_BLOCK_SIZE];
+    char              mem_pool3[MEM_MNGT_MB3_NB_BLOCKS][MEM_MNGT_MB3_BLOCK_SIZE];
+    char              mem_pool4[MEM_MNGT_MB4_NB_BLOCKS][MEM_MNGT_MB4_BLOCK_SIZE];
+    char              mem_pool5[MEM_MNGT_MB5_NB_BLOCKS][MEM_MNGT_MB5_BLOCK_SIZE];
+    char              mem_pool6[MEM_MNGT_MB6_NB_BLOCKS][MEM_MNGT_MB6_BLOCK_SIZE];
+    char              mem_pool7[MEM_MNGT_MB7_NB_BLOCKS][MEM_MNGT_MB7_BLOCK_SIZE];
+    char              mem_pool8[MEM_MNGT_MB8_NB_BLOCKS][MEM_MNGT_MB8_BLOCK_SIZE];
+    char              mem_pool9[MEM_MNGT_MB9_NB_BLOCKS][MEM_MNGT_MB9_BLOCK_SIZE];
+    char              mem_pool10[MEM_MNGT_MB10_NB_BLOCKS][MEM_MNGT_MB10_BLOCK_SIZE];
+    char              mem_pool11[MEM_MNGT_MB11_NB_BLOCKS][MEM_MNGT_MB11_BLOCK_SIZE];
+    char              mem_pool12[MEM_MNGT_MB12_NB_BLOCKS][MEM_MNGT_MB12_BLOCK_SIZE];
+    mem_block_t     mem_blocks[MEM_MNGT_NB_ELEMENTS];
+    list_t          mem_lists[14];
 
 } mem_pool;
 

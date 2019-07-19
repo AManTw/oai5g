@@ -1,39 +1,39 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 #ifndef MME_DEFAULT_VALUES_H_
 #define MME_DEFAULT_VALUES_H_
 
 /*******************************************************************************
- * Timer Constants
+    Timer Constants
  ******************************************************************************/
 #define MME_STATISTIC_TIMER_S  (60)
 
 /*******************************************************************************
- * GTPV1 User Plane Constants
+    GTPV1 User Plane Constants
  ******************************************************************************/
 #define GTPV1_U_PORT_NUMBER    (2152)
 
 /*******************************************************************************
- * S1AP Constants
+    S1AP Constants
  ******************************************************************************/
 
 #define S1AP_PORT_NUMBER (36412) ///< S1AP SCTP IANA ASSIGNED Port Number
@@ -42,23 +42,23 @@
 #define S1AP_OUTCOME_TIMER_DEFAULT (5)     ///< S1AP Outcome drop timer (s)
 
 /*******************************************************************************
- * S6A Constants
+    S6A Constants
  ******************************************************************************/
 
 #define S6A_CONF_FILE "../S6A/freediameter/s6a.conf"
 
 /*******************************************************************************
- * SCTP Constants
+    SCTP Constants
  ******************************************************************************/
 
 /*
-#define SCTP_RECV_BUFFER_SIZE (1 << 16)
-#define SCTP_OUT_STREAMS      (32)
-#define SCTP_IN_STREAMS       (32)
-#define SCTP_MAX_ATTEMPTS     (5)
+    #define SCTP_RECV_BUFFER_SIZE (1 << 16)
+    #define SCTP_OUT_STREAMS      (32)
+    #define SCTP_IN_STREAMS       (32)
+    #define SCTP_MAX_ATTEMPTS     (5)
 */
 /*******************************************************************************
- * MME global definitions
+    MME global definitions
  ******************************************************************************/
 
 #define MAX_NUMBER_OF_ENB       (2)
@@ -74,32 +74,32 @@
 #define RELATIVE_CAPACITY       (15)
 
 /*******************************************************************************
- * IPv4 Constants
+    IPv4 Constants
  ******************************************************************************/
 
-/* Default network card to use for IPV4 packets forwarding.
- * up stands for user-plane.
- * cp stands for control-plane
- *
- *        +-----------+          +------+              +-----------+
- *        |  eNB      +------+   |  ovs | VLAN 1+------+    MME    |
- *        |           |cpenb0+------------------+cpmme0|           |
- *        |           +------+   |bridge|       +------+           |
- *        |           |upenb0+-------+  |              |           |
- *        +-----------+------+   |   |  |              +-+------+--+
- *                               +---|--+                |s11mme|
- *                                   |                   +---+--+
- *                                   |                 VLAN3 | (optional)
- *                                   |                   +---+--+
- *                                   |                   |s11sgw|
- *                                   |                 +-+------+--+
- *                                   |                 |  S+P-GW   |
- *                                   |  VLAN2   +------+           +--------+
- *                                   +----------+upsgw0|           |pgwsgi0 +
- *                                              +------+           +--------+
- *                                                     |           |
- *                                                     +-----------+
- */
+/*  Default network card to use for IPV4 packets forwarding.
+    up stands for user-plane.
+    cp stands for control-plane
+
+          +-----------+          +------+              +-----------+
+          |  eNB      +------+   |  ovs | VLAN 1+------+    MME    |
+          |           |cpenb0+------------------+cpmme0|           |
+          |           +------+   |bridge|       +------+           |
+          |           |upenb0+-------+  |              |           |
+          +-----------+------+   |   |  |              +-+------+--+
+                                 +---|--+                |s11mme|
+                                     |                   +---+--+
+                                     |                 VLAN3 | (optional)
+                                     |                   +---+--+
+                                     |                   |s11sgw|
+                                     |                 +-+------+--+
+                                     |                 |  S+P-GW   |
+                                     |  VLAN2   +------+           +--------+
+                                     +----------+upsgw0|           |pgwsgi0 +
+                                                +------+           +--------+
+                                                       |           |
+                                                       +-----------+
+*/
 
 #define DEFAULT_SGW_INTERFACE_NAME_FOR_S11            ("s11sgw")
 #define DEFAULT_SGW_IP_ADDRESS_FOR_S11                ("192.168.10.1")

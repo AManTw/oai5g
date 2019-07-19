@@ -1,45 +1,46 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*! \file rlc_def.h
-* \brief This file contains constants for RLC internal use.
-* \author GAUTHIER Lionel
-* \date 2010-2011
-* \version
-* \company Eurecom
-* \email: lionel.gauthier@eurecom.fr
-* \note
-* \bug
-* \warning
+    \brief This file contains constants for RLC internal use.
+    \author GAUTHIER Lionel
+    \date 2010-2011
+    \version
+    \company Eurecom
+    \email: lionel.gauthier@eurecom.fr
+    \note
+    \bug
+    \warning
 */
 #ifndef __RLC_DEF_H__
 #    define __RLC_DEF_H__
 //----------------------------------------------------------
 // protocol states
-typedef enum rlc_protocol_state_e {
-  RLC_NULL_STATE                    =        0x00,
-  RLC_DATA_TRANSFER_READY_STATE     =        0x01,
-  RLC_RESET_PENDING_STATE           =        0x12,
-  RLC_RESET_AND_SUSPEND_STATE       =        0x14,
-  RLC_LOCAL_SUSPEND_STATE           =        0x08
+typedef enum rlc_protocol_state_e
+{
+    RLC_NULL_STATE                    =        0x00,
+    RLC_DATA_TRANSFER_READY_STATE     =        0x01,
+    RLC_RESET_PENDING_STATE           =        0x12,
+    RLC_RESET_AND_SUSPEND_STATE       =        0x14,
+    RLC_LOCAL_SUSPEND_STATE           =        0x08
 } rlc_protocol_state_t;
 //----------------------------------------------------------
 enum RLC_OPERATION_MODE { TRANSMITTER_ONLY = 0x00,
@@ -49,14 +50,14 @@ enum RLC_OPERATION_MODE { TRANSMITTER_ONLY = 0x00,
 #define JUMBO_FRAME 1
 
 #ifdef JUMBO_FRAME
-#    define RLC_SDU_MAX_SIZE                            9000
-#    define RLC_SDU_MAX_SIZE_DATA_PLANE                 9000
-#    define RLC_MAX_FLEXIBLE_DATA_PDU_SIZE              8703
+    #define RLC_SDU_MAX_SIZE                            9000
+    #define RLC_SDU_MAX_SIZE_DATA_PLANE                 9000
+    #define RLC_MAX_FLEXIBLE_DATA_PDU_SIZE              8703
 #else
-//----------------------------------------------------------
-#    define RLC_SDU_MAX_SIZE                            1800
-#    define RLC_SDU_MAX_SIZE_DATA_PLANE                 1800
-#    define RLC_MAX_FLEXIBLE_DATA_PDU_SIZE              1503
+    //----------------------------------------------------------
+    #define RLC_SDU_MAX_SIZE                            1800
+    #define RLC_SDU_MAX_SIZE_DATA_PLANE                 1800
+    #define RLC_MAX_FLEXIBLE_DATA_PDU_SIZE              1503
 #endif
 
 #    define RLC_SDU_MAX_SIZE_CONTROL_PLANE              2000
@@ -99,13 +100,13 @@ enum RLC_SDU_DISCARD_MODE { SDU_DISCARD_MODE_RESET = 0x00,
 #    define RLC_HE_SUCC_BYTE_CONTAINS_DATA_END_PDU_IS_END_SDU 0x02 // v9.2 ok
 #    define RLC_HE_MASK                                       0x03
 // Extension bit
-/* Section 9.2.2.5:
-The interpretation of this bit depends on RLC mode and higher layer configuration:
-- In the UMD PDU, the "Extension bit" in the first octet has either the normal
-  E-bit interpretation or the alternative E-bit interpretation depending on
-  higher layer configuration. The "Extension bit" in all the other octects always
-  has the normal E-bit interpretation.
-- In the AMD PDU, the "Extension bit" always has the normal E-bit interpretation.*/
+/*  Section 9.2.2.5:
+    The interpretation of this bit depends on RLC mode and higher layer configuration:
+    - In the UMD PDU, the "Extension bit" in the first octet has either the normal
+    E-bit interpretation or the alternative E-bit interpretation depending on
+    higher layer configuration. The "Extension bit" in all the other octects always
+    has the normal E-bit interpretation.
+    - In the AMD PDU, the "Extension bit" always has the normal E-bit interpretation.*/
 #    define RLC_E_NEXT_FIELD_IS_COMPLETE_SDU          0x00 // alternative E-bit interpretation v9.2 ok
 #    define RLC_E_NEXT_FIELD_IS_DATA                  0x00 // v9.2 ok
 #    define RLC_E_NEXT_FIELD_IS_LI_E                  0x01 // v9.2 ok

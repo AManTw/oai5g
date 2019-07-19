@@ -1,39 +1,39 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*****************************************************************************
 
-Source      emm_fsm.c
+    Source      emm_fsm.c
 
-Version     0.1
+    Version     0.1
 
-Date        2012/10/03
+    Date        2012/10/03
 
-Product     NAS stack
+    Product     NAS stack
 
-Subsystem   EPS Mobility Management
+    Subsystem   EPS Mobility Management
 
-Author      Frederic Maurel
+    Author      Frederic Maurel
 
-Description Defines the EPS Mobility Management procedures executed at
+    Description Defines the EPS Mobility Management procedures executed at
         the EMMREG Service Access Point.
 
 *****************************************************************************/
@@ -58,79 +58,83 @@ Description Defines the EPS Mobility Management procedures executed at
 /****************************************************************************/
 
 /*
- * -----------------------------------------------------------------------------
- *          Data used for trace logging
- * -----------------------------------------------------------------------------
- */
+    -----------------------------------------------------------------------------
+            Data used for trace logging
+    -----------------------------------------------------------------------------
+*/
 
 /* String representation of EMM events */
-const char *emm_fsm_event2str(int evt) {
-static const char *_emm_fsm_event_str[] = {
-  "S1_ENABLED",
-  "S1_DISABLED",
-  "NO_IMSI",
-  "NO_CELL",
-  "REGISTER_REQ",
-  "REGISTER_CNF",
-  "REGISTER_REJ",
-  "ATTACH_INIT",
-  "ATTACH_REQ",
-  "ATTACH_FAILED",
-  "ATTACH_EXCEEDED",
-  "AUTHENTICATION_REJ",
-  "ATTACH_CNF",
-  "ATTACH_REJ",
-  "DETACH_INIT",
-  "DETACH_REQ",
-  "DETACH_FAILED",
-  "DETACH_CNF",
-  "TAU_REQ",
-  "TAU_CNF",
-  "TAU_REJ",
-  "SERVICE_REQ",
-  "SERVICE_CNF",
-  "SERVICE_REJ",
-  "LOWERLAYER_SUCCESS",
-  "LOWERLAYER_FAILURE",
-  "LOWERLAYER_RELEASE",
-};
-  return  _emm_fsm_event_str[evt];
+const char *emm_fsm_event2str(int evt)
+{
+    static const char *_emm_fsm_event_str[] =
+    {
+        "S1_ENABLED",
+        "S1_DISABLED",
+        "NO_IMSI",
+        "NO_CELL",
+        "REGISTER_REQ",
+        "REGISTER_CNF",
+        "REGISTER_REJ",
+        "ATTACH_INIT",
+        "ATTACH_REQ",
+        "ATTACH_FAILED",
+        "ATTACH_EXCEEDED",
+        "AUTHENTICATION_REJ",
+        "ATTACH_CNF",
+        "ATTACH_REJ",
+        "DETACH_INIT",
+        "DETACH_REQ",
+        "DETACH_FAILED",
+        "DETACH_CNF",
+        "TAU_REQ",
+        "TAU_CNF",
+        "TAU_REJ",
+        "SERVICE_REQ",
+        "SERVICE_CNF",
+        "SERVICE_REJ",
+        "LOWERLAYER_SUCCESS",
+        "LOWERLAYER_FAILURE",
+        "LOWERLAYER_RELEASE",
+    };
+    return  _emm_fsm_event_str[evt];
 }
 
-const char *emm_fsm_status2str(int status) {
-/* String representation of EMM status */
-static const char *_emm_fsm_status_str[EMM_STATE_MAX] = {
-  "INVALID",
-  "NULL",
-  "DEREGISTERED",
-  "REGISTERED",
-  "DEREGISTERED-INITIATED",
-  "DEREGISTERED.NORMAL-SERVICE",
-  "DEREGISTERED.LIMITED-SERVICE",
-  "DEREGISTERED.ATTEMPTING-TO-ATTACH",
-  "DEREGISTERED.PLMN-SEARCH",
-  "DEREGISTERED.NO-IMSI",
-  "DEREGISTERED.ATTACH-NEEDED",
-  "DEREGISTERED.NO-CELL-AVAILABLE",
-  "REGISTERED-INITIATED",
-  "REGISTERED.NORMAL-SERVICE",
-  "REGISTERED.ATTEMPTING-TO-PDATE",
-  "REGISTERED.LIMITED-SERVICE",
-  "REGISTERED.PLMN-SEARCH",
-  "REGISTERED.UPDATE-NEEDED",
-  "REGISTERED.NO-CELL-AVAILABLE",
-  "REGISTERED.ATTEMPTING-TO-UPDATE-MM",
-  "REGISTERED.IMSI-DETACH-INITIATED",
-  "TRACKING-AREA-UPDATING-INITIATED",
-  "SERVICE-REQUEST-INITIATED",
-};
-  return _emm_fsm_status_str[status];
+const char *emm_fsm_status2str(int status)
+{
+    /* String representation of EMM status */
+    static const char *_emm_fsm_status_str[EMM_STATE_MAX] =
+    {
+        "INVALID",
+        "NULL",
+        "DEREGISTERED",
+        "REGISTERED",
+        "DEREGISTERED-INITIATED",
+        "DEREGISTERED.NORMAL-SERVICE",
+        "DEREGISTERED.LIMITED-SERVICE",
+        "DEREGISTERED.ATTEMPTING-TO-ATTACH",
+        "DEREGISTERED.PLMN-SEARCH",
+        "DEREGISTERED.NO-IMSI",
+        "DEREGISTERED.ATTACH-NEEDED",
+        "DEREGISTERED.NO-CELL-AVAILABLE",
+        "REGISTERED-INITIATED",
+        "REGISTERED.NORMAL-SERVICE",
+        "REGISTERED.ATTEMPTING-TO-PDATE",
+        "REGISTERED.LIMITED-SERVICE",
+        "REGISTERED.PLMN-SEARCH",
+        "REGISTERED.UPDATE-NEEDED",
+        "REGISTERED.NO-CELL-AVAILABLE",
+        "REGISTERED.ATTEMPTING-TO-UPDATE-MM",
+        "REGISTERED.IMSI-DETACH-INITIATED",
+        "TRACKING-AREA-UPDATING-INITIATED",
+        "SERVICE-REQUEST-INITIATED",
+    };
+    return _emm_fsm_status_str[status];
 }
 /*
- * -----------------------------------------------------------------------------
- *      EPS Mobility Management state machine handlers
- * -----------------------------------------------------------------------------
- */
+    -----------------------------------------------------------------------------
+        EPS Mobility Management state machine handlers
+    -----------------------------------------------------------------------------
+*/
 
 /* Type of the EPS Mobility Management state machine handler */
 typedef int(*emm_fsm_handler_t)(nas_user_t *user, const emm_reg_t *);
@@ -160,30 +164,31 @@ int EmmServiceRequestInitiated(nas_user_t *user, const emm_reg_t *);
 
 
 /* EMM state machine handlers */
-static const emm_fsm_handler_t _emm_fsm_handlers[EMM_STATE_MAX] = {
-  NULL,
-  EmmNull,
-  EmmDeregistered,
-  EmmRegistered,
-  EmmDeregisteredInitiated,
-  EmmDeregisteredNormalService,
-  EmmDeregisteredLimitedService,
-  EmmDeregisteredAttemptingToAttach,
-  EmmDeregisteredPlmnSearch,
-  EmmDeregisteredNoImsi,
-  EmmDeregisteredAttachNeeded,
-  EmmDeregisteredNoCellAvailable,
-  EmmRegisteredInitiated,
-  EmmRegisteredNormalService,
-  EmmRegisteredAttemptingToUpdate,
-  EmmRegisteredLimitedService,
-  EmmRegisteredPlmnSearch,
-  EmmRegisteredUpdateNeeded,
-  EmmRegisteredNoCellAvailable,
-  EmmRegisteredAttemptingToUpdate,
-  EmmRegisteredImsiDetachInitiated,
-  EmmTrackingAreaUpdatingInitiated,
-  EmmServiceRequestInitiated,
+static const emm_fsm_handler_t _emm_fsm_handlers[EMM_STATE_MAX] =
+{
+    NULL,
+    EmmNull,
+    EmmDeregistered,
+    EmmRegistered,
+    EmmDeregisteredInitiated,
+    EmmDeregisteredNormalService,
+    EmmDeregisteredLimitedService,
+    EmmDeregisteredAttemptingToAttach,
+    EmmDeregisteredPlmnSearch,
+    EmmDeregisteredNoImsi,
+    EmmDeregisteredAttachNeeded,
+    EmmDeregisteredNoCellAvailable,
+    EmmRegisteredInitiated,
+    EmmRegisteredNormalService,
+    EmmRegisteredAttemptingToUpdate,
+    EmmRegisteredLimitedService,
+    EmmRegisteredPlmnSearch,
+    EmmRegisteredUpdateNeeded,
+    EmmRegisteredNoCellAvailable,
+    EmmRegisteredAttemptingToUpdate,
+    EmmRegisteredImsiDetachInitiated,
+    EmmTrackingAreaUpdatingInitiated,
+    EmmServiceRequestInitiated,
 };
 
 /****************************************************************************/
@@ -206,9 +211,9 @@ static const emm_fsm_handler_t _emm_fsm_handlers[EMM_STATE_MAX] = {
  ***************************************************************************/
 emm_fsm_state_t emm_fsm_initialize()
 {
-  LOG_FUNC_IN;
+    LOG_FUNC_IN;
 
-  LOG_FUNC_RETURN(EMM_NULL);
+    LOG_FUNC_RETURN(EMM_NULL);
 }
 
 /****************************************************************************
@@ -227,23 +232,25 @@ emm_fsm_state_t emm_fsm_initialize()
  **                                                                        **
  ***************************************************************************/
 int emm_fsm_set_status(nas_user_t *user,
-  emm_fsm_state_t  status)
+                       emm_fsm_state_t  status)
 {
-  LOG_FUNC_IN;
+    LOG_FUNC_IN;
 
-  if ( status < EMM_STATE_MAX ) {
-    LOG_TRACE(INFO, "EMM-FSM   - Status changed: %s ===> %s",
-              emm_fsm_status2str(user->emm_fsm_status),
-              emm_fsm_status2str(status));
+    if(status < EMM_STATE_MAX)
+    {
+        LOG_TRACE(INFO, "EMM-FSM   - Status changed: %s ===> %s",
+                  emm_fsm_status2str(user->emm_fsm_status),
+                  emm_fsm_status2str(status));
 
-    if (status != user->emm_fsm_status) {
-      user->emm_fsm_status = status;
+        if(status != user->emm_fsm_status)
+        {
+            user->emm_fsm_status = status;
+        }
+
+        LOG_FUNC_RETURN(RETURNok);
     }
 
-    LOG_FUNC_RETURN (RETURNok);
-  }
-
-  LOG_FUNC_RETURN (RETURNerror);
+    LOG_FUNC_RETURN(RETURNerror);
 }
 
 /****************************************************************************
@@ -263,7 +270,7 @@ int emm_fsm_set_status(nas_user_t *user,
  ***************************************************************************/
 emm_fsm_state_t emm_fsm_get_status(nas_user_t *user)
 {
-  return user->emm_fsm_status;
+    return user->emm_fsm_status;
 }
 
 /****************************************************************************
@@ -282,23 +289,23 @@ emm_fsm_state_t emm_fsm_get_status(nas_user_t *user)
  ***************************************************************************/
 int emm_fsm_process(nas_user_t *user, const emm_reg_t *evt)
 {
-  int rc;
-  emm_fsm_state_t status;
+    int rc;
+    emm_fsm_state_t status;
 
-  LOG_FUNC_IN;
-
-
-  status = user->emm_fsm_status;
-
-  LOG_TRACE(INFO, "EMM-FSM   - Received event %s (%d) in state %s",
-            emm_fsm_event2str(evt->primitive - _EMMREG_START - 1), evt->primitive,
-            emm_fsm_status2str(status));
+    LOG_FUNC_IN;
 
 
-  /* Execute the EMM state machine */
-  rc = (_emm_fsm_handlers[status])(user, evt);
+    status = user->emm_fsm_status;
 
-  LOG_FUNC_RETURN (rc);
+    LOG_TRACE(INFO, "EMM-FSM   - Received event %s (%d) in state %s",
+              emm_fsm_event2str(evt->primitive - _EMMREG_START - 1), evt->primitive,
+              emm_fsm_status2str(status));
+
+
+    /* Execute the EMM state machine */
+    rc = (_emm_fsm_handlers[status])(user, evt);
+
+    LOG_FUNC_RETURN(rc);
 }
 
 /****************************************************************************/

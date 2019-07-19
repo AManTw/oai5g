@@ -6,10 +6,10 @@
 
 
 /****************************************************************************/
-void lfds700_misc_library_cleanup( void )
+void lfds700_misc_library_cleanup(void)
 {
-  // TRD : we do nuuuuuuthin'
+    // TRD : we do nuuuuuuthin'
 
-  return;
+    return;
 }
 

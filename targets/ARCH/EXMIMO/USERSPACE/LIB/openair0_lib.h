@@ -1,31 +1,31 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /** openair0_lib : API to interface with ExpressMIMO kernel driver
-*
-*  Authors: Matthias Ihmig <matthias.ihmig@mytum.de>, 2013
-*           Raymond Knopp <raymond.knopp@eurecom.fr>
-*
-*  Changelog:
-*  28.01.2013: Initial version
+
+    Authors: Matthias Ihmig <matthias.ihmig@mytum.de>, 2013
+            Raymond Knopp <raymond.knopp@eurecom.fr>
+
+    Changelog:
+    28.01.2013: Initial version
 */
 
 #ifndef __OPENAIR0_LIB_H__
@@ -38,25 +38,27 @@
 #include <sched.h>
 #include <linux/sched.h>
 
-typedef enum {
-  idle=0,
-  waiting_for_synch,
-  running
+typedef enum
+{
+    idle = 0,
+    waiting_for_synch,
+    running
 } exmimo_daq_state_t;
 
-typedef struct {
-  pthread_t watchdog;
-  pthread_attr_t watchdog_attr;
-  struct sched_param watchdog_sched_param;
-  pthread_mutex_t watchdog_mutex;
-  int watchdog_exit;
-  int wait_first_read;
-  exmimo_daq_state_t daq_state;
-  openair0_timestamp ts;
-  openair0_timestamp last_ts_rx;
-  int samples_per_tick;
-  int samples_per_frame;
-  int last_mbox;
+typedef struct
+{
+    pthread_t watchdog;
+    pthread_attr_t watchdog_attr;
+    struct sched_param watchdog_sched_param;
+    pthread_mutex_t watchdog_mutex;
+    int watchdog_exit;
+    int wait_first_read;
+    exmimo_daq_state_t daq_state;
+    openair0_timestamp ts;
+    openair0_timestamp last_ts_rx;
+    int samples_per_tick;
+    int samples_per_frame;
+    int last_mbox;
 } exmimo_state_t;
 
 // Use this to access shared memory (configuration structures, adc/dac data buffers, ...)
@@ -112,8 +114,8 @@ int openair0_stop_without_reset(int card);
 unsigned int *openair0_daq_cnt(void);
 
 // set the TX and RX frequencies (card 0 only for now, to retain USRP compatibility)
-int openair0_set_frequencies(openair0_device* device, openair0_config_t *openair0_cfg,int exmimo_dump_config);
+int openair0_set_frequencies(openair0_device *device, openair0_config_t *openair0_cfg, int exmimo_dump_config);
 
-int openair0_set_gains(openair0_device* device, openair0_config_t *openair0_cfg);
+int openair0_set_gains(openair0_device *device, openair0_config_t *openair0_cfg);
 
 #endif

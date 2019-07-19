@@ -9,26 +9,32 @@ int volatile gui_logd;
 
 void glock(gui *_gui)
 {
-  struct gui *g = _gui;
-  if (pthread_mutex_lock(g->lock)) ERR("mutex error\n");
+    struct gui *g = _gui;
+    if(pthread_mutex_lock(g->lock))
+    {
+        ERR("mutex error\n");
+    }
 }
 
 void gunlock(gui *_gui)
 {
-  struct gui *g = _gui;
-  if (pthread_mutex_unlock(g->lock)) ERR("mutex error\n");
+    struct gui *g = _gui;
+    if(pthread_mutex_unlock(g->lock))
+    {
+        ERR("mutex error\n");
+    }
 }
 
 int new_color(gui *_gui, char *color)
 {
-  struct gui *g = _gui;
-  int ret;
+    struct gui *g = _gui;
+    int ret;
 
-  glock(g);
+    glock(g);
 
-  ret = x_new_color(g->x, color);
+    ret = x_new_color(g->x, color);
 
-  gunlock(g);
+    gunlock(g);
 
-  return ret;
+    return ret;
 }

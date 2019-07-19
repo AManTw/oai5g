@@ -1,30 +1,30 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */ 
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*! \file flexran_agent_mac.h
- * \brief FlexRAN agent message handler APIs for MAC layer
- * \author  Xenofon Foukas, Mohamed Kassem and Navid Nikaein
- * \date 2016
- * \version 0.1
- */
+    \brief FlexRAN agent message handler APIs for MAC layer
+    \author  Xenofon Foukas, Mohamed Kassem and Navid Nikaein
+    \date 2016
+    \version 0.1
+*/
 
 #ifndef FLEXRAN_AGENT_MAC_H_
 #define FLEXRAN_AGENT_MAC_H_
@@ -53,11 +53,11 @@ int flexran_agent_mac_destroy_sf_trigger(Protocol__FlexranMessage *msg);
 int flexran_agent_mac_stats_reply(mid_t mod_id, const report_config_t *report_config, Protocol__FlexUeStatsReport **ue_report, Protocol__FlexCellStatsReport **cell_report);
 int flexran_agent_mac_destroy_stats_reply(Protocol__FlexranMessage *msg);
 
-/* DL MAC scheduling decision protocol message constructor (empty command) and destructor */ 
+/* DL MAC scheduling decision protocol message constructor (empty command) and destructor */
 int flexran_agent_mac_create_empty_dl_config(mid_t mod_id, Protocol__FlexranMessage **msg);
 int flexran_agent_mac_destroy_dl_config(Protocol__FlexranMessage *msg);
 
-/* UL MAC scheduling decision protocol message constructor (empty command) and destructor */ 
+/* UL MAC scheduling decision protocol message constructor (empty command) and destructor */
 int flexran_agent_mac_create_empty_ul_config(mid_t mod_id, Protocol__FlexranMessage **msg);
 int flexran_agent_mac_destroy_ul_config(Protocol__FlexranMessage *msg);
 
@@ -65,7 +65,7 @@ int flexran_agent_mac_handle_dl_mac_config(mid_t mod_id, const void *params, Pro
 
 
 /**********************************
- * FlexRAN agent - technology mac API
+    FlexRAN agent - technology mac API
  **********************************/
 
 /*Inform controller about received scheduling requests during a subframe*/
@@ -85,10 +85,10 @@ void flexran_agent_get_pending_dl_mac_config(mid_t mod_id, Protocol__FlexranMess
 int flexran_agent_register_mac_xface(mid_t mod_id, AGENT_MAC_xface *xface);
 
 /*Unregister technology specific callbacks*/
-int flexran_agent_unregister_mac_xface(mid_t mod_id, AGENT_MAC_xface*xface);
+int flexran_agent_unregister_mac_xface(mid_t mod_id, AGENT_MAC_xface *xface);
 
 /***************************************
- * FlexRAN agent - slice configuration *
+    FlexRAN agent - slice configuration
  ***************************************/
 
 /* Inform controller about possibility to update slice configuration */

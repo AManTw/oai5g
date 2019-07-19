@@ -1,7 +1,8 @@
 #ifndef _THREADS_T_H_
 #define _THREADS_T_H_
 
-typedef struct threads_s {
+typedef struct threads_s
+{
     int iq;
     int one;
     int two;

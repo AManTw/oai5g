@@ -1,23 +1,23 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 #ifndef USER_APP
 
@@ -35,9 +35,9 @@
 
 
 /*
-  Operations:
+    Operations:
 
-  - DMA from pc to em1: The Linux driver writes a 4 words command to
+    - DMA from pc to em1: The Linux driver writes a 4 words command to
     the control fifo [0x103 phys_hi phys_lo size] and waits for a DMA
     end interrupt from the em1 board.
 
@@ -45,7 +45,7 @@
     write syscall.  The buffer provided by the application must not
     span across multiple pages.
 
-  - DMA from em1 to pc: The Linux driver writes a 4 words command to
+    - DMA from em1 to pc: The Linux driver writes a 4 words command to
     the control fifo [0x203 phys_hi phys_lo size] and waits for a DMA
     end interrupt from the em1 board.
 
@@ -88,48 +88,52 @@
 
 struct  em1_private_s;
 
-struct em1_page_s {
-  uintptr_t addr;
-  struct page *page;
+struct em1_page_s
+{
+    uintptr_t addr;
+    struct page *page;
 };
 
-struct em1_mmap_ctx {
-  void* virt;
-  dma_addr_t phys;
-  size_t size;
+struct em1_mmap_ctx
+{
+    void *virt;
+    dma_addr_t phys;
+    size_t size;
 };
 
-struct em1_file_s {
-  struct em1_private_s *pv;
-  struct em1_page_s read;
-  struct em1_page_s write;
-  struct em1_mmap_ctx mmap_list[MAX_EM1_MMAP];
+struct em1_file_s
+{
+    struct em1_private_s *pv;
+    struct em1_page_s read;
+    struct em1_page_s write;
+    struct em1_mmap_ctx mmap_list[MAX_EM1_MMAP];
 };
 
-struct  em1_private_s {
-  struct pci_dev *pdev;
-  struct device *dev;
-  spinlock_t lock;
+struct  em1_private_s
+{
+    struct pci_dev *pdev;
+    struct device *dev;
+    spinlock_t lock;
 
-  /* memeory mapped device base address */
-  void * base;
+    /* memeory mapped device base address */
+    void *base;
 
-  /* wait queues */
-  wait_queue_head_t rq_wait_fifo_r;
-  wait_queue_head_t rq_wait_fifo_w;
-  wait_queue_head_t rq_wait_dma;
+    /* wait queues */
+    wait_queue_head_t rq_wait_fifo_r;
+    wait_queue_head_t rq_wait_fifo_w;
+    wait_queue_head_t rq_wait_dma;
 
-  /* Number of fifo words left to read or write */
-  size_t fifo_read_left;
-  size_t fifo_write_left;
+    /* Number of fifo words left to read or write */
+    size_t fifo_read_left;
+    size_t fifo_write_left;
 
-  /* Cached interrupt enabled value */
-  uint32_t ie;
-  /* Driver busy operations flags */
-  int busy;
+    /* Cached interrupt enabled value */
+    uint32_t ie;
+    /* Driver busy operations flags */
+    int busy;
 
-  /* Completed DMA transfer counters */
-  uint16_t dma_started, dma_done;
+    /* Completed DMA transfer counters */
+    uint16_t dma_started, dma_done;
 };
 
 extern struct em1_private_s *em1_devices[MAX_EM1_DEVICES];
@@ -163,23 +167,25 @@ int em1_mmap(struct file *filp, struct vm_area_struct *vma);
 
 #endif
 
-enum em1_ioctl_cmd {
-  EM1_IOCTL_FIFO_WRITE,
-  EM1_IOCTL_FIFO_READ,
+enum em1_ioctl_cmd
+{
+    EM1_IOCTL_FIFO_WRITE,
+    EM1_IOCTL_FIFO_READ,
 };
 
 #define EM1_MAX_FIFO_PAYLOAD 128
 
-struct em1_ioctl_fifo_params {
-  uint32_t *words;
-  size_t count;
+struct em1_ioctl_fifo_params
+{
+    uint32_t *words;
+    size_t count;
 };
 
 /*
- * Local Variables:
- * c-file-style: "linux"
- * indent-tabs-mode: t
- * tab-width: 8
- * End:
- */
+    Local Variables:
+    c-file-style: "linux"
+    indent-tabs-mode: t
+    tab-width: 8
+    End:
+*/
 

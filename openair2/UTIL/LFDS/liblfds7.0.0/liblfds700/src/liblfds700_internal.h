@@ -10,27 +10,27 @@
 #define LFDS700_ABSTRACTION_BACKOFF_LIMIT  (0x1 << 10)
 
 #if( defined _KERNEL_MODE )
-  #define MODE_TYPE_STRING "kernel-mode"
+    #define MODE_TYPE_STRING "kernel-mode"
 #endif
 
 #if( !defined _KERNEL_MODE )
-  #define MODE_TYPE_STRING "user-mode"
+    #define MODE_TYPE_STRING "user-mode"
 #endif
 
 #if( defined NDEBUG && !defined COVERAGE && !defined TSAN )
-  #define BUILD_TYPE_STRING "release"
+    #define BUILD_TYPE_STRING "release"
 #endif
 
 #if( !defined NDEBUG && !defined COVERAGE && !defined TSAN )
-  #define BUILD_TYPE_STRING "debug"
+    #define BUILD_TYPE_STRING "debug"
 #endif
 
 #if( !defined NDEBUG && defined COVERAGE && !defined TSAN )
-  #define BUILD_TYPE_STRING "coverage"
+    #define BUILD_TYPE_STRING "coverage"
 #endif
 
 #if( !defined NDEBUG && !defined COVERAGE && defined TSAN )
-  #define BUILD_TYPE_STRING "threadsanitizer"
+    #define BUILD_TYPE_STRING "threadsanitizer"
 #endif
 
 // TRD : lfds700_pal_atom_t volatile *destination, lfds700_pal_atom_t *compare, lfds700_pal_atom_t new_destination, enum lfds700_misc_cas_strength cas_strength, char unsigned result, lfds700_pal_uint_t *backoff_iteration

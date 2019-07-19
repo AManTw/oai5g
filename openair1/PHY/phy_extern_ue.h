@@ -1,23 +1,23 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 #ifndef __PHY_EXTERN_UE__H__
 #define __PHY_EXTERN_UE__H__
@@ -25,8 +25,8 @@
 #include "PHY/defs_UE.h"
 #include "common/ran_context.h"
 
-extern  char* namepointer_chMag ;
-extern char* namepointer_log2;
+extern  char *namepointer_chMag ;
+extern char *namepointer_log2;
 extern  char fmageren_name2[512];
 
 extern unsigned int RX_DMA_BUFFER[4][NB_ANTENNAS_RX];
@@ -38,13 +38,13 @@ extern int number_of_cards;
 
 
 #ifndef OCP_FRAMEWORK
-extern PHY_VARS_UE ***PHY_vars_UE_g;
-extern LTE_DL_FRAME_PARMS *lte_frame_parms_g;
+    extern PHY_VARS_UE ***PHY_vars_UE_g;
+    extern LTE_DL_FRAME_PARMS *lte_frame_parms_g;
 #else
-#define MAX_UE 10
-#define MAX_eNB 20
+    #define MAX_UE 10
+    #define MAX_eNB 20
 
-extern PHY_VARS_UE * PHY_vars_UE_g[MAX_UE][MAX_NUM_CCs];
+    extern PHY_VARS_UE *PHY_vars_UE_g[MAX_UE][MAX_NUM_CCs];
 #endif
 
 extern short primary_synch0[144];
@@ -67,9 +67,9 @@ extern char mode_string[4][20];
 
 
 #ifndef OPENAIR2
-extern unsigned char NB_eNB_INST;
-extern unsigned char NB_UE_INST;
-extern unsigned char NB_RN_INST;
+    extern unsigned char NB_eNB_INST;
+    extern unsigned char NB_UE_INST;
+    extern unsigned char NB_RN_INST;
 #endif
 
 extern unsigned int ULSCH_max_consecutive_errors;
@@ -104,8 +104,8 @@ extern char eNB_functions[6][20];
 extern char eNB_timing[2][20];
 extern char ru_if_types[MAX_RU_IF_TYPES][20];
 
-extern int16_t unscrambling_lut[65536*16];
-extern uint8_t scrambling_lut[65536*16];
+extern int16_t unscrambling_lut[65536 * 16];
+extern uint8_t scrambling_lut[65536 * 16];
 
 extern unsigned short msrsb_6_40[8][4];
 extern unsigned short msrsb_41_60[8][4];

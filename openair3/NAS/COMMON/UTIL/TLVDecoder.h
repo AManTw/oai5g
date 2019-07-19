@@ -1,23 +1,23 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 #ifndef TLV_DECODER_H_
 #define TLV_DECODER_H_
@@ -26,7 +26,7 @@
 #include "nas_log.h"
 
 #ifndef NAS_DEBUG
-//# define NAS_DEBUG 1
+    //# define NAS_DEBUG 1
 #endif
 
 #define DECODE_U8(bUFFER, vALUE, sIZE)    \
@@ -67,22 +67,23 @@
 #define IES_DECODE_U32(bUFFER, dECODED, vALUE)  \
     DECODE_U32(bUFFER + dECODED, vALUE, dECODED)
 
-typedef enum {
-  TLV_DECODE_ERROR_OK                     =  0,
-  TLV_DECODE_UNEXPECTED_IEI               = -1,
-  TLV_DECODE_MANDATORY_FIELD_NOT_PRESENT  = -2,
-  TLV_DECODE_VALUE_DOESNT_MATCH           = -3,
+typedef enum
+{
+    TLV_DECODE_ERROR_OK                     =  0,
+    TLV_DECODE_UNEXPECTED_IEI               = -1,
+    TLV_DECODE_MANDATORY_FIELD_NOT_PRESENT  = -2,
+    TLV_DECODE_VALUE_DOESNT_MATCH           = -3,
 
-  /* Fatal errors - received message should not be processed */
-  TLV_DECODE_WRONG_MESSAGE_TYPE           = -10,
-  TLV_DECODE_PROTOCOL_NOT_SUPPORTED       = -11,
-  TLV_DECODE_BUFFER_TOO_SHORT             = -12,
-  TLV_DECODE_BUFFER_NULL                  = -13,
-  TLV_DECODE_MAC_MISMATCH                 = -14,
+    /* Fatal errors - received message should not be processed */
+    TLV_DECODE_WRONG_MESSAGE_TYPE           = -10,
+    TLV_DECODE_PROTOCOL_NOT_SUPPORTED       = -11,
+    TLV_DECODE_BUFFER_TOO_SHORT             = -12,
+    TLV_DECODE_BUFFER_NULL                  = -13,
+    TLV_DECODE_MAC_MISMATCH                 = -14,
 } tlv_decoder_error_code;
 
-/* Defines error code limit below which received message should be discarded
- * because it cannot be further processed */
+/*  Defines error code limit below which received message should be discarded
+    because it cannot be further processed */
 #define TLV_DECODE_FATAL_ERROR  (TLV_DECODE_VALUE_DOESNT_MATCH)
 
 extern int errorCodeDecoder;

@@ -1,38 +1,38 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*****************************************************************************
-Source    esm_msg.h
+    Source    esm_msg.h
 
-Version   0.1
+    Version   0.1
 
-Date    2012/09/27
+    Date    2012/09/27
 
-Product   NAS stack
+    Product   NAS stack
 
-Subsystem EPS Session Management
+    Subsystem EPS Session Management
 
-Author    Frederic Maurel
+    Author    Frederic Maurel
 
-Description Defines EPS Session Management messages and functions used
+    Description Defines EPS Session Management messages and functions used
     to encode and decode
 
 *****************************************************************************/
@@ -75,33 +75,34 @@ Description Defines EPS Session Management messages and functions used
 /****************************************************************************/
 
 /*
- * Structure of ESM plain NAS message
- * ----------------------------------
- */
-typedef union {
-  esm_msg_header_t header;
-  activate_default_eps_bearer_context_request_msg activate_default_eps_bearer_context_request;
-  activate_default_eps_bearer_context_accept_msg activate_default_eps_bearer_context_accept;
-  activate_default_eps_bearer_context_reject_msg activate_default_eps_bearer_context_reject;
-  activate_dedicated_eps_bearer_context_request_msg activate_dedicated_eps_bearer_context_request;
-  activate_dedicated_eps_bearer_context_accept_msg activate_dedicated_eps_bearer_context_accept;
-  activate_dedicated_eps_bearer_context_reject_msg activate_dedicated_eps_bearer_context_reject;
-  modify_eps_bearer_context_request_msg modify_eps_bearer_context_request;
-  modify_eps_bearer_context_accept_msg modify_eps_bearer_context_accept;
-  modify_eps_bearer_context_reject_msg modify_eps_bearer_context_reject;
-  deactivate_eps_bearer_context_request_msg deactivate_eps_bearer_context_request;
-  deactivate_eps_bearer_context_accept_msg deactivate_eps_bearer_context_accept;
-  pdn_connectivity_request_msg pdn_connectivity_request;
-  pdn_connectivity_reject_msg pdn_connectivity_reject;
-  pdn_disconnect_request_msg pdn_disconnect_request;
-  pdn_disconnect_reject_msg pdn_disconnect_reject;
-  bearer_resource_allocation_request_msg bearer_resource_allocation_request;
-  bearer_resource_allocation_reject_msg bearer_resource_allocation_reject;
-  bearer_resource_modification_request_msg bearer_resource_modification_request;
-  bearer_resource_modification_reject_msg bearer_resource_modification_reject;
-  esm_information_request_msg esm_information_request;
-  esm_information_response_msg esm_information_response;
-  esm_status_msg esm_status;
+    Structure of ESM plain NAS message
+    ----------------------------------
+*/
+typedef union
+{
+    esm_msg_header_t header;
+    activate_default_eps_bearer_context_request_msg activate_default_eps_bearer_context_request;
+    activate_default_eps_bearer_context_accept_msg activate_default_eps_bearer_context_accept;
+    activate_default_eps_bearer_context_reject_msg activate_default_eps_bearer_context_reject;
+    activate_dedicated_eps_bearer_context_request_msg activate_dedicated_eps_bearer_context_request;
+    activate_dedicated_eps_bearer_context_accept_msg activate_dedicated_eps_bearer_context_accept;
+    activate_dedicated_eps_bearer_context_reject_msg activate_dedicated_eps_bearer_context_reject;
+    modify_eps_bearer_context_request_msg modify_eps_bearer_context_request;
+    modify_eps_bearer_context_accept_msg modify_eps_bearer_context_accept;
+    modify_eps_bearer_context_reject_msg modify_eps_bearer_context_reject;
+    deactivate_eps_bearer_context_request_msg deactivate_eps_bearer_context_request;
+    deactivate_eps_bearer_context_accept_msg deactivate_eps_bearer_context_accept;
+    pdn_connectivity_request_msg pdn_connectivity_request;
+    pdn_connectivity_reject_msg pdn_connectivity_reject;
+    pdn_disconnect_request_msg pdn_disconnect_request;
+    pdn_disconnect_reject_msg pdn_disconnect_reject;
+    bearer_resource_allocation_request_msg bearer_resource_allocation_request;
+    bearer_resource_allocation_reject_msg bearer_resource_allocation_reject;
+    bearer_resource_modification_request_msg bearer_resource_modification_request;
+    bearer_resource_modification_reject_msg bearer_resource_modification_reject;
+    esm_information_request_msg esm_information_request;
+    esm_information_response_msg esm_information_response;
+    esm_status_msg esm_status;
 } ESM_msg;
 
 

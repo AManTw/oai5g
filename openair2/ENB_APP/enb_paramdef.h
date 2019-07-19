@@ -1,34 +1,34 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*! \file openair2/ENB_APP/enb_paramdef.f
- * \brief definition of configuration parameters for all eNodeB modules 
- * \author Francois TABURET
- * \date 2017
- * \version 0.1
- * \company NOKIA BellLabs France
- * \email: francois.taburet@nokia-bell-labs.com
- * \note
- * \warning
- */
+    \brief definition of configuration parameters for all eNodeB modules
+    \author Francois TABURET
+    \date 2017
+    \version 0.1
+    \company NOKIA BellLabs France
+    \email: francois.taburet@nokia-bell-labs.com
+    \note
+    \warning
+*/
 
 #include "common/config/config_paramdesc.h"
 #include "RRC_paramsvalues.h"
@@ -36,8 +36,8 @@
 
 
 #define ENB_CONFIG_STRING_CC_NODE_FUNCTION                              "node_function"
-#define ENB_CONFIG_STRING_CC_NODE_TIMING                                "node_timing"   
-#define ENB_CONFIG_STRING_CC_NODE_SYNCH_REF                             "node_synch_ref"   
+#define ENB_CONFIG_STRING_CC_NODE_TIMING                                "node_timing"
+#define ENB_CONFIG_STRING_CC_NODE_SYNCH_REF                             "node_synch_ref"
 
 
 // OTG config per ENB-UE DL
@@ -56,18 +56,19 @@
 
 
 #ifdef LIBCONFIG_LONG
-#define libconfig_int long
+    #define libconfig_int long
 #else
-#define libconfig_int int
+    #define libconfig_int int
 #endif
 
-typedef enum {
-  RU     = 0,
-  L1     = 1,
-  L2     = 2,
-  L3     = 3,
-  S1     = 4,
-  lastel = 5
+typedef enum
+{
+    RU     = 0,
+    L1     = 1,
+    L2     = 2,
+    L3     = 3,
+    S1     = 4,
+    lastel = 5
 } RC_config_functions_t;
 
 
@@ -156,7 +157,7 @@ typedef enum {
 #define ENB_CONFIG_STRING_ASN1_VERBOSITY_NONE              "none"
 #define ENB_CONFIG_STRING_ASN1_VERBOSITY_ANNOYING          "annoying"
 #define ENB_CONFIG_STRING_ASN1_VERBOSITY_INFO              "info"
- 
+
 
 /* global parameters, not under a specific section   */
 #define ENB_CONFIG_STRING_ASN1_VERBOSITY           "Asn1_verbosity"
@@ -215,7 +216,7 @@ typedef enum {
 {ENB_CONFIG_STRING_REMOTE_S_PORTC,               NULL,   0,            uptr:NULL,   defuintval:50000,            TYPE_UINT,      0},  \
 {ENB_CONFIG_STRING_LOCAL_S_PORTD,                NULL,   0,            uptr:NULL,   defuintval:50001,            TYPE_UINT,      0},  \
 {ENB_CONFIG_STRING_REMOTE_S_PORTD,               NULL,   0,            uptr:NULL,   defuintval:50001,            TYPE_UINT,      0},  \
-}															     	
+}
 #define ENB_ENB_ID_IDX                  0
 #define ENB_CELL_TYPE_IDX               1
 #define ENB_ENB_NAME_IDX                2
@@ -250,7 +251,7 @@ typedef enum {
 }
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------------*/
-/*-------------------------------------------------------------------------------------------------------------------------------------------------*/		  
+/*-------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 /* PLMN ID configuration */
 
@@ -622,8 +623,8 @@ typedef enum {
 {ENB_CONFIG_STRING_DISCRXPOOLPS_RC_SFBITMAP_CHOICE_BS_ASN_BITS_UNUSED,NULL,   0,   iptr:(int32_t *)&discRxPoolPS_ResourceConfig_subframeBitmap_choice_bs_bits_unused,         defintval:1,       TYPE_UINT,    0} \
 }
 
-#define ENB_CONFIG_FRAME_TYPE_IDX                            0  			     
-#define ENB_CONFIG_TDD_CONFIG_IDX                            1  			     
+#define ENB_CONFIG_FRAME_TYPE_IDX                            0
+#define ENB_CONFIG_TDD_CONFIG_IDX                            1
 #define ENB_CONFIG_TDD_CONFIG_S_IDX			     2
 #define ENB_CONFIG_PREFIX_TYPE_IDX 			     3
 #define ENB_CONFIG_PBCH_REPETITION_IDX			     4
@@ -638,20 +639,20 @@ typedef enum {
 #define ENB_CONFIG_PRACH_CONFIG_INDEX_IDX  		     13
 #define ENB_CONFIG_PRACH_HIGH_SPEED_IDX			     14
 #define ENB_CONFIG_PRACH_ZERO_CORRELATION_IDX		     15
-#define ENB_CONFIG_PRACH_FREQ_OFFSET_IDX	             16     
-#define ENB_CONFIG_PUCCH_DELTA_SHIFT_IDX		     17     
+#define ENB_CONFIG_PRACH_FREQ_OFFSET_IDX	             16
+#define ENB_CONFIG_PUCCH_DELTA_SHIFT_IDX		     17
 #define ENB_CONFIG_PUCCH_NRB_CQI_IDX			     18
 #define ENB_CONFIG_PUCCH_NCS_AN_IDX			     19
 #define ENB_CONFIG_PUCCH_N1_AN_IDX 			     20
 #define ENB_CONFIG_PDSCH_RS_EPRE_IDX			     21
 #define ENB_CONFIG_PDSCH_PB_IDX				     22
 #define ENB_CONFIG_PUSCH_N_SB_IDX  			     23
-#define ENB_CONFIG_PUSCH_HOPPINGMODE_IDX		     24     
+#define ENB_CONFIG_PUSCH_HOPPINGMODE_IDX		     24
 #define ENB_CONFIG_PUSCH_HOPPINGOFFSET_IDX 		     25
-#define ENB_CONFIG_PUSCH_ENABLE64QAM_IDX		     26     
+#define ENB_CONFIG_PUSCH_ENABLE64QAM_IDX		     26
 #define ENB_CONFIG_PUSCH_GROUP_HOPPING_EN_IDX		     27
 #define ENB_CONFIG_PUSCH_GROUP_ASSIGNMENT_IDX		     28
-#define ENB_CONFIG_PUSCH_SEQUENCE_HOPPING_EN_IDX	     29     
+#define ENB_CONFIG_PUSCH_SEQUENCE_HOPPING_EN_IDX	     29
 #define ENB_CONFIG_PUSCH_NDMRS1_IDX			     30
 #define ENB_CONFIG_PHICH_DURATION_IDX			     31
 #define ENB_CONFIG_PHICH_RESOURCE_IDX			     32
@@ -675,12 +676,12 @@ typedef enum {
 #define ENB_CONFIG_RACH_MESSAGESIZEGROUPA_IDX		     50
 #define ENB_CONFIG_RACH_MESSAGEPOWEROFFSETGROUPB_IDX	     51
 #define ENB_CONFIG_RACH_POWERRAMPINGSTEP_IDX		     52
-#define ENB_CONFIG_RACH_PREAMBLEINITIALRECEIVEDTARGETPOWER_IDX 53 
+#define ENB_CONFIG_RACH_PREAMBLEINITIALRECEIVEDTARGETPOWER_IDX 53
 #define ENB_CONFIG_RACH_PREAMBLETRANSMAX_IDX		     54
-#define ENB_CONFIG_RACH_RARESPONSEWINDOWSIZE_IDX	     55     
-#define ENB_CONFIG_RACH_MACCONTENTIONRESOLUTIONTIMER_IDX     56	     
+#define ENB_CONFIG_RACH_RARESPONSEWINDOWSIZE_IDX	     55
+#define ENB_CONFIG_RACH_MACCONTENTIONRESOLUTIONTIMER_IDX     56
 #define ENB_CONFIG_RACH_MAXHARQMSG3TX_IDX  		     57
-#define ENB_CONFIG_PCCH_DEFAULT_PAGING_CYCLE_IDX	     58     
+#define ENB_CONFIG_PCCH_DEFAULT_PAGING_CYCLE_IDX	     58
 #define ENB_CONFIG_PCCH_NB_IDX				     59
 #define ENB_CONFIG_BCCH_MODIFICATIONPERIODCOEFF_IDX	     60
 #define ENB_CONFIG_UETIMERS_T300_IDX			     61
@@ -831,7 +832,7 @@ typedef enum {
 {ENB_CONFIG_STRING_ENB_PORT_FOR_S1U,                     NULL,      0,         uptr:NULL,           defintval:2152L,     TYPE_UINT,        0},      \
 {ENB_CONFIG_STRING_ENB_IPV4_ADDR_FOR_X2C,                NULL,      0,         strptr:NULL,         defstrval:NULL,      TYPE_STRING,      0},      \
 {ENB_CONFIG_STRING_ENB_PORT_FOR_X2C,                     NULL,      0,         uptr:NULL,           defintval:0L,        TYPE_UINT,        0},      \
-}   
+}
 
 
 

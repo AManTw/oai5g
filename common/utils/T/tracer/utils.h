@@ -9,9 +9,10 @@ void bps(char *out, float v, char *suffix);
 /* list                                                                     */
 /****************************************************************************/
 
-typedef struct list {
-  struct list *last, *next;
-  void *data;
+typedef struct list
+{
+    struct list *last, *next;
+    void *data;
 } list;
 
 list *list_remove_head(list *l);
@@ -38,10 +39,11 @@ int connect_to(char *addr, int port);
 /* buffer                                                                   */
 /****************************************************************************/
 
-typedef struct {
-  int osize;
-  int omaxsize;
-  char *obuf;
+typedef struct
+{
+    int osize;
+    int omaxsize;
+    char *obuf;
 } OBUF;
 
 void PUTC(OBUF *o, char c);

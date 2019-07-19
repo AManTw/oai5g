@@ -1,60 +1,60 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*
                                  platform_types.h
                              -------------------
-  AUTHOR  : Lionel GAUTHIER
-  COMPANY : EURECOM
-  EMAIL   : Lionel.Gauthier@eurecom.fr
+    AUTHOR  : Lionel GAUTHIER
+    COMPANY : EURECOM
+    EMAIL   : Lionel.Gauthier@eurecom.fr
 
  ***************************************************************************/
 #ifndef __PLATFORM_TYPES_H__
 #    define __PLATFORM_TYPES_H__
 
 #if !defined(NAS_NETLINK)
-  #include <stdint.h>
+    #include <stdint.h>
 #endif
 
 //-----------------------------------------------------------------------------
 // GENERIC TYPES
 //-----------------------------------------------------------------------------
 
-/* boolean_t is also defined in openair2/COMMON/commonDef.h,
- * let's protect potential redefinition
- */
+/*  boolean_t is also defined in openair2/COMMON/commonDef.h,
+    let's protect potential redefinition
+*/
 #ifndef _BOOLEAN_T_DEFINED_
-  #define _BOOLEAN_T_DEFINED_
+    #define _BOOLEAN_T_DEFINED_
 
-  typedef signed char        boolean_t;
+    typedef signed char        boolean_t;
 
-  #if !defined(TRUE)
-    #define TRUE               (boolean_t)0x01
-  #endif
+    #if !defined(TRUE)
+        #define TRUE               (boolean_t)0x01
+    #endif
 
-  #if !defined(FALSE)
-    #define FALSE              (boolean_t)0x00
-  #endif
+    #if !defined(FALSE)
+        #define FALSE              (boolean_t)0x00
+    #endif
 
-  #define BOOL_NOT(b) (b^TRUE)
+    #define BOOL_NOT(b) (b^TRUE)
 
 #endif /* _BOOLEAN_T_DEFINED_ */
 
@@ -89,32 +89,36 @@ typedef boolean_t             sl_discovery_flag_t;
 #define  SL_DISCOVERY_FLAG_NO          FALSE
 #define  SL_DISCOVERY_FLAG_YES         TRUE
 
-typedef enum link_direction_e {
-  UNKNOWN_DIR          = 0,
-  DIR_UPLINK           = 1,
-  DIR_DOWNLINK         = 2
+typedef enum link_direction_e
+{
+    UNKNOWN_DIR          = 0,
+    DIR_UPLINK           = 1,
+    DIR_DOWNLINK         = 2
 } link_direction_t;
 
-typedef enum rb_type_e {
-  UNKNOWN_RADIO_BEARER        = 0,
-  SIGNALLING_RADIO_BEARER     = 1,
-  RADIO_ACCESS_BEARER         = 2
+typedef enum rb_type_e
+{
+    UNKNOWN_RADIO_BEARER        = 0,
+    SIGNALLING_RADIO_BEARER     = 1,
+    RADIO_ACCESS_BEARER         = 2
 } rb_type_t;
 
-typedef enum {
-  CR_ROUND = 0,
-  CR_SRB12 = 1,
-  CR_HOL   = 2,
-  CR_LC    = 3,
-  CR_CQI   = 4,
-  CR_LCP   = 5,
-  CR_NUM   = 6
+typedef enum
+{
+    CR_ROUND = 0,
+    CR_SRB12 = 1,
+    CR_HOL   = 2,
+    CR_LC    = 3,
+    CR_CQI   = 4,
+    CR_LCP   = 5,
+    CR_NUM   = 6
 } sorting_criterion_t;
 
-typedef enum {
-  POL_FAIR   = 0,
-  POL_GREEDY = 1,
-  POL_NUM    = 2
+typedef enum
+{
+    POL_FAIR   = 0,
+    POL_GREEDY = 1,
+    POL_NUM    = 2
 } accounting_policy_t;
 //-----------------------------------------------------------------------------
 // PHY TYPES
@@ -153,27 +157,29 @@ typedef uint16_t           pdcp_sn_t;
 typedef uint32_t           pdcp_hfn_t;
 typedef int16_t            pdcp_hfn_offset_t;
 
-typedef enum pdcp_transmission_mode_e {
-  PDCP_TRANSMISSION_MODE_UNKNOWN     = 0,
-  PDCP_TRANSMISSION_MODE_CONTROL     = 1,
-  PDCP_TRANSMISSION_MODE_DATA        = 2,
-  PDCP_TRANSMISSION_MODE_TRANSPARENT = 3
+typedef enum pdcp_transmission_mode_e
+{
+    PDCP_TRANSMISSION_MODE_UNKNOWN     = 0,
+    PDCP_TRANSMISSION_MODE_CONTROL     = 1,
+    PDCP_TRANSMISSION_MODE_DATA        = 2,
+    PDCP_TRANSMISSION_MODE_TRANSPARENT = 3
 } pdcp_transmission_mode_t;
 //-----------------------------------------------------------------------------
 // IP DRIVER / PDCP TYPES
 //-----------------------------------------------------------------------------
 typedef uint16_t           tcp_udp_port_t;
-typedef enum  ip_traffic_type_e {
-  TRAFFIC_IPVX_TYPE_UNKNOWN    =  0,
-  TRAFFIC_IPV6_TYPE_UNICAST    =  1,
-  TRAFFIC_IPV6_TYPE_MULTICAST  =  2,
-  TRAFFIC_IPV6_TYPE_UNKNOWN    =  3,
-  TRAFFIC_IPV4_TYPE_UNICAST    =  5,
-  TRAFFIC_IPV4_TYPE_MULTICAST  =  6,
-  TRAFFIC_IPV4_TYPE_BROADCAST  =  7,
-  TRAFFIC_IPV4_TYPE_UNKNOWN    =  8,
-  TRAFFIC_PC5S_SIGNALLING      =  9,
-  TRAFFIC_PC5S_SESSION_INIT    =  10
+typedef enum  ip_traffic_type_e
+{
+    TRAFFIC_IPVX_TYPE_UNKNOWN    =  0,
+    TRAFFIC_IPV6_TYPE_UNICAST    =  1,
+    TRAFFIC_IPV6_TYPE_MULTICAST  =  2,
+    TRAFFIC_IPV6_TYPE_UNKNOWN    =  3,
+    TRAFFIC_IPV4_TYPE_UNICAST    =  5,
+    TRAFFIC_IPV4_TYPE_MULTICAST  =  6,
+    TRAFFIC_IPV4_TYPE_BROADCAST  =  7,
+    TRAFFIC_IPV4_TYPE_UNKNOWN    =  8,
+    TRAFFIC_PC5S_SIGNALLING      =  9,
+    TRAFFIC_PC5S_SESSION_INIT    =  10
 } ip_traffic_type_t;
 
 //-----------------------------------------------------------------------------
@@ -188,28 +194,29 @@ typedef uint32_t           m_tmsi_t;
 
 //Random UE identity length = 40 bits
 #if ! defined(NOT_A_RANDOM_UE_IDENTITY)
-  #define NOT_A_RANDOM_UE_IDENTITY (uint64_t)0xFFFFFFFF
+    #define NOT_A_RANDOM_UE_IDENTITY (uint64_t)0xFFFFFFFF
 #endif
 #if ! defined(NOT_A_RNTI)
-  #define NOT_A_RNTI (rnti_t)0
+    #define NOT_A_RNTI (rnti_t)0
 #endif
 #if ! defined(M_RNTI)
-  #define M_RNTI     (rnti_t)0xFFFD
+    #define M_RNTI     (rnti_t)0xFFFD
 #endif
 #if ! defined(P_RNTI)
-  #define P_RNTI     (rnti_t)0xFFFE
+    #define P_RNTI     (rnti_t)0xFFFE
 #endif
 #if ! defined(SI_RNTI)
-  #define SI_RNTI    (rnti_t)0xFFFF
+    #define SI_RNTI    (rnti_t)0xFFFF
 #endif
-typedef enum config_action_e {
-  CONFIG_ACTION_NULL              = 0,
-  CONFIG_ACTION_ADD               = 1,
-  CONFIG_ACTION_REMOVE            = 2,
-  CONFIG_ACTION_MODIFY            = 3,
-  CONFIG_ACTION_SET_SECURITY_MODE = 4,
-  CONFIG_ACTION_MBMS_ADD          = 10,
-  CONFIG_ACTION_MBMS_MODIFY       = 11
+typedef enum config_action_e
+{
+    CONFIG_ACTION_NULL              = 0,
+    CONFIG_ACTION_ADD               = 1,
+    CONFIG_ACTION_REMOVE            = 2,
+    CONFIG_ACTION_MODIFY            = 3,
+    CONFIG_ACTION_SET_SECURITY_MODE = 4,
+    CONFIG_ACTION_MBMS_ADD          = 10,
+    CONFIG_ACTION_MBMS_MODIFY       = 11
 } config_action_t;
 
 //-----------------------------------------------------------------------------
@@ -225,17 +232,18 @@ typedef uint8_t            ebi_t;  // eps bearer id
 //-----------------------------------------------------------------------------
 // may be ITTI not enabled, but type instance is useful also for OTG,
 #if !defined(instance_t)
-  typedef uint16_t instance_t;
+    typedef uint16_t instance_t;
 #endif
-typedef struct protocol_ctxt_s {
-  module_id_t module_id;     /*!< \brief  Virtualized module identifier      */
-  eNB_flag_t  enb_flag;      /*!< \brief  Flag to indicate eNB (1) or UE (0) */
-  instance_t  instance;      /*!< \brief  ITTI or OTG module identifier      */
-  rnti_t      rnti;
-  frame_t     frame;         /*!< \brief  LTE frame number.*/
-  sub_frame_t subframe;      /*!< \brief  LTE sub frame number.*/
-  eNB_index_t eNB_index;     /*!< \brief  valid for UE indicating the index of connected eNB(s)      */
-  boolean_t   configured;  /*!< \brief  flag indicating whether the instance is configured or not  */
+typedef struct protocol_ctxt_s
+{
+    module_id_t module_id;     /*!< \brief  Virtualized module identifier      */
+    eNB_flag_t  enb_flag;      /*!< \brief  Flag to indicate eNB (1) or UE (0) */
+    instance_t  instance;      /*!< \brief  ITTI or OTG module identifier      */
+    rnti_t      rnti;
+    frame_t     frame;         /*!< \brief  LTE frame number.*/
+    sub_frame_t subframe;      /*!< \brief  LTE sub frame number.*/
+    eNB_index_t eNB_index;     /*!< \brief  valid for UE indicating the index of connected eNB(s)      */
+    boolean_t   configured;  /*!< \brief  flag indicating whether the instance is configured or not  */
 } protocol_ctxt_t;
 // warning time hardcoded
 #define PROTOCOL_CTXT_TIME_MILLI_SECONDS(CtXt_h) ((CtXt_h)->frame*10+(CtXt_h)->subframe)
