@@ -41,7 +41,6 @@ unsigned int taus(void)
     s2 = (((s2 & 0xFFFFFFF0) << 17)^  b);
     return s0 ^ s1 ^ s2;
 }
-#if 1
 void set_taus_seed(unsigned int seed_init)
 {
 
@@ -66,7 +65,6 @@ void set_taus_seed(unsigned int seed_init)
         s2 = result;
     }
 }
-#endif
 
 #ifdef MAIN
 

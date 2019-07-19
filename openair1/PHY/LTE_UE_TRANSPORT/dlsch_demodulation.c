@@ -1336,43 +1336,6 @@ int rx_pdsch(PHY_VARS_UE *ue,
 #endif
 
     // Please keep it: useful for debugging
-#if 0
-    if((symbol == 13) && (subframe == 0) && (dlsch0_harq->Qm == 6) /*&& (nb_rb==25)*/)
-    {
-        LOG_E(PHY, "Dump Phy Chan Est \n");
-        if(1)
-        {
-#if 1
-            LOG_M("rxdataF0.m", "rxdataF0",             &common_vars->common_vars_rx_data_per_thread[ue->current_thread_id[subframe]].rxdataF[0][0], 14 * frame_parms->ofdm_symbol_size, 1, 1);
-            //LOG_M("rxdataF1.m"    , "rxdataF1",             &common_vars->common_vars_rx_data_per_thread[ue->current_thread_id[subframe]].rxdataF[0][0],14*frame_parms->ofdm_symbol_size,1,1);
-            LOG_M("dl_ch_estimates00.m", "dl_ch_estimates00",   &common_vars->common_vars_rx_data_per_thread[ue->current_thread_id[subframe]].dl_ch_estimates[eNB_id][0][0], 14 * frame_parms->ofdm_symbol_size, 1, 1);
-            //LOG_M("dl_ch_estimates01.m", "dl_ch_estimates01",   &common_vars->common_vars_rx_data_per_thread[ue->current_thread_id[subframe]].dl_ch_estimates[eNB_id][1][0],14*frame_parms->ofdm_symbol_size,1,1);
-            //LOG_M("dl_ch_estimates10.m", "dl_ch_estimates10",   &common_vars->common_vars_rx_data_per_thread[ue->current_thread_id[subframe]].dl_ch_estimates[eNB_id][2][0],14*frame_parms->ofdm_symbol_size,1,1);
-            //LOG_M("dl_ch_estimates11.m", "dl_ch_estimates11",   &common_vars->common_vars_rx_data_per_thread[ue->current_thread_id[subframe]].dl_ch_estimates[eNB_id][3][0],14*frame_parms->ofdm_symbol_size,1,1);
-
-
-            //LOG_M("rxdataF_ext00.m"    , "rxdataF_ext00",       &pdsch_vars[eNB_id]->rxdataF_ext[0][0],14*frame_parms->N_RB_DL*12,1,1);
-            //LOG_M("rxdataF_ext01.m"    , "rxdataF_ext01",       &pdsch_vars[eNB_id]->rxdataF_ext[1][0],14*frame_parms->N_RB_DL*12,1,1);
-            //LOG_M("rxdataF_ext10.m"    , "rxdataF_ext10",       &pdsch_vars[eNB_id]->rxdataF_ext[2][0],14*frame_parms->N_RB_DL*12,1,1);
-            //LOG_M("rxdataF_ext11.m"    , "rxdataF_ext11",       &pdsch_vars[eNB_id]->rxdataF_ext[3][0],14*frame_parms->N_RB_DL*12,1,1);
-            LOG_M("dl_ch_estimates_ext00.m", "dl_ch_estimates_ext00", &pdsch_vars[eNB_id]->dl_ch_estimates_ext[0][0], 14 * frame_parms->N_RB_DL * 12, 1, 1);
-            //LOG_M("dl_ch_estimates_ext01.m", "dl_ch_estimates_ext01", &pdsch_vars[eNB_id]->dl_ch_estimates_ext[1][0],14*frame_parms->N_RB_DL*12,1,1);
-            //LOG_M("dl_ch_estimates_ext10.m", "dl_ch_estimates_ext10", &pdsch_vars[eNB_id]->dl_ch_estimates_ext[2][0],14*frame_parms->N_RB_DL*12,1,1);
-            //LOG_M("dl_ch_estimates_ext11.m", "dl_ch_estimates_ext11", &pdsch_vars[eNB_id]->dl_ch_estimates_ext[3][0],14*frame_parms->N_RB_DL*12,1,1);
-            LOG_M("rxdataF_comp00.m", "rxdataF_comp00",              &pdsch_vars[eNB_id]->rxdataF_comp0[0][0], 14 * frame_parms->N_RB_DL * 12, 1, 1);
-            //LOG_M("rxdataF_comp01.m","rxdataF_comp01",              &pdsch_vars[eNB_id]->rxdataF_comp0[1][0],14*frame_parms->N_RB_DL*12,1,1);
-            //LOG_M("rxdataF_comp10.m","rxdataF_comp10",              &pdsch_vars[eNB_id]->rxdataF_comp1[harq_pid][round][0][0],14*frame_parms->N_RB_DL*12,1,1);
-            //LOG_M("rxdataF_comp11.m","rxdataF_comp11",              &pdsch_vars[eNB_id]->rxdataF_comp1[harq_pid][round][1][0],14*frame_parms->N_RB_DL*12,1,1);
-#endif
-            LOG_M("llr0.m", "llr0",  &pdsch_vars[eNB_id]->llr[0][0], (14 * nb_rb * 12 * dlsch1_harq->Qm) - 4 * (nb_rb * 4 * dlsch1_harq->Qm), 1, 0);
-            //LOG_M("llr1.m","llr1",  &pdsch_vars[eNB_id]->llr[1][0],(14*nb_rb*12*dlsch1_harq->Qm) - 4*(nb_rb*4*dlsch1_harq->Qm),1,0);
-
-
-            AssertFatal(0, " ");
-        }
-
-    }
-#endif
 
     T(T_UE_PHY_PDSCH_IQ, T_INT(eNB_id), T_INT(frame % 1024),
       T_INT(subframe), T_INT(nb_rb),

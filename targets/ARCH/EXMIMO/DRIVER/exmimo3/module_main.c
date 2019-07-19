@@ -55,7 +55,7 @@ module_param(irq, int, S_IRUSR | S_IWUSR);
 
 static struct file_operations openair_fops =
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,35)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,35))
 unlocked_ioctl: openair_device_ioctl,
 #else
 ioctl:  openair_device_ioctl,
@@ -263,8 +263,6 @@ static int __init openair_init_module(void)
 
         openair_irq_enabled[card] = 0;
 
-        // #ifdef CONFIG_PREEMPT_RT doesn't work -> fix misconfigured header files?
-#if 1
 
         if(irq != 0)
         {
@@ -296,9 +294,6 @@ static int __init openair_init_module(void)
         }
 
 
-#else
-        printk("Warning: didn't request IRQ for PREEMPT_REALTIME\n");
-#endif
 
     } // for (i=0; i<number_of_cards; i++)
 

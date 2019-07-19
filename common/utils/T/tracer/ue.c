@@ -672,7 +672,6 @@ static void ue_main_gui(ue_gui *e, gui *g, event_handler *h, void *database,
         e->ul_nack_logger[i] = timelog;
     }
 
-#if 1
     /* phy/mac/rlc/pdcp/rrc textlog */
     line = new_container(g, HORIZONTAL);
     widget_add_child(g, top_container, line, -1);
@@ -747,7 +746,6 @@ static void ue_main_gui(ue_gui *e, gui *g, event_handler *h, void *database,
     widget_add_child(g, top_container, text, -1);
     container_set_child_growable(g, top_container, text, 1);
     e->legacy = new_view_textlist(10000, 10, g, text);
-#endif
 
     set_current_ue(g, ed, 0);
     register_notifier(g, "click", e->prev_ue_button, click, ed);

@@ -612,7 +612,6 @@ int pnf_p7_subframe_ind(pnf_p7_t *pnf_p7, uint16_t phy_id, uint16_t sfn_sf)
         return -1;
     }
 
-#if 1
     // save the curren time and sfn_sf
     pnf_p7->sf_start_time_hr = pnf_get_current_time_hr();
     pnf_p7->sfn_sf = sfn_sf;
@@ -866,7 +865,6 @@ int pnf_p7_subframe_ind(pnf_p7_t *pnf_p7, uint16_t phy_id, uint16_t sfn_sf)
         memset(&pnf_p7->stats, 0, sizeof(pnf_p7->stats));
     }
     pnf_p7->tick++;
-#endif
 
     if(pthread_mutex_unlock(&(pnf_p7->mutex)) != 0)
     {

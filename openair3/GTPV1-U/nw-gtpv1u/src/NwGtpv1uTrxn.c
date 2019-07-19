@@ -317,7 +317,6 @@ nwGtpv1uTrxnDelete(NW_INOUT NwGtpv1uTrxnT **pthiz)
 }
 
 
-#if 1
 /**
     Send msg to peer via data request to UDP Entity
 
@@ -416,7 +415,6 @@ nwGtpv1uTrxnCreateAndSendMsg(NW_IN  NwGtpv1uStackT *thiz,
 
     return rc;
 }
-#endif
 
 
 #ifdef __cplusplus

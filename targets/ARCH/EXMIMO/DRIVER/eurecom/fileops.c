@@ -173,7 +173,7 @@ int openair_device_mmap(struct file *filp, struct vm_area_struct *vma)
 }
 
 //-----------------------------------------------------------------------------
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,35)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,35))
     long openair_device_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 #else
     int openair_device_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, unsigned long arg)

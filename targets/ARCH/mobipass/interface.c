@@ -123,7 +123,6 @@ int mobipass_read(openair0_device *device, openair0_timestamp *timestamp, void *
 
     dequeue_from_mobipass(mobi->qstate, ntohl(*timestamp), buff[0]);
 
-#if 1
     struct mobipass_header *mh = (struct mobipass_header *)(((char *)buff[0]) + 14);
     mh->flags = 0;
     mh->fifo_status = 0;
@@ -131,7 +130,6 @@ int mobipass_read(openair0_device *device, openair0_timestamp *timestamp, void *
     mh->ack = 0;
     mh->word0 = 0;
     mh->timestamp = htonl(mobi->mobipass_read_ts);
-#endif
 
     return nsamps;
 }

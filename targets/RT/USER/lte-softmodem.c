@@ -250,14 +250,12 @@ void update_difftimes(struct timespec start, struct timespec end)
         changed = 1;
     }
 
-#if 1
 
     if(changed)
     {
         print_difftimes();
     }
 
-#endif
 }
 
 /*------------------------------------------------------------------------*/

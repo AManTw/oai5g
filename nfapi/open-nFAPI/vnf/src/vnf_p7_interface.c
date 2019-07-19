@@ -275,7 +275,6 @@ int nfapi_vnf_p7_start(nfapi_vnf_p7_config_t *config)
 
                     sf_start.tv_nsec -= insync_minor_adjustment_ns;
 
-#if 1
                     if(sf_start.tv_nsec > 1e9)
                     {
                         sf_start.tv_sec++;
@@ -286,36 +285,6 @@ int nfapi_vnf_p7_start(nfapi_vnf_p7_config_t *config)
                         sf_start.tv_sec--;
                         sf_start.tv_nsec += 1e9;
                     }
-#else
-                    //NFAPI_TRACE(NFAPI_TRACE_NOTE, "[VNF] BEFORE adjustment - Subframe minor adjustment %dus sf_start.tv_nsec:%d\n", phy->insync_minor_adjustment, sf_start.tv_nsec);
-                    if(phy->insync_minor_adjustment > 0)
-                    {
-                        // decrease the subframe duration a little
-                        if(sf_start.tv_nsec > insync_minor_adjustment_ns)
-                        {
-                            sf_start.tv_nsec -= insync_minor_adjustment_ns;
-                        }
-                        else
-                        {
-                            NFAPI_TRACE(NFAPI_TRACE_ERROR, "[VNF] Adjustment would make it negative sf:%d.%ld adjust:%ld\n\n\n", sf_start.tv_sec, sf_start.tv_nsec, insync_minor_adjustment_ns);
-                            sf_start.tv_sec--;
-                            sf_start.tv_nsec += 1e9 - insync_minor_adjustment_ns;
-                        }
-                    }
-                    else if(phy->insync_minor_adjustment < 0)
-                    {
-                        // todo check we don't go below 0
-                        // increase the subframe duration a little
-                        sf_start.tv_nsec += insync_minor_adjustment_ns;
-
-                        if(sf_start.tv_nsec < 0)
-                        {
-                            NFAPI_TRACE(NFAPI_TRACE_ERROR, "[VNF] OVERFLOW %d.%ld\n\n\n\n", sf_start.tv_sec, sf_start.tv_nsec);
-                            sf_start.tv_sec++;
-                            sf_start.tv_nsec += 1e9;
-                        }
-                    }
-#endif
 
                     //phy->insync_minor_adjustment = 0;
                     phy->insync_minor_adjustment_duration--;

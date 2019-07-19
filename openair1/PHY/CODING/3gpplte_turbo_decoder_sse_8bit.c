@@ -1016,7 +1016,6 @@ uint8_t phy_threegpplte_turbo_decoder8(int16_t *y,
     yp1 = yparity1;
     yp2 = yparity2;
     yp = y8;
-#if 1
 
     for(i = 0; i < 16 ; i++)
         for(j = 0; j < n2; j += 16)
@@ -1027,7 +1026,6 @@ uint8_t phy_threegpplte_turbo_decoder8(int16_t *y,
             yp2[k] = *yp++;
         }
 
-#endif
     yp = (llr_t *)yp128;
 
     if(n2 > n)

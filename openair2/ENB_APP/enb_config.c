@@ -726,7 +726,7 @@ int RCconfig_RRC(MessageDef *msg_p, uint32_t i, eNB_RRC_INST *rrc)
                                         RC.config_file_name, i, prefix_type);
                         }
 
-#if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
+#if LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0)
 
                         if(!pbch_repetition)
                             AssertFatal(0,
@@ -1118,7 +1118,7 @@ int RCconfig_RRC(MessageDef *msg_p, uint32_t i, eNB_RRC_INST *rrc)
                                         "Failed to parse eNB configuration file %s, enb %d unknown value \"%d\" for pusch_p0_Nominal choice: -126..24 !\n",
                                         RC.config_file_name, i, pusch_p0_Nominal);
 
-#if (LTE_RRC_VERSION <= MAKE_VERSION(12, 0, 0))
+#if LTE_RRC_VERSION <= MAKE_VERSION(12, 0, 0)
 
                         if(strcmp(pusch_alpha, "AL0") == 0)
                         {

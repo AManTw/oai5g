@@ -37,7 +37,6 @@ static unsigned int seed, iy, ir[98];
 #define a 1664525lu
 #define mod 4294967296.0                /* is 2**32 */
 
-#if 1
 void randominit(unsigned seed_init)
 {
     int i;
@@ -68,7 +67,6 @@ void randominit(unsigned seed_init)
 
     iy = 1;
 }
-#endif
 
 /*!\brief Uniform linear congruential random number generator on \f$[0,1)\f$.  Returns a double-precision floating-point number.*/
 

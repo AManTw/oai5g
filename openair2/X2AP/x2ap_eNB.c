@@ -207,11 +207,6 @@ int x2ap_eNB_init_sctp(x2ap_eNB_instance_t *instance_p,
     sctp_init->ipv4 = 1;
     sctp_init->ipv6 = 0;
     sctp_init->nb_ipv4_addr = 1;
-#if 0
-    memcpy(&sctp_init->ipv4_address,
-           local_ip_addr,
-           sizeof(*local_ip_addr));
-#endif
     sctp_init->ipv4_address[0] = inet_addr(local_ip_addr->ipv4_address);
     /*
         SR WARNING: ipv6 multi-homing fails sometimes for localhost.

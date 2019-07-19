@@ -346,7 +346,6 @@ extern "C" {
                     "Thread creation for task %d failed!\n", task_id);
         pthread_setname_np(t->thread, itti_get_task_name(task_id));
         LOG_I(TMR, "Created Posix thread %s\n",  itti_get_task_name(task_id));
-#if 1 // BMC test RT prio
         {
             int policy;
             struct sched_param sparam;
@@ -358,7 +357,6 @@ extern "C" {
                 LOG_E(TMR, "task %s : Failed to set pthread priority\n",  itti_get_task_name(task_id));
             }
         }
-#endif
         return 0;
     }
 

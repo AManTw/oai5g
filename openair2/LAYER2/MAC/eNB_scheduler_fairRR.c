@@ -62,7 +62,7 @@ DLSCH_UE_SELECT dlsch_ue_select[MAX_NUM_CCs];
 int last_dlsch_ue_id[MAX_NUM_CCs] = {-1};
 int last_ulsch_ue_id[MAX_NUM_CCs] = {-1};
 
-#if defined(PRE_SCD_THREAD)
+#ifdef PRE_SCD_THREAD
     uint16_t pre_nb_rbs_required[2][MAX_NUM_CCs][NUMBER_OF_UE_MAX];
     uint8_t dlsch_ue_select_tbl_in_use;
     uint8_t new_dlsch_ue_select_tbl_in_use;
@@ -90,7 +90,7 @@ void set_dl_ue_select_msg4(int CC_idP, uint16_t nb_rb, int UE_id, rnti_t rnti)
     dlsch_ue_select[CC_idP].list[dlsch_ue_select[CC_idP].ue_num].rnti = rnti;
     dlsch_ue_select[CC_idP].ue_num++;
 }
-#if defined(PRE_SCD_THREAD)
+#ifdef PRE_SCD_THREAD
 inline uint16_t search_rbs_required(uint16_t mcs, uint16_t TBS, uint16_t NB_RB, uint16_t step_size)
 {
     uint16_t nb_rb, i_TBS, tmp_TBS;
