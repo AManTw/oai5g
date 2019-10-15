@@ -1,39 +1,39 @@
 /*
-    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
-    contributor license agreements.  See the NOTICE file distributed with
-    this work for additional information regarding copyright ownership.
-    The OpenAirInterface Software Alliance licenses this file to You under
-    the OAI Public License, Version 1.1  (the "License"); you may not use this file
-    except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.openairinterface.org/?page_id=698
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-    -------------------------------------------------------------------------------
-    For more information about the OpenAirInterface (OAI) Software Alliance:
-        contact@openairinterface.org
-*/
+ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The OpenAirInterface Software Alliance licenses this file to You under
+ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+ * except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.openairinterface.org/?page_id=698
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *-------------------------------------------------------------------------------
+ * For more information about the OpenAirInterface (OAI) Software Alliance:
+ *      contact@openairinterface.org
+ */
 
 /*****************************************************************************
 
-    Source    network_api.c
+Source    network_api.c
 
-    Version   0.1
+Version   0.1
 
-    Date    2012/03/01
+Date    2012/03/01
 
-    Product   NAS stack
+Product   NAS stack
 
-    Subsystem Application Programming Interface
+Subsystem Application Programming Interface
 
-    Author    Frederic Maurel
+Author    Frederic Maurel
 
-    Description Implements the API used by the NAS layer to send/receive
+Description Implements the API used by the NAS layer to send/receive
     message to/from the network sublayer
 
 *****************************************************************************/
@@ -58,29 +58,28 @@
 /*******************  L O C A L    D E F I N I T I O N S  *******************/
 /****************************************************************************/
 
-/*  -------------------
-    Connection endpoint
-    -------------------
-    The connection endpoint is used to send/receive data to/from the
-    network sublayer. Its definition depends on the underlaying mechanism
-    chosen to communicate (network socket, I/O terminal device, async FIFO).
-    A connection endpoint is handled using an identifier, and functions
-    used to retreive the file descriptor actually allocated by the system,
-    to receive data, to send data, and to perform clean up when connection
-    is shut down.
-    Only one single end to end connection with the network sublayer is
-    managed at a time.
-*/
-static struct
-{
-    /* Connection endpoint reference  */
-    void *endpoint;
-    /* Connection endpoint handlers */
-    void   *(*open)(int, const char *, const char *);
-    int (*getfd)(const void *);
-    ssize_t (*recv)(void *, char *, size_t);
-    ssize_t (*send)(const void *, const char *, size_t);
-    void (*close)(void *);
+/* -------------------
+ * Connection endpoint
+ * -------------------
+ *  The connection endpoint is used to send/receive data to/from the
+ *  network sublayer. Its definition depends on the underlaying mechanism
+ *  chosen to communicate (network socket, I/O terminal device, async FIFO).
+ *  A connection endpoint is handled using an identifier, and functions
+ *  used to retreive the file descriptor actually allocated by the system,
+ *  to receive data, to send data, and to perform clean up when connection
+ *  is shut down.
+ *  Only one single end to end connection with the network sublayer is
+ *  managed at a time.
+ */
+static struct {
+  /* Connection endpoint reference  */
+  void* endpoint;
+  /* Connection endpoint handlers */
+  void*   (*open) (int, const char*, const char*);
+  int     (*getfd)(const void*);
+  ssize_t (*recv) (void*, char*, size_t);
+  ssize_t (*send) (const void*, const char*, size_t);
+  void    (*close)(void*);
 } _network_api_id;
 
 #define NETWORK_API_OPEN(a, b, c) _network_api_id.open(a, b, c)
@@ -90,20 +89,20 @@ static struct
 #define NETWORK_API_CLOSE() _network_api_id.close(_network_api_id.endpoint)
 
 /*
-    The buffer used to receive data from the network sublayer
-*/
+ * The buffer used to receive data from the network sublayer
+ */
 #define NETWORK_API_RECV_BUFFER_SIZE  4096
 static char _network_api_recv_buffer[NETWORK_API_RECV_BUFFER_SIZE];
 
 /*
-    The buffer used to send data to the network sublayer
-*/
+ * The buffer used to send data to the network sublayer
+ */
 #define NETWORK_API_SEND_BUFFER_SIZE  NETWORK_API_RECV_BUFFER_SIZE
 static char _network_api_send_buffer[NETWORK_API_SEND_BUFFER_SIZE];
 
 /*
-    The decoded data received from the network sublayer
-*/
+ * The decoded data received from the network sublayer
+ */
 static as_message_t _as_data = {};  /* Access Stratum message     */
 
 /****************************************************************************/
@@ -126,36 +125,35 @@ static as_message_t _as_data = {};  /* Access Stratum message     */
  **      Others:  _network_api_id                            **
  **                                                                        **
  ***************************************************************************/
-int network_api_initialize(const char *host, const char *port)
+int network_api_initialize(const char* host, const char* port)
 {
-    LOG_FUNC_IN;
+  LOG_FUNC_IN;
 
-    /* Initialize network socket handlers */
-    _network_api_id.open  = socket_udp_open;
-    _network_api_id.getfd = socket_get_fd;
-    _network_api_id.recv  = socket_recv;
-    _network_api_id.send  = socket_send;
-    _network_api_id.close = socket_close;
-    /* Initialize UDP communication channel with the network layer */
+  /* Initialize network socket handlers */
+  _network_api_id.open  = socket_udp_open;
+  _network_api_id.getfd = socket_get_fd;
+  _network_api_id.recv  = socket_recv;
+  _network_api_id.send  = socket_send;
+  _network_api_id.close = socket_close;
+  /* Initialize UDP communication channel with the network layer */
 #ifdef NAS_UE
-    _network_api_id.endpoint = NETWORK_API_OPEN(SOCKET_CLIENT, host, port);
+  _network_api_id.endpoint = NETWORK_API_OPEN(SOCKET_CLIENT, host, port);
 #endif
 #ifdef NAS_MME
-    _network_api_id.endpoint = NETWORK_API_OPEN(SOCKET_SERVER, NULL, port);
+  _network_api_id.endpoint = NETWORK_API_OPEN(SOCKET_SERVER, NULL, port);
 #endif
 
-    if(_network_api_id.endpoint == NULL)
-    {
-        LOG_TRACE(ERROR, "NET-API   - Failed to open connection endpoint, %s",
-                  ((errno < 0) ? gai_strerror(errno) : strerror(errno)));
-        LOG_FUNC_RETURN(RETURNerror);
-    }
+  if (_network_api_id.endpoint == NULL) {
+    LOG_TRACE(ERROR, "NET-API   - Failed to open connection endpoint, %s",
+              ((errno < 0) ? gai_strerror(errno) : strerror(errno)));
+    LOG_FUNC_RETURN (RETURNerror);
+  }
 
-    gethostname(_network_api_send_buffer, NETWORK_API_SEND_BUFFER_SIZE);
-    LOG_TRACE(INFO, "NET-API   - Network's UDP socket %d is BOUND to %s/%s",
-              network_api_get_fd(), _network_api_send_buffer, port);
+  gethostname(_network_api_send_buffer, NETWORK_API_SEND_BUFFER_SIZE);
+  LOG_TRACE(INFO, "NET-API   - Network's UDP socket %d is BOUND to %s/%s",
+            network_api_get_fd(), _network_api_send_buffer, port);
 
-    LOG_FUNC_RETURN(RETURNok);
+  LOG_FUNC_RETURN (RETURNok);
 }
 
 /****************************************************************************
@@ -175,8 +173,8 @@ int network_api_initialize(const char *host, const char *port)
  ***************************************************************************/
 int network_api_get_fd(void)
 {
-    LOG_FUNC_IN;
-    LOG_FUNC_RETURN(NETWORK_API_GETFD());
+  LOG_FUNC_IN;
+  LOG_FUNC_RETURN (NETWORK_API_GETFD());
 }
 
 /****************************************************************************
@@ -194,10 +192,10 @@ int network_api_get_fd(void)
  **      Others:  None                                       **
  **                                                                        **
  ***************************************************************************/
-const void *network_api_get_data(void)
+const void* network_api_get_data(void)
 {
-    LOG_FUNC_IN;
-    LOG_FUNC_RETURN((void *)(&_as_data));
+  LOG_FUNC_IN;
+  LOG_FUNC_RETURN ((void*)(&_as_data));
 }
 
 /****************************************************************************
@@ -217,42 +215,36 @@ const void *network_api_get_data(void)
  ***************************************************************************/
 int network_api_read_data(int fd)
 {
-    LOG_FUNC_IN;
+  LOG_FUNC_IN;
 
-    int rbytes;
+  int rbytes;
 
-    /* Sanity check */
-    int sfd = network_api_get_fd();
+  /* Sanity check */
+  int sfd = network_api_get_fd();
 
-    if(fd != sfd)
-    {
-        LOG_TRACE(ERROR, "NET-API   - Endpoint %d is not the one created for communication with the network sublayer (%d)", fd, sfd);
-        LOG_FUNC_RETURN(RETURNerror);
-    }
+  if (fd != sfd) {
+    LOG_TRACE(ERROR, "NET-API   - Endpoint %d is not the one created for communication with the network sublayer (%d)", fd, sfd);
+    LOG_FUNC_RETURN (RETURNerror);
+  }
 
-    memset(_network_api_recv_buffer, 0, NETWORK_API_RECV_BUFFER_SIZE);
+  memset(_network_api_recv_buffer, 0, NETWORK_API_RECV_BUFFER_SIZE);
 
-    /* Receive data from the network sublayer */
-    rbytes = NETWORK_API_RECV(_network_api_recv_buffer,
-                              NETWORK_API_RECV_BUFFER_SIZE);
+  /* Receive data from the network sublayer */
+  rbytes = NETWORK_API_RECV(_network_api_recv_buffer,
+                            NETWORK_API_RECV_BUFFER_SIZE);
 
-    if(rbytes == RETURNerror)
-    {
-        LOG_TRACE(ERROR, "NET-API   - recv() failed, %s", strerror(errno));
-        LOG_FUNC_RETURN(RETURNerror);
-    }
-    else if(rbytes == 0)
-    {
-        LOG_TRACE(WARNING, "NET-API   - A signal was caught");
-    }
-    else
-    {
-        LOG_TRACE(INFO, "NET-API   - %d bytes received from the network "
-                  "sublayer", rbytes);
-        LOG_DUMP(_network_api_recv_buffer, rbytes);
-    }
+  if (rbytes == RETURNerror) {
+    LOG_TRACE(ERROR, "NET-API   - recv() failed, %s", strerror(errno));
+    LOG_FUNC_RETURN (RETURNerror);
+  } else if (rbytes == 0) {
+    LOG_TRACE(WARNING, "NET-API   - A signal was caught");
+  } else {
+    LOG_TRACE(INFO, "NET-API   - %d bytes received from the network "
+              "sublayer", rbytes);
+    LOG_DUMP(_network_api_recv_buffer, rbytes);
+  }
 
-    LOG_FUNC_RETURN(rbytes);
+  LOG_FUNC_RETURN (rbytes);
 }
 
 /****************************************************************************
@@ -273,39 +265,33 @@ int network_api_read_data(int fd)
  ***************************************************************************/
 int network_api_send_data(int fd, int length)
 {
-    LOG_FUNC_IN;
+  LOG_FUNC_IN;
 
-    int sbytes;
+  int sbytes;
 
-    /* Sanity check */
-    int sfd = network_api_get_fd();
+  /* Sanity check */
+  int sfd = network_api_get_fd();
 
-    if(fd != sfd)
-    {
-        LOG_TRACE(ERROR, "NET-API   - Endpoint %d is not the one created for communication with the network sublayer (%d)", fd, sfd);
-        LOG_FUNC_RETURN(RETURNerror);
-    }
+  if (fd != sfd) {
+    LOG_TRACE(ERROR, "NET-API   - Endpoint %d is not the one created for communication with the network sublayer (%d)", fd, sfd);
+    LOG_FUNC_RETURN (RETURNerror);
+  }
 
-    /* Send data to the network sublayer */
-    sbytes = NETWORK_API_SEND(_network_api_send_buffer, length);
+  /* Send data to the network sublayer */
+  sbytes = NETWORK_API_SEND(_network_api_send_buffer, length);
 
-    if(sbytes == RETURNerror)
-    {
-        LOG_TRACE(ERROR, "NET-API   - send() failed, %s", strerror(errno));
-        LOG_FUNC_RETURN(RETURNerror);
-    }
-    else if(sbytes == 0)
-    {
-        LOG_TRACE(WARNING, "NET-API   - A signal was caught");
-    }
-    else
-    {
-        LOG_TRACE(INFO, "NET-API   - %d bytes sent to the network sublayer",
-                  sbytes);
-        LOG_DUMP(_network_api_send_buffer, sbytes);
-    }
+  if (sbytes == RETURNerror) {
+    LOG_TRACE(ERROR, "NET-API   - send() failed, %s", strerror(errno));
+    LOG_FUNC_RETURN (RETURNerror);
+  } else if (sbytes == 0) {
+    LOG_TRACE(WARNING, "NET-API   - A signal was caught");
+  } else {
+    LOG_TRACE(INFO, "NET-API   - %d bytes sent to the network sublayer",
+              sbytes);
+    LOG_DUMP(_network_api_send_buffer, sbytes);
+  }
 
-    LOG_FUNC_RETURN(sbytes);
+  LOG_FUNC_RETURN (sbytes);
 }
 
 /****************************************************************************
@@ -326,23 +312,22 @@ int network_api_send_data(int fd, int length)
  ***************************************************************************/
 void network_api_close(int fd)
 {
-    LOG_FUNC_IN;
+  LOG_FUNC_IN;
 
-    /* Sanity check */
-    int sfd = network_api_get_fd();
+  /* Sanity check */
+  int sfd = network_api_get_fd();
 
-    if(fd != sfd)
-    {
-        LOG_TRACE(ERROR, "NET-API   - Endpoint %d is not the one created for communication with the network sublayer (%d)", fd, sfd);
-        LOG_FUNC_OUT;
-        return;
-    }
-
-    /* Cleanup the connection endpoint */
-    NETWORK_API_CLOSE();
-    _network_api_id.endpoint = NULL;
-
+  if (fd != sfd) {
+    LOG_TRACE(ERROR, "NET-API   - Endpoint %d is not the one created for communication with the network sublayer (%d)", fd, sfd);
     LOG_FUNC_OUT;
+    return;
+  }
+
+  /* Cleanup the connection endpoint */
+  NETWORK_API_CLOSE();
+  _network_api_id.endpoint = NULL;
+
+  LOG_FUNC_OUT;
 }
 
 /****************************************************************************
@@ -363,18 +348,17 @@ void network_api_close(int fd)
  ***************************************************************************/
 int network_api_decode_data(int length)
 {
-    LOG_FUNC_IN;
+  LOG_FUNC_IN;
 
-    /* Decode the Access Stratum message received from the network */
-    int as_id = as_message_decode(_network_api_recv_buffer, &_as_data, length);
+  /* Decode the Access Stratum message received from the network */
+  int as_id = as_message_decode(_network_api_recv_buffer, &_as_data, length);
 
-    if(as_id != RETURNerror)
-    {
-        LOG_TRACE(INFO, "NET-API   - AS message id=0x%x successfully decoded",
-                  as_id);
-    }
+  if (as_id != RETURNerror) {
+    LOG_TRACE(INFO, "NET-API   - AS message id=0x%x successfully decoded",
+              as_id);
+  }
 
-    LOG_FUNC_RETURN(as_id);
+  LOG_FUNC_RETURN (as_id);
 }
 
 /****************************************************************************
@@ -392,21 +376,20 @@ int network_api_decode_data(int length)
  **      Others:  _network_api_send_buffer                   **
  **                                                                        **
  ***************************************************************************/
-int network_api_encode_data(void *data)
+int network_api_encode_data(void* data)
 {
-    LOG_FUNC_IN;
+  LOG_FUNC_IN;
 
-    /* Encode the Access Stratum  message */
-    int bytes = as_message_encode(_network_api_send_buffer,
-                                  (as_message_t *)(data),
-                                  NETWORK_API_SEND_BUFFER_SIZE);
+  /* Encode the Access Stratum  message */
+  int bytes = as_message_encode(_network_api_send_buffer,
+                                (as_message_t*)(data),
+                                NETWORK_API_SEND_BUFFER_SIZE);
 
-    if(bytes != RETURNerror)
-    {
-        LOG_TRACE(INFO, "NET-API   - %d bytes encoded", bytes);
-    }
+  if (bytes != RETURNerror) {
+    LOG_TRACE(INFO, "NET-API   - %d bytes encoded", bytes);
+  }
 
-    LOG_FUNC_RETURN(bytes);
+  LOG_FUNC_RETURN (bytes);
 }
 
 /****************************************************************************
@@ -425,30 +408,28 @@ int network_api_encode_data(void *data)
  **      Others:  _network_api_send_buffer                   **
  **                                                                        **
  ***************************************************************************/
-int as_message_send(as_message_t *as_msg)
+int as_message_send(as_message_t* as_msg)
 {
-    int bytes;
-    LOG_FUNC_IN;
+  int bytes;
+  LOG_FUNC_IN;
 
-    LOG_TRACE(INFO, "NET-API   - Send message 0x%.4x to the Access Stratum "
-              "layer", as_msg->msgID);
+  LOG_TRACE(INFO, "NET-API   - Send message 0x%.4x to the Access Stratum "
+            "layer", as_msg->msgID);
 
-    /* Encode the AS message */
-    bytes = network_api_encode_data(as_msg);
+  /* Encode the AS message */
+  bytes = network_api_encode_data(as_msg);
 
-    if(bytes > 0)
-    {
-        /* Get the network file descriptor */
-        int fd = network_api_get_fd();
+  if (bytes > 0) {
+    /* Get the network file descriptor */
+    int fd = network_api_get_fd();
 
-        if(fd != RETURNerror)
-        {
-            /* Send the AS message to the network */
-            bytes = network_api_send_data(fd, bytes);
-        }
+    if (fd != RETURNerror) {
+      /* Send the AS message to the network */
+      bytes = network_api_send_data(fd, bytes);
     }
+  }
 
-    LOG_FUNC_RETURN(bytes);
+  LOG_FUNC_RETURN (bytes);
 }
 
 /****************************************************************************/

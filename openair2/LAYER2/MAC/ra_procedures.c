@@ -40,14 +40,15 @@
 #include "RRC/LTE/rrc_extern.h"
 #include "RRC/L2_INTERFACE/openair_rrc_L2_interface.h"
 #include "common/utils/LOG/log.h"
+#include "nfapi/oai_integration/vendor_ext.h"
 #include "UTIL/OPT/opt.h"
 #include "OCG.h"
 #include "OCG_extern.h"
-#include "SIMULATION/TOOLS/sim.h"	// for taus
+#include "SIMULATION/TOOLS/sim.h" // for taus
 #include "PHY/LTE_TRANSPORT/transport_common_proto.h"
 #include "PHY/LTE_ESTIMATION/lte_estimation.h"
 
-extern uint8_t  nfapi_mode;
+
 extern UE_MODE_t get_ue_mode(uint8_t Mod_id, uint8_t CC_id, uint8_t eNB_index);
 
 /// This routine implements Section 5.1.2 (UE Random Access Resource Selection) from 36.321
@@ -70,20 +71,18 @@ get_prach_resources(module_id_t module_idP,
     int sizeOfRA_PreamblesGroupA;
     int messagePowerOffsetGroupB;
     int PLThreshold;
-
     AssertFatal(CC_id == 0,
                 "Transmission on secondary CCs is not supported yet\n");
     AssertFatal(UE_mac_inst[module_idP].radioResourceConfigCommon != NULL,
                 "[UE %d] FATAL  radioResourceConfigCommon is NULL !!!\n",
                 module_idP);
-
     rach_ConfigCommon =
         &UE_mac_inst[module_idP].radioResourceConfigCommon->
         rach_ConfigCommon;
     numberOfRA_Preambles =
         (1 + rach_ConfigCommon->preambleInfo.numberOfRA_Preambles) << 2;
 
-    if(rach_ConfigDedicated)  	// This is for network controlled Mobility, later
+    if(rach_ConfigDedicated)    // This is for network controlled Mobility, later
     {
         if(rach_ConfigDedicated->ra_PRACH_MaskIndex != 0)
         {
@@ -107,18 +106,22 @@ get_prach_resources(module_id_t module_idP,
         sizeOfRA_PreamblesGroupA =
             (rach_ConfigCommon->preambleInfo.
              preamblesGroupAConfig->sizeOfRA_PreamblesGroupA + 1) << 2;
+
         switch(rach_ConfigCommon->preambleInfo.
                 preamblesGroupAConfig->messageSizeGroupA)
         {
             case 0:
                 messageSizeGroupA = 56;
                 break;
+
             case 1:
                 messageSizeGroupA = 144;
                 break;
+
             case 2:
                 messageSizeGroupA = 208;
                 break;
+
             case 3:
                 messageSizeGroupA = 256;
                 break;
@@ -126,30 +129,38 @@ get_prach_resources(module_id_t module_idP,
 
         /* TODO: what value to use as default? */
         messagePowerOffsetGroupB = -9999;
+
         switch(rach_ConfigCommon->preambleInfo.
                 preamblesGroupAConfig->messagePowerOffsetGroupB)
         {
             case 0:
                 messagePowerOffsetGroupB = -9999;
                 break;
+
             case 1:
                 messagePowerOffsetGroupB = 0;
                 break;
+
             case 2:
                 messagePowerOffsetGroupB = 5;
                 break;
+
             case 3:
                 messagePowerOffsetGroupB = 8;
                 break;
+
             case 4:
                 messagePowerOffsetGroupB = 10;
                 break;
+
             case 5:
                 messagePowerOffsetGroupB = 12;
                 break;
+
             case 6:
                 messagePowerOffsetGroupB = 15;
                 break;
+
             case 7:
                 messagePowerOffsetGroupB = 18;
                 break;
@@ -189,7 +200,7 @@ get_prach_resources(module_id_t module_idP,
                 0;
             UE_mac_inst[module_idP].RA_usedGroupA = 1;
         }
-        else  		// use Group B
+        else        // use Group B
         {
             UE_mac_inst[module_idP].RA_prach_resources.ra_PreambleIndex =
                 sizeOfRA_PreamblesGroupA +
@@ -204,7 +215,7 @@ get_prach_resources(module_id_t module_idP,
         RA_prach_resources.ra_PREAMBLE_RECEIVED_TARGET_POWER =
             get_Po_NOMINAL_PUSCH(module_idP, CC_id);
     }
-    else  			// Msg3 is being retransmitted
+    else          // Msg3 is being retransmitted
     {
         if(UE_mac_inst[module_idP].RA_usedGroupA == 1)
         {
@@ -256,6 +267,7 @@ get_prach_resources(module_id_t module_idP,
                                  [module_idP].RA_prach_resources.
                                  ra_TDD_map_index);
     }
+
     // choose RA-RNTI
     UE_mac_inst[module_idP].RA_prach_resources.ra_RNTI =
         1 + t_id + 10 * f_id;
@@ -265,7 +277,6 @@ void
 Msg1_transmitted(module_id_t module_idP, uint8_t CC_id,
                  frame_t frameP, uint8_t eNB_id)
 {
-
     AssertFatal(CC_id == 0,
                 "Transmission on secondary CCs is not supported yet\n");
     // start contention resolution timer
@@ -282,7 +293,6 @@ Msg1_transmitted(module_id_t module_idP, uint8_t CC_id,
               "[UE %d][RAPROC] TX MSG1 Frame %d trace pdu for rnti %x  with size %d\n",
               module_idP, frameP, 1, UE_mac_inst[module_idP].RA_Msg3_size);
     }
-
 }
 
 
@@ -290,10 +300,8 @@ void
 Msg3_transmitted(module_id_t module_idP, uint8_t CC_id,
                  frame_t frameP, uint8_t eNB_id)
 {
-
     AssertFatal(CC_id == 0,
                 "Transmission on secondary CCs is not supported yet\n");
-
     // start contention resolution timer
     LOG_D(MAC,
           "[UE %d][RAPROC] Frame %d : Msg3_tx: Setting contention resolution timer\n",
@@ -301,7 +309,7 @@ Msg3_transmitted(module_id_t module_idP, uint8_t CC_id,
     UE_mac_inst[module_idP].RA_contention_resolution_cnt = 0;
     UE_mac_inst[module_idP].RA_contention_resolution_timer_active = 1;
 
-    if(opt_enabled)  		// msg3
+    if(opt_enabled)       // msg3
     {
         trace_pdu(DIRECTION_UPLINK, &UE_mac_inst[module_idP].CCCH_pdu.payload[0],
                   UE_mac_inst[module_idP].RA_Msg3_size, module_idP, WS_C_RNTI,
@@ -314,7 +322,6 @@ Msg3_transmitted(module_id_t module_idP, uint8_t CC_id,
               /*UE_mac_inst[module_idP].RA_prach_resources.ra_PreambleIndex */
               , UE_mac_inst[module_idP].RA_Msg3_size);
     }
-
 }
 
 
@@ -322,20 +329,19 @@ PRACH_RESOURCES_t *ue_get_rach(module_id_t module_idP, int CC_id,
                                frame_t frameP, uint8_t eNB_indexP,
                                sub_frame_t subframeP)
 {
-
     uint8_t Size = 0;
     UE_MODE_t UE_mode;
+
     // Modification for phy_stub_ue operation
-    if(nfapi_mode == 3)   // phy_stub_ue mode
+    if(NFAPI_MODE == NFAPI_UE_STUB_PNF)   // phy_stub_ue mode
     {
         UE_mode = UE_mac_inst[module_idP].UE_mode[0];
         LOG_D(MAC, "ue_get_rach , UE_mode: %d", UE_mode);
     }
-    else   // Full stack mode
+    else     // Full stack mode
     {
         UE_mode = get_ue_mode(module_idP, 0, eNB_indexP);
     }
-
 
     uint8_t lcid = CCCH;
     uint16_t Size16;
@@ -345,13 +351,13 @@ PRACH_RESOURCES_t *ue_get_rach(module_id_t module_idP, int CC_id,
     uint8_t dcch_header_len = 0;
     uint16_t sdu_lengths;
     uint8_t ulsch_buff[MAX_ULSCH_PAYLOAD_BYTES];
-
     AssertFatal(CC_id == 0,
                 "Transmission on secondary CCs is not supported yet\n");
 
     if(UE_mode == PRACH)
     {
         LOG_D(MAC, "ue_get_rach 3, RA_active value: %d", UE_mac_inst[module_idP].RA_active);
+
         if(UE_mac_inst[module_idP].radioResourceConfigCommon)
         {
             rach_ConfigCommon =
@@ -377,7 +383,6 @@ PRACH_RESOURCES_t *ue_get_rach(module_id_t module_idP, int CC_id,
                                                + 1], eNB_indexP,
                                        0);
             Size16 = (uint16_t) Size;
-
             //  LOG_D(MAC,"[UE %d] Frame %d: Requested RRCConnectionRequest, got %d bytes\n",module_idP,frameP,Size);
             LOG_I(RRC,
                   "[MSC_MSG][FRAME %05d][RRC_UE][MOD %02d][][--- MAC_DATA_REQ (RRCConnectionRequest eNB %d) --->][MAC_UE][MOD %02d][]\n",
@@ -397,8 +402,7 @@ PRACH_RESOURCES_t *ue_get_rach(module_id_t module_idP, int CC_id,
                 UE_mac_inst[module_idP].RA_prachMaskIndex = 0;
                 UE_mac_inst[module_idP].RA_prach_resources.Msg3 =
                     UE_mac_inst[module_idP].CCCH_pdu.payload;
-                UE_mac_inst[module_idP].RA_backoff_cnt = 0;	// add the backoff condition here if we have it from a previous RA reponse which failed (i.e. backoff indicator)
-
+                UE_mac_inst[module_idP].RA_backoff_cnt = 0; // add the backoff condition here if we have it from a previous RA reponse which failed (i.e. backoff indicator)
                 AssertFatal(rach_ConfigCommon != NULL,
                             "[UE %d] FATAL Frame %d: rach_ConfigCommon is NULL !!!\n",
                             module_idP, frameP);
@@ -409,7 +413,7 @@ PRACH_RESOURCES_t *ue_get_rach(module_id_t module_idP, int CC_id,
 
                 if(UE_mac_inst[module_idP].RA_window_cnt == 9)
                 {
-                    UE_mac_inst[module_idP].RA_window_cnt = 10;	// Note: 9 subframe window doesn't exist, after 8 is 10!
+                    UE_mac_inst[module_idP].RA_window_cnt = 10; // Note: 9 subframe window doesn't exist, after 8 is 10!
                 }
 
                 UE_mac_inst[module_idP].RA_tx_frame = frameP;
@@ -419,20 +423,18 @@ PRACH_RESOURCES_t *ue_get_rach(module_id_t module_idP, int CC_id,
                 // Fill in preamble and PRACH resource
                 get_prach_resources(module_idP, CC_id, eNB_indexP,
                                     subframeP, 1, NULL);
-
-                generate_ulsch_header((uint8_t *) & UE_mac_inst[module_idP].CCCH_pdu.payload[0],	// mac header
-                                      1,	// num sdus
-                                      0,	// short pading
-                                      &Size16,	// sdu length
-                                      &lcid,	// sdu lcid
-                                      NULL,	// power headroom
-                                      NULL,	// crnti
-                                      NULL,	// truncated bsr
-                                      NULL,	// short bsr
-                                      NULL,	// long_bsr
-                                      1);	//post_padding
+                generate_ulsch_header((uint8_t *) & UE_mac_inst[module_idP].CCCH_pdu.payload[0],  // mac header
+                                      1,  // num sdus
+                                      0,  // short pading
+                                      &Size16,  // sdu length
+                                      &lcid,  // sdu lcid
+                                      NULL, // power headroom
+                                      NULL, // crnti
+                                      NULL, // truncated bsr
+                                      NULL, // short bsr
+                                      NULL, // long_bsr
+                                      1); //post_padding
                 return (&UE_mac_inst[module_idP].RA_prach_resources);
-
             }
             else if(UE_mac_inst[module_idP].
                     scheduling_info.BSR_bytes[UE_mac_inst[module_idP].
@@ -440,7 +442,7 @@ PRACH_RESOURCES_t *ue_get_rach(module_id_t module_idP, int CC_id,
                                               [DCCH]] > 0)
             {
                 // This is for triggering a transmission on DCCH using PRACH (during handover, or sending SR for example)
-                dcch_header_len = 2 + 2;	/// SHORT Subheader + C-RNTI control element
+                dcch_header_len = 2 + 2;  /// SHORT Subheader + C-RNTI control element
                 LOG_USEDINLOG_VAR(mac_rlc_status_resp_t, rlc_status) = mac_rlc_status_ind(module_idP,
                         UE_mac_inst[module_idP].crnti,
                         eNB_indexP, frameP, subframeP,
@@ -463,7 +465,7 @@ PRACH_RESOURCES_t *ue_get_rach(module_id_t module_idP, int CC_id,
                           module_idP, frameP, rlc_status.bytes_in_buffer,
                           dcch_header_len);
 
-                sdu_lengths = mac_rlc_data_req(module_idP, UE_mac_inst[module_idP].crnti, eNB_indexP, frameP, ENB_FLAG_NO, MBMS_FLAG_NO, DCCH, 6,	//not used
+                sdu_lengths = mac_rlc_data_req(module_idP, UE_mac_inst[module_idP].crnti, eNB_indexP, frameP, ENB_FLAG_NO, MBMS_FLAG_NO, DCCH, 6, //not used
                                                (char *) &ulsch_buff[0]
 #if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
                                                , 0,
@@ -488,9 +490,7 @@ PRACH_RESOURCES_t *ue_get_rach(module_id_t module_idP, int CC_id,
                                                 [UE_mac_inst
                                                  [module_idP].scheduling_info.LCGID
                                                  [DCCH]]);
-
                 //TO DO: fill BSR infos in UL TBS
-
                 //header_len +=2;
                 UE_mac_inst[module_idP].RA_active = 1;
                 UE_mac_inst[module_idP].RA_PREAMBLE_TRANSMISSION_COUNTER =
@@ -500,8 +500,7 @@ PRACH_RESOURCES_t *ue_get_rach(module_id_t module_idP, int CC_id,
                 UE_mac_inst[module_idP].RA_prachMaskIndex = 0;
                 UE_mac_inst[module_idP].RA_prach_resources.Msg3 =
                     ulsch_buff;
-                UE_mac_inst[module_idP].RA_backoff_cnt = 0;	// add the backoff condition here if we have it from a previous RA reponse which failed (i.e. backoff indicator)
-
+                UE_mac_inst[module_idP].RA_backoff_cnt = 0; // add the backoff condition here if we have it from a previous RA reponse which failed (i.e. backoff indicator)
                 AssertFatal(rach_ConfigCommon != NULL,
                             "[UE %d] FATAL Frame %d: rach_ConfigCommon is NULL !!!\n",
                             module_idP, frameP);
@@ -512,9 +511,8 @@ PRACH_RESOURCES_t *ue_get_rach(module_id_t module_idP, int CC_id,
 
                 if(UE_mac_inst[module_idP].RA_window_cnt == 9)
                 {
-                    UE_mac_inst[module_idP].RA_window_cnt = 10;	// Note: 9 subframe window doesn't exist, after 8 is 10!
+                    UE_mac_inst[module_idP].RA_window_cnt = 10; // Note: 9 subframe window doesn't exist, after 8 is 10!
                 }
-
 
                 UE_mac_inst[module_idP].RA_tx_frame = frameP;
                 UE_mac_inst[module_idP].RA_tx_subframe = subframeP;
@@ -523,22 +521,21 @@ PRACH_RESOURCES_t *ue_get_rach(module_id_t module_idP, int CC_id,
                 // Fill in preamble and PRACH resource
                 get_prach_resources(module_idP, CC_id, eNB_indexP,
                                     subframeP, 1, NULL);
-                generate_ulsch_header((uint8_t *) ulsch_buff,	// mac header
-                                      1,	// num sdus
-                                      0,	// short pading
-                                      &Size16,	// sdu length
-                                      &lcid,	// sdu lcid
-                                      NULL,	// power headroom
-                                      &UE_mac_inst[module_idP].crnti,	// crnti
-                                      NULL,	// truncated bsr
-                                      NULL,	// short bsr
-                                      NULL,	// long_bsr
-                                      0);	//post_padding
-
+                generate_ulsch_header((uint8_t *) ulsch_buff, // mac header
+                                      1,  // num sdus
+                                      0,  // short pading
+                                      &Size16,  // sdu length
+                                      &lcid,  // sdu lcid
+                                      NULL, // power headroom
+                                      &UE_mac_inst[module_idP].crnti, // crnti
+                                      NULL, // truncated bsr
+                                      NULL, // short bsr
+                                      NULL, // long_bsr
+                                      0); //post_padding
                 return (&UE_mac_inst[module_idP].RA_prach_resources);
             }
         }
-        else  		// RACH is active
+        else        // RACH is active
         {
             LOG_D(MAC,
                   "[MAC][UE %d][RAPROC] frameP %d, subframe %d: RA Active, window cnt %d (RA_tx_frame %d, RA_tx_subframe %d)\n",
@@ -563,10 +560,10 @@ PRACH_RESOURCES_t *ue_get_rach(module_id_t module_idP, int CC_id,
                     ((10 * frame_diff) +
                      (subframeP -
                       UE_mac_inst[module_idP].RA_backoff_subframe));
-
                 UE_mac_inst[module_idP].RA_backoff_frame = frameP;
                 UE_mac_inst[module_idP].RA_backoff_subframe = subframeP;
             }
+
             // compute RA window parameters
             if(UE_mac_inst[module_idP].RA_window_cnt > 0)
             {
@@ -590,45 +587,55 @@ PRACH_RESOURCES_t *ue_get_rach(module_id_t module_idP, int CC_id,
             if((UE_mac_inst[module_idP].RA_window_cnt <= 0) &&
                     (UE_mac_inst[module_idP].RA_backoff_cnt <= 0))
             {
-
                 UE_mac_inst[module_idP].RA_tx_frame = frameP;
                 UE_mac_inst[module_idP].RA_tx_subframe = subframeP;
                 UE_mac_inst[module_idP].RA_PREAMBLE_TRANSMISSION_COUNTER++;
-                UE_mac_inst[module_idP].RA_prach_resources.ra_PREAMBLE_RECEIVED_TARGET_POWER += (rach_ConfigCommon->powerRampingParameters.powerRampingStep << 1);	// 2dB increments in ASN.1 definition
+                UE_mac_inst[module_idP].RA_prach_resources.ra_PREAMBLE_RECEIVED_TARGET_POWER += (rach_ConfigCommon->powerRampingParameters.powerRampingStep << 1);  // 2dB increments in ASN.1 definition
                 int preambleTransMax = -1;
+
                 switch(rach_ConfigCommon->ra_SupervisionInfo.
                         preambleTransMax)
                 {
                     case LTE_PreambleTransMax_n3:
                         preambleTransMax = 3;
                         break;
+
                     case LTE_PreambleTransMax_n4:
                         preambleTransMax = 4;
                         break;
+
                     case LTE_PreambleTransMax_n5:
                         preambleTransMax = 5;
                         break;
+
                     case LTE_PreambleTransMax_n6:
                         preambleTransMax = 6;
                         break;
+
                     case LTE_PreambleTransMax_n7:
                         preambleTransMax = 7;
                         break;
+
                     case LTE_PreambleTransMax_n8:
                         preambleTransMax = 8;
                         break;
+
                     case LTE_PreambleTransMax_n10:
                         preambleTransMax = 10;
                         break;
+
                     case LTE_PreambleTransMax_n20:
                         preambleTransMax = 20;
                         break;
+
                     case LTE_PreambleTransMax_n50:
                         preambleTransMax = 50;
                         break;
+
                     case LTE_PreambleTransMax_n100:
                         preambleTransMax = 100;
                         break;
+
                     case LTE_PreambleTransMax_n200:
                         preambleTransMax = 200;
                         break;
@@ -653,7 +660,6 @@ PRACH_RESOURCES_t *ue_get_rach(module_id_t module_idP, int CC_id,
                     rach_ConfigCommon->ra_SupervisionInfo.
                     ra_ResponseWindowSize;
                 UE_mac_inst[module_idP].RA_backoff_cnt = 0;
-
                 // Fill in preamble and PRACH resource
                 get_prach_resources(module_idP, CC_id, eNB_indexP,
                                     subframeP, 0, NULL);

@@ -13,6 +13,6 @@ void gen_emm_data(
     const networks_t networks);
 
 bool write_emm_data(const char *directory, int user_id, emm_nvdata_t *emm_data);
-int get_msin_parity(const char *msin, const char *mcc, const char *mnc);
+int get_msin_parity(const char * msin, const char *mcc, const char *mnc);
 
 #endif

@@ -60,7 +60,9 @@ struct DCI6_0A_5MHz
     /// Modulation and Coding Scheme and Redundancy Version
     uint32_t mcs: 4;
     /// RB Assignment (ceil(log2(floor(N_RB_UL/6))) + 5 bits)
-    uint32_t rballoc: 7;
+    uint32_t rballoc: 5;
+    /// narrowband index log2(floor(N_RB_DL/6))) bits
+    uint32_t narrowband: 2;
     /// Hopping flag
     uint32_t hopping: 1;
     /// type = 0 => DCI Format 0, type = 1 => DCI Format 1A
@@ -94,7 +96,9 @@ struct DCI6_1A_5MHz
     /// Modulation and Coding Scheme and Redundancy Version
     uint32_t mcs: 4;
     /// Resource block assignment (assignment flag = 0 for 5 MHz, ceil(log2(floor(N_RB_DL/6)))+5)
-    uint32_t rballoc: 7;
+    uint32_t rballoc: 5;
+    /// narrowband index log2(floor(N_RB_DL/6))) bits
+    uint32_t narrowband: 2;
     /// Frequency hopping flag
     uint32_t hopping: 1;
     /// 0/1A differentiator
@@ -128,7 +132,9 @@ struct DCI6_0A_10MHz
     /// Modulation and Coding Scheme and Redundancy Version
     uint32_t mcs: 4;
     /// RB Assignment (ceil(log2(floor(N_RB_UL/6))) + 5 bits)
-    uint32_t rballoc: 8;
+    uint32_t rballoc: 5;
+    /// narrowband index log2(floor(N_RB_DL/6))) bits
+    uint32_t narrowband: 3;
     /// Hopping flag
     uint32_t hopping: 1;
     /// type = 0 => DCI Format 0, type = 1 => DCI Format 1A
@@ -142,7 +148,7 @@ typedef struct DCI6_0A_10MHz DCI6_0A_10MHz_t;
 struct DCI6_1A_10MHz
 {
     /// padding to fill 32-bit word
-    uint32_t padding: 4;
+    uint32_t padding: 3;
     /// DCI subframe repetition number
     uint32_t dci_rep: 2;
     /// HARQ-ACK resource offset
@@ -161,8 +167,10 @@ struct DCI6_1A_10MHz
     uint32_t rep: 2;
     /// Modulation and Coding Scheme and Redundancy Version
     uint32_t mcs: 4;
-    /// Resource block assignment (assignment flag = 0 for 10 MHz, ceil(log2(floor(N_RB_DL/6)))+5)
-    uint32_t rballoc: 8;
+    /// Resource block assignment
+    uint32_t rballoc: 5;
+    /// narrowband index log2(floor(N_RB_DL/6))) bits
+    uint32_t narrowband: 3;
     /// Frequency hopping flag
     uint32_t hopping: 1;
     /// 0/1A differentiator
@@ -196,7 +204,9 @@ struct DCI6_0A_20MHz
     /// Modulation and Coding Scheme and Redundancy Version
     uint32_t mcs: 4;
     /// RB Assignment (ceil(log2(floor(N_RB_UL/6))) + 5 bits)
-    uint32_t rballoc: 9;
+    uint32_t rballoc: 5;
+    /// narrowband index log2(floor(N_RB_DL/6))) bits
+    uint32_t narrowband: 4;
     /// Hopping flag
     uint32_t hopping: 1;
     /// type = 0 => DCI Format 0, type = 1 => DCI Format 1A
@@ -230,7 +240,9 @@ struct DCI6_1A_20MHz
     /// Modulation and Coding Scheme and Redundancy Version
     uint32_t mcs: 4;
     /// Resource block assignment (assignment flag = 0 for 20 MHz, ceil(log2(floor(N_RB_DL/6)))+5)
-    uint32_t rballoc: 9;
+    uint32_t rballoc: 5;
+    /// narrowband index log2(floor(N_RB_DL/6))) bits
+    uint32_t narrowband: 4;
     /// Frequency hopping flag
     uint32_t hopping: 1;
     /// 0/1A differentiator

@@ -86,7 +86,9 @@ static void nas_nl_data_ready(struct sk_buff *skb)
 
     if(skb)
     {
+#ifdef NETLINK_DEBUG
         printk("[UE_IP_DRV][NETLINK] Received socket from PDCP\n");
+#endif //NETLINK_DEBUG
         nlh = (struct nlmsghdr *)skb->data;
         ue_ip_common_wireless2ip(nlh);
         //kfree_skb(skb); // not required,
@@ -110,7 +112,7 @@ int ue_ip_netlink_init(void)
 # if LINUX_VERSION_CODE < KERNEL_VERSION(3,8,0)
                     THIS_MODULE,
 # endif
-                    & cfg
+                    & cfg);
 #else /* LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0) */
     nas_nl_sk = netlink_kernel_create(
                     &init_net,
@@ -120,7 +122,7 @@ int ue_ip_netlink_init(void)
                     &nasmesh_mutex, // NULL
                     THIS_MODULE);
 #endif /* LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0) */
-                );
+
 
 
     if(nas_nl_sk == NULL)
@@ -179,7 +181,9 @@ int ue_ip_netlink_send(unsigned char *data, unsigned int len)
     NETLINK_CB(nl_skb).pid = 0;
 #endif
 
+#ifdef NETLINK_DEBUG
     printk("[UE_IP_DRV][NETLINK] In nas_netlink_send, nl_skb %p, nl_sk %x, nlh %p, nlh->nlmsg_len %d\n", nl_skb, nas_nl_sk, nlh, nlh->nlmsg_len);
+#endif //DEBUG_NETLINK
 
     if(nas_nl_sk)
     {
@@ -195,7 +199,9 @@ int ue_ip_netlink_send(unsigned char *data, unsigned int len)
         }
         else
         {
+#ifdef NETLINK_DEBUG
             printk("[UE_IP_DRV][NETLINK] SEND status is %d\n", status);
+#endif
             return len;
         }
     }

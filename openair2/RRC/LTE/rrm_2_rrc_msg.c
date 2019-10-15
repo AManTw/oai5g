@@ -63,15 +63,12 @@
 void  fn_rrc(void)
 {
     /******************************************************************************/
-
     msg_head_t *Header ;
     char *Data;
-
     L2_ID Mac_id;
 
     while(1)
     {
-
         Header = (msg_head_t *) recv_msg(&S_rrc) ;
 
         if(Header == NULL)
@@ -153,7 +150,6 @@ void  fn_rrc(void)
                 {
                     memcpy(&UE_rrc_inst[Header->inst - NB_CH_INST].Srb2[CH_index].Srb_info.IP_addr, p->L3_info, 4);
                 }
-
                 else
                 {
                     memcpy(&UE_rrc_inst[Header->inst - NB_CH_INST].Srb2[CH_index].Srb_info.IP_addr, p->L3_info, 16);
@@ -170,7 +166,6 @@ void  fn_rrc(void)
             }
             break ;
 
-
             case RRM_SENSING_MEAS_RESP:
             {
                 msg("[RRM]>[RRC][Inst %d]:RRM_SENSING_MEAS_RESP\n", Header->inst);
@@ -178,13 +173,11 @@ void  fn_rrc(void)
             }
             break ;
 
-
             case RRM_SCAN_ORD:
                 msg("[RRM]>[RRC][Inst %d]:RRM_SCAN_ORD\n", Header->inst);
                 //memcpy(&CH_rrc_inst[0].Rrm_init_scan_req,(rrm_init_scan_req_t *) Data,sizeof(rrm_init_scan_req_t));
                 //CH_rrc_inst[0].Last_scan_req=Rrc_xface->Frame_index;
                 ///send over air
-
                 break;
 
             case RRM_INIT_SCAN_REQ:
@@ -192,28 +185,22 @@ void  fn_rrc(void)
                 memcpy(&CH_rrc_inst[0].Rrm_init_scan_req, (rrm_init_scan_req_t *) Data, sizeof(rrm_init_scan_req_t));
                 CH_rrc_inst[0].Last_scan_req = Rrc_xface->Frame_index;
                 ///send over air
-
                 break;
 
             case RRM_END_SCAN_REQ:
-
                 msg("[RRM]>[RRC][Inst %d]:RRM_END_SCAN_REQ\n", Header->inst);
                 memcpy(&Mac_id.L2_id[0], Data, sizeof(L2_ID));
                 unsigned char UE_index = Mac_id.L2_id[0] - NB_CH_MAX + 1;
-
-
                 UE_rrc_inst[0].Srb2[UE_index].Srb_info.Tx_buffer.Payload[0] = 100;
                 msg("SRB_ID %d\n", CH_rrc_inst[0].Srb2[UE_index].Srb_info.Srb_id);
                 Mac_rlc_xface->rrc_rlc_data_req(0, CH_rrc_inst[0].Srb2[UE_index].Srb_info.Srb_id, 0, 0, 1, CH_rrc_inst[0].Srb2[UE_index].Srb_info.Tx_buffer.Payload);
                 //CH_rrc_inst[0].Last_scan_req=Rrc_xface->Frame_index;
                 ///send over air
-
                 break;
 
             default :
                 msg("[L3_xface]WARNING: msg unknown %d\n", Header->msg_type) ;
         }
-
     }
 }
 

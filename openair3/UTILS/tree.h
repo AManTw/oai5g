@@ -1,57 +1,57 @@
 /*
-    Copyright 2002 Niels Provos <provos@citi.umich.edu>
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions
-    are met:
-    1. Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-
-    THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-    IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-    IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
-    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-    NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-    THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ * Copyright 2002 Niels Provos <provos@citi.umich.edu>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #ifndef _SYS_TREE_H_
 #define _SYS_TREE_H_
 
 /*
-    This file defines data structures for different types of trees:
-    splay trees and red-black trees.
-
-    A splay tree is a self-organizing data structure.  Every operation
-    on the tree causes a splay to happen.  The splay moves the requested
-    node to the root of the tree and partly rebalances it.
-
-    This has the benefit that request locality causes faster lookups as
-    the requested nodes move to the top of the tree.  On the other hand,
-    every lookup causes memory writes.
-
-    The Balance Theorem bounds the total access time for m operations
-    and n inserts on an initially empty tree as O((m + n)lg n).  The
-    amortized cost for a sequence of m accesses to a splay tree is O(lg n);
-
-    A red-black tree is a binary search tree with the node color as an
-    extra attribute.  It fulfills a set of conditions:
-    - every search path from the root to a leaf consists of the
-      same number of black nodes,
-    - each red node (except for the root) has a black parent,
-    - each leaf node is black.
-
-    Every operation on a red-black tree is bounded as O(lg n).
-    The maximum height of a red-black tree is 2lg (n+1).
-*/
+ * This file defines data structures for different types of trees:
+ * splay trees and red-black trees.
+ *
+ * A splay tree is a self-organizing data structure.  Every operation
+ * on the tree causes a splay to happen.  The splay moves the requested
+ * node to the root of the tree and partly rebalances it.
+ *
+ * This has the benefit that request locality causes faster lookups as
+ * the requested nodes move to the top of the tree.  On the other hand,
+ * every lookup causes memory writes.
+ *
+ * The Balance Theorem bounds the total access time for m operations
+ * and n inserts on an initially empty tree as O((m + n)lg n).  The
+ * amortized cost for a sequence of m accesses to a splay tree is O(lg n);
+ *
+ * A red-black tree is a binary search tree with the node color as an
+ * extra attribute.  It fulfills a set of conditions:
+ *  - every search path from the root to a leaf consists of the
+ *    same number of black nodes,
+ *  - each red node (except for the root) has a black parent,
+ *  - each leaf node is black.
+ *
+ * Every operation on a red-black tree is bounded as O(lg n).
+ * The maximum height of a red-black tree is 2lg (n+1).
+ */
 
 #define SPLAY_HEAD(name, type)            \
 struct name {               \
@@ -149,9 +149,9 @@ name##_SPLAY_MIN_MAX(struct name *head, int val)      \
         return (SPLAY_ROOT(head));          \
 }
 
-/*  Main splay operation.
-    Moves node close to the key of elm to top
-*/
+/* Main splay operation.
+ * Moves node close to the key of elm to top
+ */
 #define SPLAY_GENERATE(name, type, field, cmp)        \
 struct type *               \
 name##_SPLAY_INSERT(struct name *head, struct type *elm)    \
@@ -233,9 +233,9 @@ name##_SPLAY(struct name *head, struct type *elm)     \
   SPLAY_ASSEMBLE(head, &__node, __left, __right, field);    \
 }                 \
                   \
-/*  Splay with either the minimum or the maximum element     \
-    Used to find minimum or maximum element in tree.     \
-*/                 \
+/* Splay with either the minimum or the maximum element     \
+ * Used to find minimum or maximum element in tree.     \
+ */                 \
 void name##_SPLAY_MINMAX(struct name *head, int __comp) \
 {                 \
   struct type __node, *__left, *__right, *__tmp;      \
@@ -328,7 +328,7 @@ struct {                \
 } while (0)
 
 #ifndef RB_AUGMENT
-    #define RB_AUGMENT(x)
+#define RB_AUGMENT(x)
 #endif
 
 #define RB_ROTATE_LEFT(head, elm, tmp, field) do {      \
@@ -381,10 +381,10 @@ struct type *name##_RB_FIND(struct name *, struct type *);    \
 struct type *name##_RB_NEXT(struct type *);       \
 struct type *name##_RB_MINMAX(struct name *, int);      \
                   \
-
-/*  Main rb operation.
-    Moves node close to the key of elm to top
-*/
+ 
+/* Main rb operation.
+ * Moves node close to the key of elm to top
+ */
 #define RB_GENERATE(name, type, field, cmp)       \
 void                  \
 name##_RB_INSERT_COLOR(struct name *head, struct type *elm)   \

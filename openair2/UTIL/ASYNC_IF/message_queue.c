@@ -66,6 +66,10 @@ message_queue_t *new_message_queue(void)
         goto error;
     }
 
+    ret->head = NULL;
+    ret->tail = NULL;
+    ret->exit = 0;
+
     return ret;
 
 error:
@@ -83,6 +87,10 @@ error:
 int message_put(message_queue_t *queue, void *data, int size, int priority)
 {
     message_t *m = NULL;
+    if(size <= 0)
+    {
+        goto error;
+    }
 
     m = calloc(1, sizeof(message_t));
     if(m == NULL)
@@ -127,12 +135,15 @@ int message_put(message_queue_t *queue, void *data, int size, int priority)
     return 0;
 
 error:
-    free(m);
+    if(m)
+    {
+        free(m);
+    }
     LOG_E(MAC, "%s: an error occured\n", __FUNCTION__);
     return -1;
 }
 
-int message_get(message_queue_t *queue, void **data, int *size, int *priority)
+int message_get(message_queue_t *queue, void **data, int *priority)
 {
     message_t *m;
 
@@ -143,10 +154,16 @@ int message_get(message_queue_t *queue, void **data, int *size, int *priority)
 
     while(queue->count == 0)
     {
-        if(pthread_cond_wait(queue->cond, queue->mutex))
+        int rc = pthread_cond_wait(queue->cond, queue->mutex);
+        if(rc != 0)
         {
             pthread_mutex_unlock(queue->mutex);
             goto error;
+        }
+        if(queue->exit)
+        {
+            pthread_mutex_unlock(queue->mutex);
+            return 0;
         }
     }
 
@@ -165,15 +182,22 @@ int message_get(message_queue_t *queue, void **data, int *size, int *priority)
     }
 
     *data = m->data;
-    *size = m->size;
+    const int size = m->size;
     *priority = m->priority;
     free(m);
 
-    return 0;
-
+    return size;
 error:
     LOG_E(MAC, "%s: an error occured\n", __FUNCTION__);
     return -1;
+}
+
+void message_get_unlock(message_queue_t *queue)
+{
+    pthread_mutex_lock(queue->mutex);
+    queue->exit = 1;
+    pthread_mutex_unlock(queue->mutex);
+    pthread_cond_signal(queue->cond);
 }
 
 /* when calling this function, the queue must not be used anymore (we don't lock it) */
@@ -220,13 +244,13 @@ int main(void)
         goto error;
     }
 
-    if(message_get(q, &data, &size, &priority))
+    if((size = message_get(q, &data, &priority)) <= 0)
     {
         goto error;
     }
     printf("message:\n  data: '%s'\n  size: %d\n  priority: %d\n",
            (char *)data, size, priority);
-    if(message_get(q, &data, &size, &priority))
+    if((size = message_get(q, &data, &priority)) <= 0)
     {
         goto error;
     }
@@ -241,10 +265,11 @@ int main(void)
         goto error;
     }
     destroy_message_queue(q);
-
+    free(s);
     return 0;
 
 error:
+    free(s);
     printf("error\n");
     return 1;
 }

@@ -69,7 +69,7 @@ void generate_ul_ref_sigs(void)
                 }
 
 #ifdef MAIN
-                printf("Msc_RS %d (%d), u %d, v %d -> q %d (qbar %f)\n", Msc_RS, dftsizes[Msc_RS], u, v, q, qbar);
+                printf("Msc_RS %u (%d), u %u, v %u -> q %u (qbar %f)\n", Msc_RS, dftsizes[Msc_RS], u, v, q, qbar);
 #endif
 
                 for(n = 0; n < dftsizes[Msc_RS]; n++)
@@ -110,7 +110,6 @@ void generate_ul_ref_sigs(void)
             ul_ref_sigs[u][0][0][n << 1]    = (int16_t)(floor(32767 * cos(M_PI * ref12[(u * 12) + n] / 4)));
             ul_ref_sigs[u][0][0][1 + (n << 1)] = (int16_t)(floor(32767 * sin(M_PI * ref12[(u * 12) + n] / 4)));
         }
-
     }
 
     // These are the sequences for RB 2
@@ -123,11 +122,7 @@ void generate_ul_ref_sigs(void)
             ul_ref_sigs[u][0][1][n << 1]    = (int16_t)(floor(32767 * cos(M_PI * ref24[(u * 24) + n] / 4)));
             ul_ref_sigs[u][0][1][1 + (n << 1)] = (int16_t)(floor(32767 * sin(M_PI * ref24[(u * 24) + n] / 4)));
         }
-
-
-
     }
-
 }
 
 void generate_ul_ref_sigs_rx(void)
@@ -155,7 +150,7 @@ void generate_ul_ref_sigs_rx(void)
                 }
 
 #ifdef MAIN
-                printf("Msc_RS %d (%d), u %d, v %d -> q %d (qbar %f)\n", Msc_RS, dftsizes[Msc_RS], u, v, q, qbar);
+                printf("Msc_RS %u (%d), u %u, v %u -> q %u (qbar %f)\n", Msc_RS, dftsizes[Msc_RS], u, v, q, qbar);
 #endif
 
                 for(n = 0; n < dftsizes[Msc_RS]; n++)
@@ -208,15 +203,12 @@ void generate_ul_ref_sigs_rx(void)
             ul_ref_sigs_rx[u][0][1][n << 1]    = (int16_t)(floor(32767 * cos(M_PI * ref24[(u * 24) + n] / 4)));
             ul_ref_sigs_rx[u][0][1][1 + (n << 1)] = (int16_t)(floor(32767 * sin(M_PI * ref24[(u * 24) + n] / 4)));
         }
-
     }
-
 }
 
 
 void free_ul_ref_sigs(void)
 {
-
     unsigned int u, v, Msc_RS;
 
     for(Msc_RS = 0; Msc_RS < 34; Msc_RS++)
@@ -244,7 +236,6 @@ void free_ul_ref_sigs(void)
 #ifdef MAIN
 main()
 {
-
     generate_ul_ref_sigs();
     generate_ul_ref_sigs_rx();
     free_ul_ref_sigs();

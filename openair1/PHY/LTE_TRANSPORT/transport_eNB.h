@@ -50,6 +50,7 @@
 
 
 
+
 typedef struct
 {
     /// Status Flag indicating for this DLSCH (idle,active,disabled)
@@ -154,6 +155,8 @@ typedef struct
 #else
     uint8_t active;
 #endif
+    /// indicator of UE type (0 = LTE, 1,2 = Cat-M)
+    int ue_type;
     /// HARQ process mask, indicates which processes are currently active
     uint16_t harq_mask;
     /// Indicator of TX activation per subframe.  Used during PUCCH detection for ACK/NAK.
@@ -330,7 +333,9 @@ typedef struct
     uint8_t     subframe;
     /// corresponding UE RNTI
     uint16_t    rnti;
-    /// Type (SR,HARQ,CQI,HARQ_SR,HARQ_CQI,SR_CQI,HARQ_SR_CQI)
+    /// UE ID from Layer2
+    uint16_t    ue_id;
+    /// Type (SR, HARQ, CQI, HARQ_SR, HARQ_CQI, SR_CQI, HARQ_SR_CQI)
     UCI_type_t  type;
     /// SRS active flag
     uint8_t     srs_active;
@@ -449,6 +454,10 @@ typedef struct
 
 typedef struct
 {
+#if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
+    /// UE type (normal, CEModeA, CEModeB)
+    uint8_t ue_type;
+#endif
     /// HARQ process mask, indicates which processes are currently active
     uint16_t harq_mask;
     /// Pointers to 8 HARQ processes for the ULSCH

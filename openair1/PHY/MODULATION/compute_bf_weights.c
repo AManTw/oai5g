@@ -29,6 +29,7 @@ int f_read(char *calibF_fname, int nb_ant, int nb_freq, int32_t **tdd_calib_coef
         }
         printf("%d\n", (int)tdd_calib_coeffs[0][0]);
         printf("%d\n", (int)tdd_calib_coeffs[1][599]);
+        fclose(calibF_fd);
     }
     else
     {

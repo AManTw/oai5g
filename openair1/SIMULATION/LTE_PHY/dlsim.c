@@ -66,7 +66,7 @@
 #include "SCHED_UE/sched_UE.h"
 #include "common/config/config_load_configmodule.h"
 #include "PHY/INIT/phy_init.h"
-
+#include "nfapi/oai_integration/vendor_ext.h"
 
 void feptx_ofdm(RU_t *ru);
 void feptx_prec(RU_t *ru);
@@ -93,10 +93,8 @@ void handler(int sig)
 {
     void *array[10];
     size_t size;
-
     // get void*'s for all entries on the stack
     size = backtrace(array, 10);
-
     // print out all the frames to stderr
     fprintf(stderr, "Error: signal %d:\n", sig);
     backtrace_symbols_fd(array, size, 2);
@@ -116,16 +114,13 @@ uint64_t DLSCH_alloc_pdu_1[2];
 //#define DLSCH_RB_ALLOC 0x0001
 void do_OFDM_mod_l(int32_t **txdataF, int32_t **txdata, uint16_t next_slot, LTE_DL_FRAME_PARMS *frame_parms)
 {
-
     int aa, slot_offset, slot_offset_F;
-
     slot_offset_F = (next_slot) * (frame_parms->ofdm_symbol_size) * ((frame_parms->Ncp == 1) ? 6 : 7);
     slot_offset = (next_slot) * (frame_parms->samples_per_tti >> 1);
 
     for(aa = 0; aa < frame_parms->nb_antennas_tx; aa++)
     {
         //    printf("Thread %d starting ... aa %d (%llu)\n",omp_get_thread_num(),aa,rdtsc());
-
         if(frame_parms->Ncp == 1)
             PHY_ofdm_mod(&txdataF[aa][slot_offset_F],        // input
                          &txdata[aa][slot_offset],         // output
@@ -140,16 +135,12 @@ void do_OFDM_mod_l(int32_t **txdataF, int32_t **txdata, uint16_t next_slot, LTE_
                               7,
                               frame_parms);
         }
-
-
     }
-
 }
 
 void DL_channel(RU_t *ru, PHY_VARS_UE *UE, uint subframe, int awgn_flag, double SNR, int tx_lev, int hold_channel, int abstx, int num_rounds, int trials, int round, channel_desc_t *eNB2UE[4],
                 double *s_re[2], double *s_im[2], double *r_re[2], double *r_im[2], FILE *csv_fd)
 {
-
     int i, u;
     int aa, aarx, aatx;
     double channelx, channely;
@@ -180,7 +171,6 @@ void DL_channel(RU_t *ru, PHY_VARS_UE *UE, uint subframe, int awgn_flag, double 
                         r_re[aarx][i] += ((double)(((short *)ru->common.txdata[aa]))[(2 * subframe * UE->frame_parms.samples_per_tti) + (i << 1)]);
                         r_im[aarx][i] += ((double)(((short *)ru->common.txdata[aa]))[(2 * subframe * UE->frame_parms.samples_per_tti) + (i << 1) + 1]);
                     }
-
                 }
             }
         }
@@ -211,7 +201,6 @@ void DL_channel(RU_t *ru, PHY_VARS_UE *UE, uint subframe, int awgn_flag, double 
             */
         }
     }
-
 
     if(abstx)
     {
@@ -314,7 +303,6 @@ fill_tx_req(nfapi_tx_request_body_t *tx_req_body,
     nfapi_tx_request_pdu_t *TX_req = &tx_req_body->tx_pdu_list[tx_req_body->number_of_pdus];
     LOG_D(MAC, "Filling TX_req %d for pdu length %d\n",
           tx_req_body->number_of_pdus, pdu_length);
-
     TX_req->pdu_length                 = pdu_length;
     TX_req->pdu_index                  = pdu_index;
     TX_req->num_segments               = 1;
@@ -322,7 +310,6 @@ fill_tx_req(nfapi_tx_request_body_t *tx_req_body,
     TX_req->segments[0].segment_data   = pdu;
     tx_req_body->tl.tag                = NFAPI_TX_REQUEST_BODY_TAG;
     tx_req_body->number_of_pdus++;
-
     return (((absSF / 10) << 4) + (absSF % 10));
 }
 
@@ -355,7 +342,6 @@ fill_dlsch_config(nfapi_dl_config_request_body_t *dl_req,
         &dl_req->dl_config_pdu_list[dl_req->number_pdu];
     memset((void *) dl_config_pdu, 0,
            sizeof(nfapi_dl_config_request_pdu_t));
-
     dl_config_pdu->pdu_type                                                        = NFAPI_DL_CONFIG_DLSCH_PDU_TYPE;
     dl_config_pdu->pdu_size                                                        = (uint8_t)(2 + sizeof(nfapi_dl_config_dlsch_pdu));
     dl_config_pdu->dlsch_pdu.dlsch_pdu_rel8.tl.tag                                 = NFAPI_DL_CONFIG_REQUEST_DLSCH_PDU_REL8_TAG;
@@ -407,14 +393,11 @@ void fill_DCI(PHY_VARS_eNB *eNB,
               int *num_ue_spec_dci,
               int *num_dci)
 {
-
     int k;
-
     nfapi_dl_config_request_body_t *dl_req = &sched_resp->DL_req->dl_config_request_body;
     nfapi_dl_config_request_pdu_t  *dl_config_pdu;
     nfapi_tx_request_body_t        *TX_req = &sched_resp->TX_req->tx_request_body;
     int NB_RB4TBS = common_flag == 0 ? NB_RB : (2 + TPC);
-
     dl_req->number_dci = 0;
     dl_req->number_pdu = 0;
     TX_req->number_of_pdus = 0;
@@ -424,9 +407,7 @@ void fill_DCI(PHY_VARS_eNB *eNB,
         switch(transmission_mode)
         {
             case 1:
-
             case 2:
-
             case 7:
                 dl_config_pdu = &dl_req->dl_config_pdu_list[dl_req->number_pdu];
                 memset((void *) dl_config_pdu, 0,
@@ -437,11 +418,10 @@ void fill_DCI(PHY_VARS_eNB *eNB,
                 dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.aggregation_level = 4;
                 dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.tl.tag = NFAPI_DL_CONFIG_REQUEST_DCI_DL_PDU_REL8_TAG;
                 dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.rnti = (common_flag == 0) ? n_rnti + k : SI_RNTI;
-                dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.rnti_type = (common_flag == 0) ? 1 : 2;	// CRNTI : see Table 4-10 from SCF082 - nFAPI specifications
-                dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.transmission_power = 6000;	// equal to RS power
-
+                dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.rnti_type = (common_flag == 0) ? 1 : 2; // CRNTI : see Table 4-10 from SCF082 - nFAPI specifications
+                dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.transmission_power = 6000;  // equal to RS power
                 dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.harq_process = 0;
-                dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.tpc = TPC;	// dont adjust power when retransmitting
+                dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.tpc = TPC;  // dont adjust power when retransmitting
                 dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.new_data_indicator_1 = (common_flag == 0) ? ndi : 0;
                 dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.mcs_1 = mcs1;
                 dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.redundancy_version_1 = rv;
@@ -449,102 +429,83 @@ void fill_DCI(PHY_VARS_eNB *eNB,
                 //deactivate second codeword
                 dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.mcs_2 = 0;
                 dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.redundancy_version_2 = 1;
-
                 dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.downlink_assignment_index = 0;
                 dl_config_pdu->dci_dl_pdu.dci_dl_pdu_rel8.cce_idx = 0;
-
                 dl_req->number_dci++;
                 dl_req->number_pdu++;
                 dl_req->tl.tag = NFAPI_DL_CONFIG_REQUEST_BODY_TAG;
-
                 AssertFatal(TPC >= 0 && TPC < 2, "TPC should be 0 or 1\n");
-
                 fill_dlsch_config(dl_req,
                                   get_TBS_DL(mcs1, NB_RB4TBS),
                                   (retrans > 0) ? -1 : 0, /* retransmission, no pdu_index */
                                   (common_flag == 0) ? n_rnti : SI_RNTI,
-                                  0,	// type 0 allocation from 7.1.6 in 36.213
-                                  0,	// virtual_resource_block_assignment_flag, unused here
-                                  DLSCH_RB_ALLOC,	// resource_block_coding,
+                                  0,  // type 0 allocation from 7.1.6 in 36.213
+                                  0,  // virtual_resource_block_assignment_flag, unused here
+                                  DLSCH_RB_ALLOC, // resource_block_coding,
                                   get_Qm(mcs1),
-                                  rv,	// redundancy version
-                                  1,	// transport blocks
-                                  0,	// transport block to codeword swap flag
-                                  transmission_mode == 1 ? 0 : 1,	// transmission_scheme
-                                  1,	// number of layers
-                                  1,	// number of subbands
+                                  rv, // redundancy version
+                                  1,  // transport blocks
+                                  0,  // transport block to codeword swap flag
+                                  transmission_mode == 1 ? 0 : 1, // transmission_scheme
+                                  1,  // number of layers
+                                  1,  // number of subbands
                                   //                      uint8_t codebook_index,
-                                  4,	// UE category capacity
+                                  4,  // UE category capacity
                                   pa,    // pa
-                                  0,	// delta_power_offset for TM5
-                                  0,	// ngap
-                                  0,	// nprb
+                                  0,  // delta_power_offset for TM5
+                                  0,  // ngap
+                                  0,  // nprb
                                   transmission_mode,
-                                  0,	//number of PRBs treated as one subband, not used here
-                                  0	// number of beamforming vectors, not used here
+                                  0,  //number of PRBs treated as one subband, not used here
+                                  0 // number of beamforming vectors, not used here
                                  );
                 fill_tx_req(TX_req,
                             (frame * 10) + subframe,
                             get_TBS_DL(mcs1, NB_RB4TBS),
                             0,
                             input_buffer[k]);
-
-
                 break;
 
             case 3:
                 if(common_flag == 0)
                 {
-
                     if(eNB->frame_parms.nb_antennas_tx == 2)
                     {
-
                         if(eNB->frame_parms.frame_type == TDD)
                         {
-
                         }
                         else
                         {
-
                         }
                     }
                 }
+
                 break;
 
             case 4:
                 if(common_flag == 0)
                 {
-
                     if(eNB->frame_parms.nb_antennas_tx == 2)
                     {
-
                         if(eNB->frame_parms.frame_type == TDD)
                         {
-
-
                         }
-
                         else
                         {
-
                         }
                     }
                     else if(eNB->frame_parms.nb_antennas_tx == 4)
                     {
-
                     }
-
                 }
                 else
                 {
-
                 }
 
                 break;
 
             case 5:
             case 6:
-
                 break;
 
             default:
@@ -553,6 +514,7 @@ void fill_DCI(PHY_VARS_eNB *eNB,
                 break;
         }
     }
+
     *num_dci         = dl_req->number_dci;
     *num_ue_spec_dci = dl_req->number_dci;
     *num_common_dci  = 0;
@@ -562,7 +524,7 @@ int n_users = 1;
 int subframe = 7;
 int num_common_dci = 0, num_ue_spec_dci = 0, num_dci = 0, num_pdcch_symbols = 1;
 uint16_t n_rnti = 0x1234;
-int nfapi_mode = 0;
+
 int abstx = 0;
 int Nid_cell = 0;
 int N_RB_DL = 25;
@@ -589,13 +551,9 @@ int print_perf = 0;
 
 int main(int argc, char **argv)
 {
-
     int k, i, j, aa;
     int re;
-
     int s, Kr, Kr_bytes;
-
-
     LTE_DL_FRAME_PARMS *frame_parms;
     double s_re0[30720 * 2], s_im0[30720 * 2], r_re0[30720 * 2], r_im0[30720 * 2];
     double s_re1[30720 * 2], s_im1[30720 * 2], r_re1[30720 * 2], r_im1[30720 * 2];
@@ -603,30 +561,22 @@ int main(int argc, char **argv)
     double *s_im[2] = {s_im0, s_im1};
     double *r_re[2] = {r_re0, r_re1};
     double *r_im[2] = {r_im0, r_im1};
-
-
     uint8_t transmission_mode = 1, n_tx_port = 1, n_tx_phy = 1, n_rx = 2;
-
     int eNB_id = 0;
     unsigned char round;
     unsigned char i_mod = 2;
     int NB_RB;
-
     SCM_t channel_model = Rayleigh1;
     //  unsigned char *input_data,*decoded_output;
-
     DCI_ALLOC_t da;
     DCI_ALLOC_t *dci_alloc = &da;
-
     unsigned int coded_bits_per_codeword = 0, nsymb; //,tbs=0;
-
     unsigned int tx_lev = 0, tx_lev_dB = 0, trials;
     unsigned int errs[4], errs2[4], round_trials[4], dci_errors[4]; //,num_layers;
     memset(errs, 0, 4 * sizeof(unsigned int));
     memset(errs2, 0, 4 * sizeof(unsigned int));
     memset(round_trials, 0, 4 * sizeof(unsigned int));
     memset(dci_errors, 0, 4 * sizeof(unsigned int));
-
     //int re_allocated;
     char fname[32], vname[32];
     FILE *bler_fd;
@@ -635,25 +585,20 @@ int main(int argc, char **argv)
     char time_meas_fname[256];
     //  FILE *tikz_fd;
     //  char tikz_fname[256];
-
     FILE *input_trch_fd = NULL;
     unsigned char input_trch_file = 0;
     FILE *input_fd = NULL;
     unsigned char input_file = 0;
-
     channel_desc_t *eNB2UE[4];
     //uint8_t num_pdcch_symbols_2=0;
     //char stats_buffer[4096];
     //int len;
-
     //int u;
     int n = 0;
     //int iii;
-
     int ch_realization;
     //int pmi_feedback=0;
     int hold_channel = 0;
-
     // void *data;
     // int ii;
     //  int bler;
@@ -663,23 +608,18 @@ int main(int argc, char **argv)
     frame_t frame_type = FDD;
     FD_lte_phy_scope_ue *form_ue = NULL;
     char title[255];
-
     int numCCE = 0;
     //int dci_length_bytes=0,dci_length=0;
     //double channel_bandwidth = 5.0, sampling_rate=7.68;
     int common_flag = 0, TPC = 0;
-
     double cpu_freq_GHz;
     //  time_stats_t ts;//,sts,usts;
     int avg_iter, iter_trials;
     int rballocset = 0;
     int test_passed = 0;
-
     double effective_rate = 0.0;
     char channel_model_input[10] = "I";
-
     int TB0_active = 1;
-
     //  LTE_DL_UE_HARQ_t *dlsch0_ue_harq;
     //  LTE_DL_eNB_HARQ_t *dlsch0_eNB_harq;
     uint8_t Kmimo;
@@ -688,15 +628,13 @@ int main(int argc, char **argv)
     int sf;
     int CCE_table[800];
     opp_enabled = 1; // to enable the time meas
-
     FILE *csv_fd = NULL;
     char csv_fname[FILENAME_MAX];
     int DLSCH_RB_ALLOC = 0;
-
     int dci_received;
     PHY_VARS_eNB *eNB;
     RU_t *ru;
-    PHY_VARS_UE *UE;
+    PHY_VARS_UE *UE = NULL;
     nfapi_dl_config_request_t DL_req;
     nfapi_ul_config_request_t UL_req;
     nfapi_hi_dci0_request_t HI_DCI0_req;
@@ -705,12 +643,12 @@ int main(int argc, char **argv)
     nfapi_tx_request_t TX_req;
     Sched_Rsp_t sched_resp;
     int pa = dB0;
-
 #if defined(__arm__)
     FILE    *proc_fd = NULL;
     char buf[64];
-
+    memset(buf, 0, sizeof(buf));
     proc_fd = fopen("/sys/devices/system/cpu/cpu4/cpufreq/cpuinfo_cur_freq", "r");
+
     if(!proc_fd)
     {
         printf("cannot open /sys/devices/system/cpu/cpu4/cpufreq/cpuinfo_cur_freq");
@@ -722,6 +660,7 @@ int main(int argc, char **argv)
             printf("%s", buf);
         }
     }
+
     fclose(proc_fd);
     cpu_freq_GHz = ((double)atof(buf)) / 1e6;
 #else
@@ -737,15 +676,12 @@ int main(int argc, char **argv)
     memset((void *)&UL_req, 0, sizeof(UL_req));
     memset((void *)&HI_DCI0_req, 0, sizeof(HI_DCI0_req));
     memset((void *)&TX_req, 0, sizeof(TX_req));
-
     DL_req.dl_config_request_body.dl_config_pdu_list = dl_config_pdu_list;
     TX_req.tx_request_body.tx_pdu_list = tx_pdu_list;
     set_parallel_conf("PARALLEL_SINGLE_THREAD");
     cpuf = cpu_freq_GHz;
-
     //signal(SIGSEGV, handler);
     //signal(SIGABRT, handler);
-
     // default parameters
     n_frames = 1000;
     snr0 = 0;
@@ -800,13 +736,8 @@ int main(int argc, char **argv)
         { "help", "display help and exit", PARAMFLAG_BOOL,  iptr:&help, defintval: 0, TYPE_INT, 0 },
         { "", "", 0,  iptr: NULL, defintval: 0, TYPE_INT, 0 },
     };
-
-
     struct option *long_options = parse_oai_options(options);
-
-
     int option_index;
-
     int res;
 
     while((res = getopt_long_only(argc, argv, "", long_options, &option_index)) == 0)
@@ -921,7 +852,16 @@ int main(int argc, char **argv)
 
             case 'u':
                 dual_stream_UE = 1;
-                UE->use_ia_receiver = 1;
+
+                if(UE != NULL)
+                {
+                    UE->use_ia_receiver = 1;
+                }
+                else
+                {
+                    printf("UE  is NULL\n");
+                    exit(-1);
+                }
 
                 if((n_tx_port != 2) || (transmission_mode != 5))
                 {
@@ -952,7 +892,6 @@ int main(int argc, char **argv)
                 }
 
                 break;
-
 
             case 'x':
                 transmission_mode = atoi(optarg);
@@ -1031,11 +970,11 @@ int main(int argc, char **argv)
     {
         display_options_values(options, true);
     }
+
     if(help)
     {
         exit(0);
     }
-
     if(thread_struct.parallel_conf != PARALLEL_SINGLE_THREAD)
     {
         set_worker_conf("WORKER_ENABLE");
@@ -1045,8 +984,8 @@ int main(int argc, char **argv)
     {
         pa = dBm3;
     }
-    printf("dlsim: tmode %d, pa %d\n", transmission_mode, pa);
 
+    printf("dlsim: tmode %d, pa %d\n", transmission_mode, pa);
     AssertFatal(load_configmodule(argc, argv, CONFIG_ENABLECMDLINEONLY) != NULL,
                 "cannot load configuration module, exiting\n");
     logInit();
@@ -1068,6 +1007,7 @@ int main(int argc, char **argv)
                 {
                     DLSCH_RB_ALLOC = 0x3f;
                 }
+
                 num_pdcch_symbols = 3;
                 break;
 
@@ -1076,6 +1016,7 @@ int main(int argc, char **argv)
                 {
                     DLSCH_RB_ALLOC = 0x1fff;
                 }
+
                 break;
 
             case 50:
@@ -1083,6 +1024,7 @@ int main(int argc, char **argv)
                 {
                     DLSCH_RB_ALLOC = 0x1ffff;
                 }
+
                 break;
 
             case 100:
@@ -1090,6 +1032,7 @@ int main(int argc, char **argv)
                 {
                     DLSCH_RB_ALLOC = 0x1ffffff;
                 }
+
                 break;
         }
 
@@ -1105,6 +1048,7 @@ int main(int argc, char **argv)
         {
             NB_RB = DLSCH_RB_ALLOC;
         }
+
         AssertFatal(NB_RB <= N_RB_DL, "illegal NB_RB %d\n", NB_RB);
     }
 
@@ -1117,10 +1061,18 @@ int main(int argc, char **argv)
 
         if(!dual_stream_UE == 0)
         {
-            UE->use_ia_receiver = 1;
-            fl_set_button(form_ue->button_0, 1);
-            fl_set_object_label(form_ue->button_0, "IA Receiver ON");
-            fl_set_object_color(form_ue->button_0, FL_GREEN, FL_GREEN);
+            if(UE)
+            {
+                UE->use_ia_receiver = 1;
+                fl_set_button(form_ue->button_0, 1);
+                fl_set_object_label(form_ue->button_0, "IA Receiver ON");
+                fl_set_object_color(form_ue->button_0, FL_GREEN, FL_GREEN);
+            }
+            else
+            {
+                printf("UE  is NULL\n");
+                exit(-1);
+            }
         }
     }
 
@@ -1129,9 +1081,9 @@ int main(int argc, char **argv)
         n_users = 2;
         printf("dual_stream_UE=%d\n", dual_stream_UE);
     }
+
     RC.nb_L1_inst = 1;
     RC.nb_RU = 1;
-
     lte_param_init(&eNB, &UE, &ru,
                    n_tx_port,
                    n_tx_phy,
@@ -1147,12 +1099,13 @@ int main(int argc, char **argv)
                    threequarter_fs,
                    osf,
                    perfect_ce);
-    RC.eNB = (PHY_VARS_eNB ***)malloc(sizeof(PHY_VARS_eNB **));
+    RC.eNB = (PHY_VARS_eNB ** *)malloc(sizeof(PHY_VARS_eNB **));
     RC.eNB[0] = (PHY_VARS_eNB **)malloc(sizeof(PHY_VARS_eNB *));
     RC.ru = (RU_t **)malloc(sizeof(RC.ru));
     RC.eNB[0][0] = eNB;
     RC.ru[0] = ru;
     printf("lte_param_init done\n");
+
     if((transmission_mode == 1) || (transmission_mode == 7))
     {
         for(aa = 0; aa < ru->nb_tx; aa++)
@@ -1172,6 +1125,7 @@ int main(int argc, char **argv)
     }
 
     eNB->mac_enabled = 1;
+
     if(get_thread_worker_conf() == WORKER_ENABLE)
     {
         extern void init_td_thread(PHY_VARS_eNB *);
@@ -1181,18 +1135,14 @@ int main(int argc, char **argv)
     }
 
     // callback functions required for phy_procedures_tx
-
     //  eNB_id_i = UE->n_connected_eNB;
-
     printf("Setting mcs1 = %d\n", mcs1);
     printf("Setting mcs2 = %d\n", mcs2);
     printf("NPRB = %d\n", NB_RB);
     printf("n_frames = %d\n", n_frames);
     printf("Transmission mode %d with %dx%d antenna configuration, Extended Prefix %d\n", transmission_mode, n_tx_phy, n_rx, extended_prefix_flag);
-
     snr1 = snr0 + snr_int;
     printf("SNR0 %f, SNR1 %f\n", snr0, snr1);
-
     uint8_t input_buffer[NUMBER_OF_UE_MAX][20000];
 
     for(i = 0; i < n_users; i++)
@@ -1202,9 +1152,7 @@ int main(int argc, char **argv)
         }
 
     frame_parms = &eNB->frame_parms;
-
     nsymb = (eNB->frame_parms.Ncp == 0) ? 14 : 12;
-
     printf("Channel Model= (%s,%d)\n", channel_model_input, channel_model);
     printf("SCM-A=%d, SCM-B=%d, SCM-C=%d, SCM-D=%d, EPA=%d, EVA=%d, ETU=%d, Rayleigh8=%d, Rayleigh1=%d, Rayleigh1_corr=%d, Rayleigh1_anticorr=%d, Rice1=%d, Rice8=%d\n",
            SCM_A, SCM_B, SCM_C, SCM_D, EPA, EVA, ETU, Rayleigh8, Rayleigh1, Rayleigh1_corr, Rayleigh1_anticorr, Rice1, Rice8);
@@ -1219,11 +1167,13 @@ int main(int argc, char **argv)
     }
 
     bler_fd = fopen(bler_fname, "w");
+
     if(bler_fd == NULL)
     {
         fprintf(stderr, "Cannot create file %s!\n", bler_fname);
         exit(-1);
     }
+
     fprintf(bler_fd, "SNR; MCS; TBS; rate; err0; trials0; err1; trials1; err2; trials2; err3; trials3; dci_err\n");
 
     if(test_perf != 0)
@@ -1238,6 +1188,7 @@ int main(int argc, char **argv)
                 N_RB_DL, mcs1, n_tx_phy, n_rx, num_pdcch_symbols, channel_model_input, transmission_mode);
         //mkdir(dirname,0777);
         time_meas_fd = fopen(time_meas_fname, "w");
+
         if(time_meas_fd == NULL)
         {
             fprintf(stderr, "Cannot create file %s!\n", time_meas_fname);
@@ -1250,12 +1201,14 @@ int main(int argc, char **argv)
         // CSV file
         sprintf(csv_fname, "dataout_tx%d_u2%d_mcs%d_chan%d_nsimus%d_R%d.m", transmission_mode, dual_stream_UE, mcs1, channel_model, n_frames, num_rounds);
         csv_fd = fopen(csv_fname, "w");
-        fprintf(csv_fd, "data_all%d=[", mcs1);
+
         if(csv_fd == NULL)
         {
             fprintf(stderr, "Cannot create file %s!\n", csv_fname);
             exit(-1);
         }
+
+        fprintf(csv_fd, "data_all%d=[", mcs1);
     }
 
     /*
@@ -1354,11 +1307,8 @@ int main(int argc, char **argv)
         break;
         }
     */
-
-
     UE->pdcch_vars[UE->current_thread_id[subframe]][0]->crnti = n_rnti;
     UE->n_connected_eNB = 1;
-
     printf("Allocating %dx%d eNB->UE channel descriptor\n", eNB->frame_parms.nb_antennas_tx, UE->frame_parms.nb_antennas_rx);
     eNB2UE[0] = new_channel_desc_scm(eNB->frame_parms.nb_antennas_tx,
                                      UE->frame_parms.nb_antennas_rx,
@@ -1368,9 +1318,9 @@ int main(int argc, char **argv)
                                      forgetting_factor,
                                      rx_sample_offset,
                                      0);
-
     reset_meas(&eNB2UE[0]->random_channel);
     reset_meas(&eNB2UE[0]->interp_time);
+
     if(num_rounds > 1)
     {
         for(n = 1; n < 4; n++)
@@ -1408,13 +1358,16 @@ int main(int argc, char **argv)
         case 1:
             Nsoft = 250368;
             break;
+
         case 2:
         case 3:
             Nsoft = 1237248;
             break;
+
         case 4:
             Nsoft = 1827072;
             break;
+
         default:
             printf("Unsupported UE category %d\n", ue_category);
             exit(-1);
@@ -1462,13 +1415,11 @@ int main(int argc, char **argv)
     UE->dlsch_SI[0]  = new_ue_dlsch(1, 1, Nsoft, MAX_TURBO_ITERATIONS, N_RB_DL, 0);
     UE->dlsch_ra[0]  = new_ue_dlsch(1, 1, Nsoft, MAX_TURBO_ITERATIONS, N_RB_DL, 0);
     UE->ulsch[0] = new_ue_ulsch(N_RB_DL, 0);
-
     // structure for SIC at UE
     UE->dlsch_eNB[0] = new_eNB_dlsch(Kmimo, 8, Nsoft, N_RB_DL, 0, &eNB->frame_parms);
 
     if(DLSCH_alloc_pdu2_1E[0].tpmi == 5)
     {
-
         eNB->UE_stats[0].DL_pmi_single = (unsigned short)(taus() & 0xffff);
 
         if(n_users > 1)
@@ -1490,7 +1441,6 @@ int main(int argc, char **argv)
 
     if(input_fd == NULL)
     {
-
         DL_req.dl_config_request_body.number_pdcch_ofdm_symbols = num_pdcch_symbols;
         DL_req.sfn_sf = (proc_eNB->frame_tx << 4) + subframe;
         TX_req.sfn_sf = (proc_eNB->frame_tx << 4) + subframe;
@@ -1515,16 +1465,12 @@ int main(int argc, char **argv)
                  &num_common_dci,
                  &num_ue_spec_dci,
                  &num_dci);
-
         numCCE = get_nCCE(num_pdcch_symbols, &eNB->frame_parms, get_mi(&eNB->frame_parms, subframe));
 
         if(n_frames == 1)
         {
             printf("num_pdcch_symbols %d, numCCE %d, num_dci %d/%d/%d\n", num_pdcch_symbols, numCCE, num_dci, num_ue_spec_dci, num_common_dci);
         }
-
-
-
     }
 
     snr_step = input_snr_step;
@@ -1553,13 +1499,11 @@ int main(int argc, char **argv)
             round_trials[1] = 0;
             round_trials[2] = 0;
             round_trials[3] = 0;
-
             dci_errors[0] = 0;
             dci_errors[1] = 0;
             dci_errors[2] = 0;
             dci_errors[3] = 0;
             //      avg_ber = 0;
-
             round = 0;
             avg_iter = 0;
             iter_trials = 0;
@@ -1574,6 +1518,7 @@ int main(int argc, char **argv)
             reset_meas(&eNB->dlsch_turbo_encoding_stats);
             reset_meas(&eNB->dlsch_common_and_dci);
             reset_meas(&eNB->dlsch_ue_specific);
+
             for(int i = 0; i < RX_NB_TH; i++)
             {
                 reset_meas(&UE->phy_proc_rx[i]); // total UE rx
@@ -1584,6 +1529,7 @@ int main(int argc, char **argv)
                 reset_meas(&UE->dlsch_llr_stats_parallelization[i][0]);
                 reset_meas(&UE->dlsch_llr_stats_parallelization[i][1]);
             }
+
             reset_meas(&UE->ofdm_demod_stats);
             reset_meas(&UE->crnti_procedures_stats);
             reset_meas(&UE->dlsch_channel_estimation_stats);
@@ -1623,7 +1569,6 @@ int main(int argc, char **argv)
                 //printf("Trial %d\n",trials);
                 fflush(stdout);
                 round = 0;
-
                 //if (trials%100==0)
                 eNB2UE[0]->first_run = 1;
                 UE->dlsch[UE->current_thread_id[subframe]][eNB_id][0]->harq_ack[subframe].ack = 0;
@@ -1631,7 +1576,7 @@ int main(int argc, char **argv)
 
                 while((round < num_rounds) && (UE->dlsch[UE->current_thread_id[subframe]][eNB_id][0]->harq_ack[subframe].ack == 0))
                 {
-                    //	  printf("Trial %d, round %d\n",trials,round);
+                    //    printf("Trial %d, round %d\n",trials,round);
                     round_trials[round]++;
 
                     //if(transmission_mode>=5)
@@ -1665,13 +1610,11 @@ int main(int argc, char **argv)
 
                     if(input_fd == NULL)
                     {
-
-
                         // Simulate HARQ procedures!!!
                         memset(CCE_table, 0, 800 * sizeof(int));
+
                         if(/*common_flag == 0*/ 1)
                         {
-
                             num_dci = 0;
                             num_common_dci = 0;
                             num_ue_spec_dci = 0;
@@ -1679,7 +1622,6 @@ int main(int argc, char **argv)
                             if(round == 0)      // First round
                             {
                                 TB0_active = 1;
-
                                 eNB->dlsch[0][0]->harq_processes[0]->rvidx = round & 3;
                                 DL_req.sfn_sf = (proc_eNB->frame_tx << 4) + subframe;
                                 TX_req.sfn_sf = (proc_eNB->frame_tx << 4) + subframe;
@@ -1698,7 +1640,6 @@ int main(int argc, char **argv)
                         proc_eNB->subframe_tx = subframe;
                         sched_resp.subframe = subframe;
                         sched_resp.frame = proc_eNB->frame_tx;
-
                         eNB->abstraction_flag = 0;
                         schedule_response(&sched_resp);
                         phy_procedures_eNB_TX(eNB, proc_eNB, 1);
@@ -1710,7 +1651,6 @@ int main(int argc, char **argv)
                                    eNB->dlsch[0][0]->harq_processes[0]->nb_rb,
                                    eNB->dlsch[0][0]->harq_processes[0]->rb_alloc[0],
                                    eNB->dlsch[0][0]->harq_processes[0]->mcs);
-
                             coded_bits_per_codeword = get_G(&eNB->frame_parms,
                                                             eNB->dlsch[0][0]->harq_processes[0]->nb_rb,
                                                             eNB->dlsch[0][0]->harq_processes[0]->rb_alloc,
@@ -1720,24 +1660,17 @@ int main(int argc, char **argv)
                                                             0,
                                                             subframe,
                                                             transmission_mode >= 7 ? transmission_mode : 0);
-
                             uncoded_ber_bit = (short *) malloc(sizeof(short) * coded_bits_per_codeword);
                             printf("uncoded_ber_bit=%p\n", uncoded_ber_bit);
                         }
 
                         start_meas(&eNB->ofdm_mod_stats);
-
                         ru->proc.subframe_tx = subframe;
                         memcpy((void *)&ru->frame_parms, (void *)&eNB->frame_parms, sizeof(LTE_DL_FRAME_PARMS));
                         feptx_prec(ru);
                         feptx_ofdm(ru);
-
                         stop_meas(&eNB->ofdm_mod_stats);
-
-
-
                         // generate next subframe for channel estimation
-
                         DL_req.dl_config_request_body.number_dci = 0;
                         DL_req.dl_config_request_body.number_pdu = 0;
                         TX_req.tx_request_body.number_of_pdus = 0;
@@ -1745,15 +1678,10 @@ int main(int argc, char **argv)
                         sched_resp.subframe = subframe + 1;
                         schedule_response(&sched_resp);
                         phy_procedures_eNB_TX(eNB, proc_eNB, 0);
-
-
                         ru->proc.subframe_tx = (subframe + 1) % 10;
                         feptx_prec(ru);
                         feptx_ofdm(ru);
-
-
                         proc_eNB->frame_tx++;
-
                         tx_lev = 0;
 
                         for(aa = 0; aa < eNB->frame_parms.nb_antennas_tx; aa++)
@@ -1765,12 +1693,9 @@ int main(int argc, char **argv)
 
                         tx_lev_dB = (unsigned int) dB_fixed(tx_lev);
 
-
-
                         if(n_frames == 1)
                         {
-                            printf("tx_lev = %d (%d dB)\n", tx_lev, tx_lev_dB);
-
+                            printf("tx_lev = %u (%u dB)\n", tx_lev, tx_lev_dB);
                             LOG_M("txsig0.m", "txs0", &ru->common.txdata[0][subframe * eNB->frame_parms.samples_per_tti], eNB->frame_parms.samples_per_tti, 1, 1);
 
                             if(transmission_mode < 7)
@@ -1786,12 +1711,9 @@ int main(int argc, char **argv)
                     }
 
                     DL_channel(ru, UE, subframe, awgn_flag, SNR, tx_lev, hold_channel, abstx, num_rounds, trials, round, eNB2UE, s_re, s_im, r_re, r_im, csv_fd);
-
-
                     UE_rxtx_proc_t *proc = &UE->proc.proc_rxtx[UE->current_thread_id[subframe]];
                     proc->subframe_rx = subframe;
                     UE->UE_mode[0] = PUSCH;
-
                     // first symbol has to be done separately in one-shot mode
                     slot_fep(UE,
                              0,
@@ -1809,10 +1731,12 @@ int main(int argc, char **argv)
                     {
                         memcpy(dci_alloc, eNB->pdcch_vars[subframe & 1].dci_alloc, num_dci * sizeof(DCI_ALLOC_t));
                         UE->pdcch_vars[UE->current_thread_id[proc->subframe_rx]][eNB_id]->num_pdcch_symbols = num_pdcch_symbols;
+
                         if(n_frames == 1)
                         {
                             printf("bypassing PDCCH/DCI detection\n");
                         }
+
                         if(generate_ue_dlsch_params_from_dci(proc->frame_rx,
                                                              proc->subframe_rx,
                                                              (void *)&dci_alloc[0].dci_pdu,
@@ -1829,14 +1753,10 @@ int main(int argc, char **argv)
                                                              UE->transmission_mode[eNB_id] < 7 ? 0 : UE->transmission_mode[eNB_id],
                                                              0) == 0)
                         {
-
                             dump_dci(&UE->frame_parms, &dci_alloc[0]);
-
                             //UE->dlsch[UE->current_thread_id[proc->subframe_rx]][eNB_id][0]->active = 1;
                             //UE->dlsch[UE->current_thread_id[proc->subframe_rx]][eNB_id][1]->active = 1;
-
                             UE->pdcch_vars[UE->current_thread_id[proc->subframe_rx]][eNB_id]->num_pdcch_symbols = num_pdcch_symbols;
-
                             UE->dlsch_received[eNB_id]++;
                         }
                         else
@@ -1846,34 +1766,26 @@ int main(int argc, char **argv)
                     }
 
                     dci_received = UE->pdcch_vars[UE->current_thread_id[proc->subframe_rx]][eNB_id]->dci_received;
-
                     phy_procedures_UE_RX(UE, proc, 0, 0, dci_flag, normal_txrx);
-
                     dci_received = dci_received - UE->pdcch_vars[UE->current_thread_id[proc->subframe_rx]][eNB_id]->dci_received;
 
                     if(dci_flag && (dci_received == 0))
                     {
                         printf("DCI not received\n");
                         dci_errors[round]++;
-
                         LOG_M("pdcchF0_ext.m", "pdcchF_ext", UE->pdcch_vars[0][eNB_id]->rxdataF_ext[0], 2 * 3 * UE->frame_parms.ofdm_symbol_size, 1, 1);
                         LOG_M("pdcch00_ch0_ext.m", "pdcch00_ch0_ext", UE->pdcch_vars[0][eNB_id]->dl_ch_estimates_ext[0], 300 * 3, 1, 1);
-
                         LOG_M("pdcch_rxF_comp0.m", "pdcch0_rxF_comp0", UE->pdcch_vars[0][eNB_id]->rxdataF_comp[0], 4 * 300, 1, 1);
                         LOG_M("pdcch_rxF_llr.m", "pdcch_llr", UE->pdcch_vars[0][eNB_id]->llr, 2400, 1, 4);
-
                         LOG_M("rxsig0.m", "rxs0", &UE->common_vars.rxdata[0][0], 10 * UE->frame_parms.samples_per_tti, 1, 1);
                         LOG_M("rxsigF0.m", "rxsF0", &UE->common_vars.common_vars_rx_data_per_thread[UE->current_thread_id[subframe]].rxdataF[0][0], UE->frame_parms.ofdm_symbol_size * nsymb, 1, 1);
-
-
                         exit(-1);
-
                     }
 
                     int bit_errors = 0;
+
                     if((test_perf == 0) && (n_frames == 1))
                     {
-
                         dlsch_unscrambling(&eNB->frame_parms,
                                            0,
                                            UE->dlsch[UE->current_thread_id[subframe]][0][0],
@@ -1881,6 +1793,7 @@ int main(int argc, char **argv)
                                            UE->pdsch_vars[UE->current_thread_id[subframe]][0]->llr[0],
                                            0,
                                            subframe << 1);
+
                         for(i = 0; i < coded_bits_per_codeword; i++)
                             if((eNB->dlsch[0][0]->harq_processes[0]->e[i] == 1 && UE->pdsch_vars[UE->current_thread_id[subframe]][0]->llr[0][i] > 0) ||
                                     (eNB->dlsch[0][0]->harq_processes[0]->e[i] == 0 && UE->pdsch_vars[UE->current_thread_id[subframe]][0]->llr[0][i] < 0))
@@ -1909,7 +1822,6 @@ int main(int argc, char **argv)
 
                         //common vars
                         LOG_M("rxsig0.m", "rxs0", &UE->common_vars.rxdata[0][0], 10 * UE->frame_parms.samples_per_tti, 1, 1);
-
                         LOG_M("rxsigF0.m", "rxsF0", &UE->common_vars.common_vars_rx_data_per_thread[UE->current_thread_id[subframe]].rxdataF[0][0], UE->frame_parms.ofdm_symbol_size * nsymb, 1, 1);
 
                         if(UE->frame_parms.nb_antennas_rx > 1)
@@ -1938,24 +1850,18 @@ int main(int argc, char **argv)
                                   UE->frame_parms.ofdm_symbol_size * nsymb / 2, 1, 1);
 
                         //pdsch_vars
-                        printf("coded_bits_per_codeword %d\n", coded_bits_per_codeword);
-
+                        printf("coded_bits_per_codeword %u\n", coded_bits_per_codeword);
                         dump_dlsch2(UE, eNB_id, subframe, &coded_bits_per_codeword, round, UE->dlsch[UE->current_thread_id[subframe]][0][0]->current_harq_pid);
-
                         LOG_M("dlsch_e.m", "e", eNB->dlsch[0][0]->harq_processes[0]->e, coded_bits_per_codeword, 1, 4);
-
                         //pdcch_vars
                         LOG_M("pdcchF0_ext.m", "pdcchF_ext", UE->pdcch_vars[0][eNB_id]->rxdataF_ext[0], 2 * 3 * UE->frame_parms.ofdm_symbol_size, 1, 1);
                         LOG_M("pdcch00_ch0_ext.m", "pdcch00_ch0_ext", UE->pdcch_vars[0][eNB_id]->dl_ch_estimates_ext[0], 300 * 3, 1, 1);
-
                         LOG_M("pdcch_rxF_comp0.m", "pdcch0_rxF_comp0", UE->pdcch_vars[0][eNB_id]->rxdataF_comp[0], 4 * 300, 1, 1);
                         LOG_M("pdcch_rxF_llr.m", "pdcch_llr", UE->pdcch_vars[0][eNB_id]->llr, 2400, 1, 4);
-
                     }
 
                     if(UE->dlsch[UE->current_thread_id[subframe]][eNB_id][0]->harq_ack[subframe].ack == 1)
                     {
-
                         avg_iter += UE->dlsch[UE->current_thread_id[subframe]][eNB_id][0]->last_iteration_cnt;
                         iter_trials++;
 
@@ -1966,20 +1872,15 @@ int main(int argc, char **argv)
 
                         UE->total_TBS[eNB_id] =  UE->total_TBS[eNB_id] + UE->dlsch[UE->current_thread_id[subframe]][eNB_id][0]->harq_processes[UE->dlsch[UE->current_thread_id[subframe]][eNB_id][0]->current_harq_pid]->TBS;
                         TB0_active = 0;
-
-
                     } // DLSCH received ok
                     else
                     {
                         errs[round]++;
-
                         avg_iter += UE->dlsch[UE->current_thread_id[subframe]][eNB_id][0]->last_iteration_cnt - 1;
                         iter_trials++;
 
                         if(n_frames == 1)
                         {
-
-
                             //if ((n_frames==1) || (SNR>=30)) {
                             printf("DLSCH errors found (round %d), uncoded ber %f\n", round, (double)bit_errors / coded_bits_per_codeword);
 
@@ -1995,13 +1896,11 @@ int main(int argc, char **argv)
                                 }
 
                                 Kr_bytes = Kr >> 3;
-
                                 printf("Decoded_output (Segment %d):\n", s);
 
                                 for(i = 0; i < Kr_bytes; i++)
-                                {
-                                    printf("%d : %x (%x)\n", i, UE->dlsch[UE->current_thread_id[subframe]][0][0]->harq_processes[0]->c[s][i], UE->dlsch[UE->current_thread_id[subframe]][0][0]->harq_processes[0]->c[s][i]^eNB->dlsch[0][0]->harq_processes[0]->c[s][i]);
-                                }
+                                    printf("%d : %x (%x)\n", i, UE->dlsch[UE->current_thread_id[subframe]][0][0]->harq_processes[0]->c[s][i],
+                                           UE->dlsch[UE->current_thread_id[subframe]][0][0]->harq_processes[0]->c[s][i]^eNB->dlsch[0][0]->harq_processes[0]->c[s][i]);
                             }
 
                             sprintf(fname, "rxsig0_r%d.m", round);
@@ -2009,7 +1908,6 @@ int main(int argc, char **argv)
                             LOG_M(fname, vname, &UE->common_vars.rxdata[0][0], 10 * UE->frame_parms.samples_per_tti, 1, 1);
                             sprintf(fname, "rxsigF0_r%d.m", round);
                             sprintf(vname, "rxs0F_r%d", round);
-
                             LOG_M(fname, vname, &UE->common_vars.common_vars_rx_data_per_thread[UE->current_thread_id[subframe]].rxdataF[0][0], UE->frame_parms.ofdm_symbol_size * nsymb, 1, 1);
 
                             if(UE->frame_parms.nb_antennas_rx > 1)
@@ -2057,8 +1955,6 @@ int main(int argc, char **argv)
 
                             //pdsch_vars
                             dump_dlsch2(UE, eNB_id, subframe, &coded_bits_per_codeword, round, UE->dlsch[UE->current_thread_id[subframe]][0][0]->current_harq_pid);
-
-
                             //LOG_M("dlsch_e.m","e",eNB->dlsch[0][0]->harq_processes[0]->e,coded_bits_per_codeword,1,4);
                             //LOG_M("dlsch_ber_bit.m","ber_bit",uncoded_ber_bit,coded_bits_per_codeword,1,0);
                             //LOG_M("dlsch_w.m","w",eNB->dlsch[0][0]->harq_processes[0]->w[0],3*(tbs+64),1,4);
@@ -2066,7 +1962,6 @@ int main(int argc, char **argv)
                             //pdcch_vars
                             LOG_M("pdcchF0_ext.m", "pdcchF_ext", UE->pdcch_vars[0][eNB_id]->rxdataF_ext[0], 2 * 3 * UE->frame_parms.ofdm_symbol_size, 1, 1);
                             LOG_M("pdcch00_ch0_ext.m", "pdcch00_ch0_ext", UE->pdcch_vars[0][eNB_id]->dl_ch_estimates_ext[0], 300 * 3, 1, 1);
-
                             LOG_M("pdcch_rxF_comp0.m", "pdcch0_rxF_comp0", UE->pdcch_vars[0][eNB_id]->rxdataF_comp[0], 4 * 300, 1, 1);
                             LOG_M("pdcch_rxF_llr.m", "pdcch_llr", UE->pdcch_vars[0][eNB_id]->llr, 2400, 1, 4);
 
@@ -2077,7 +1972,6 @@ int main(int argc, char **argv)
                         }
 
                         //      printf("round %d errors %d/%d\n",round,errs[round],trials);
-
                         round++;
                         //      UE->dlsch[UE->current_thread_id[subframe]][0][0]->harq_processes[0]->round++;
                     }
@@ -2112,9 +2006,6 @@ int main(int argc, char **argv)
                     UE->total_TBS_last[eNB_id] = UE->total_TBS[eNB_id];
                 }
 
-
-
-
                 /*  calculate the total processing time for each packet,
                     get the max, min, and number of packets that exceed t>2000us
                 */
@@ -2127,8 +2018,6 @@ int main(int argc, char **argv)
                 sumUpStats(&dlsch_procedures_tot, UE->dlsch_procedures_stat, UE->current_thread_id[subframe]);
                 sumUpStats(&dlsch_decoding_tot, UE->dlsch_decoding_stats, UE->current_thread_id[subframe]);
                 sumUpStatsSlot(&dlsch_llr_tot, UE->dlsch_llr_stats_parallelization, UE->current_thread_id[subframe]);
-
-
                 double t_rx_fft = inMicroS(UE->ofdm_demod_stats.p_time);
                 double t_rx_demod = inMicroS(UE->dlsch_rx_pdcch_stats.p_time);
                 double t_rx_dec = inMicroS(UE->dlsch_decoding_stats[UE->current_thread_id[subframe]].p_time);
@@ -2149,7 +2038,6 @@ int main(int argc, char **argv)
                 appendVarArray(table_rx_fft, &t_rx_fft);
                 appendVarArray(table_rx_demod, &t_rx_demod);
                 appendVarArray(table_rx_dec, &t_rx_dec);
-
             }   //trials
 
             // round_trials[0]: number of code word : goodput the protocol
@@ -2171,12 +2059,10 @@ int main(int argc, char **argv)
             }
 
             effective_rate = 1.0 - ((double)(errs[0] + errs[1] + errs[2] + errs[3]) / ((double)round_trials[0] + round_trials[1] + round_trials[2] + round_trials[3]));
-
             printf("\n**********************SNR = %f dB (tx_lev %f)**************************\n",
                    SNR,
                    (double)tx_lev_dB + 10 * log10(UE->frame_parms.ofdm_symbol_size / (NB_RB * 12)));
-
-            printf("Errors (%d(%d)/%d %d/%d %d/%d %d/%d), Pe = (%e,%e,%e,%e), dci_errors %d/%d, Pe = %e => effective rate %f, normalized delay %f (%f)\n",
+            printf("Errors (%u(%u)/%u %u/%u %u/%u %u/%u), Pe = (%e,%e,%e,%e), dci_errors %u/%u, Pe = %e => effective rate %f, normalized delay %f (%f)\n",
                    errs[0],
                    errs2[0],
                    round_trials[0],
@@ -2200,8 +2086,8 @@ int main(int argc, char **argv)
                    (1.0 * (round_trials[0] - errs[0]) + 2.0 * (round_trials[1] - errs[1]) + 3.0 * (round_trials[2] - errs[2]) + 4.0 * (round_trials[3] - errs[3])) / ((double)round_trials[0]) /
                    (double)eNB->dlsch[0][0]->harq_processes[0]->TBS,
                    (1.0 * (round_trials[0] - errs[0]) + 2.0 * (round_trials[1] - errs[1]) + 3.0 * (round_trials[2] - errs[2]) + 4.0 * (round_trials[3] - errs[3])) / ((double)round_trials[0]));
-
             double timeBase = 1 / (1000 * cpu_freq_GHz);
+
             if(print_perf == 1)
             {
                 printf("\neNB TX function statistics (per 1ms subframe)\n");
@@ -2215,7 +2101,6 @@ int main(int argc, char **argv)
                 printStatIndent2(&eNB->dlsch_scrambling_stats,  "DLSCH scrambling time");
                 printStatIndent2(&eNB->dlsch_modulation_stats, "DLSCH modulation time");
                 printDistribution(&eNB->ofdm_mod_stats, table_tx_ifft, "OFDM_mod (idft) time");
-
                 printf("\nUE RX function statistics (per 1ms subframe)\n");
                 printDistribution(&phy_proc_rx_tot, table_rx, "Total PHY proc rx");
                 printStatIndent(&ue_front_end_tot, "Front end processing");
@@ -2233,7 +2118,6 @@ int main(int argc, char **argv)
                        UE->dlsch[UE->current_thread_id[subframe]][0][0]->harq_processes[0]->Cminus ?
                        UE->dlsch[UE->current_thread_id[subframe]][0][0]->harq_processes[0]->Kminus :
                        UE->dlsch[UE->current_thread_id[subframe]][0][0]->harq_processes[0]->Kplus,
-
                        UE->dlsch_tc_intl1_stats.trials / (double)UE->dlsch_tc_init_stats.trials,
                        (double)UE->dlsch_turbo_decoding_stats.diff / UE->dlsch_turbo_decoding_stats.trials * timeBase,
                        (int)((double)UE->dlsch_turbo_decoding_stats.diff / UE->dlsch_turbo_decoding_stats.trials),
@@ -2245,12 +2129,11 @@ int main(int argc, char **argv)
                 printStatIndent2(&UE->dlsch_tc_ext_stats, "ext");
                 printStatIndent2(&UE->dlsch_tc_intl1_stats, "turbo internal interleaver");
                 printStatIndent2(&UE->dlsch_tc_intl2_stats, "intl2+HardDecode+CRC");
-
             }
 
             if((transmission_mode != 3) && (transmission_mode != 4))
             {
-                fprintf(bler_fd, "%f;%d;%d;%f;%d;%d;%d;%d;%d;%d;%d;%d;%d\n",
+                fprintf(bler_fd, "%f;%d;%d;%f;%u;%u;%u;%u;%u;%u;%u;%u;%u\n",
                         SNR,
                         mcs1,
                         eNB->dlsch[0][0]->harq_processes[0]->TBS,
@@ -2267,7 +2150,7 @@ int main(int argc, char **argv)
             }
             else
             {
-                fprintf(bler_fd, "%f;%d;%d;%d;%d;%f;%d;%d;%d;%d;%d;%d;%d;%d;%d\n",
+                fprintf(bler_fd, "%f;%d;%d;%d;%d;%f;%u;%u;%u;%u;%u;%u;%u;%u;%u\n",
                         SNR,
                         mcs1, mcs2,
                         eNB->dlsch[0][0]->harq_processes[0]->TBS,
@@ -2283,7 +2166,6 @@ int main(int argc, char **argv)
                         round_trials[3],
                         dci_errors[0]);
             }
-
 
             if(abstx)   //ABSTRACTION
             {
@@ -2307,7 +2189,7 @@ int main(int argc, char **argv)
                 //fprintf(time_meas_fd,"SNR; MCS; TBS; rate; err0; trials0; err1; trials1; err2; trials2; err3; trials3; dci_err\n");
                 if((transmission_mode != 3) && (transmission_mode != 4))
                 {
-                    fprintf(time_meas_fd, "%f;%d;%d;%f;%d;%d;%d;%d;%d;%d;%d;%d;%d;",
+                    fprintf(time_meas_fd, "%f;%d;%d;%f;%u;%u;%u;%u;%u;%u;%u;%u;%u;",
                             SNR,
                             mcs1,
                             eNB->dlsch[0][0]->harq_processes[0]->TBS,
@@ -2321,9 +2203,8 @@ int main(int argc, char **argv)
                             errs[3],
                             round_trials[3],
                             dci_errors[0]);
-
                     //fprintf(time_meas_fd,"SNR; MCS; TBS; rate; DL_DECOD_ITER; err0; trials0; err1; trials1; err2; trials2; err3; trials3; PE; dci_err;PE;ND;\n");
-                    fprintf(time_meas_fd, "%f;%d;%d;%f; %2.1f%%;%f;%f;%d;%d;%d;%d;%d;%d;%d;%d;%e;%e;%e;%e;%d;%d;%e;%f;%f;",
+                    fprintf(time_meas_fd, "%f;%d;%d;%f; %2.1f%%;%f;%f;%u;%u;%u;%u;%u;%u;%u;%u;%e;%e;%e;%e;%u;%u;%e;%f;%f;",
                             SNR,
                             mcs1,
                             eNB->dlsch[0][0]->harq_processes[0]->TBS,
@@ -2352,7 +2233,7 @@ int main(int argc, char **argv)
                 }
                 else
                 {
-                    fprintf(time_meas_fd, "%f;%d;%d;%d;%d;%f;%d;%d;%d;%d;%d;%d;%d;%d;%d;",
+                    fprintf(time_meas_fd, "%f;%d;%d;%d;%d;%f;%u;%u;%u;%u;%u;%u;%u;%u;%u;",
                             SNR,
                             mcs1, mcs2,
                             eNB->dlsch[0][0]->harq_processes[0]->TBS,
@@ -2367,9 +2248,8 @@ int main(int argc, char **argv)
                             errs[3],
                             round_trials[3],
                             dci_errors[0]);
-
                     //fprintf(time_meas_fd,"SNR; MCS; TBS; rate; DL_DECOD_ITER; err0; trials0; err1; trials1; err2; trials2; err3; trials3; PE; dci_err;PE;ND;\n");
-                    fprintf(time_meas_fd, "%f;%d;%d;%d;%d;%f;%2.1f;%f;%f;%d;%d;%d;%d;%d;%d;%d;%d;%e;%e;%e;%e;%d;%d;%e;%f;%f;",
+                    fprintf(time_meas_fd, "%f;%d;%d;%d;%d;%f;%2.1f;%f;%f;%u;%u;%u;%u;%u;%u;%u;%u;%e;%e;%e;%e;%u;%u;%e;%f;%f;",
                             SNR,
                             mcs1, mcs2,
                             eNB->dlsch[0][0]->harq_processes[0]->TBS,
@@ -2455,7 +2335,6 @@ int main(int argc, char **argv)
                 fprintf(time_meas_fd, "%f;%f;%f;%f\n",
                         squareRoot(&UE->dlsch_decoding_stats[subframe]),
                         median(table_rx_dec), q1(table_rx_dec), q3(table_rx_dec));
-
                 printf("[passed] effective rate : %f  (%2.1f%%,%f)): log and break \n", rate * effective_rate, 100 * effective_rate, rate);
                 test_passed = 1;
                 break;
@@ -2471,10 +2350,7 @@ int main(int argc, char **argv)
                 break;
             }
         }// SNR
-
-
     } //ch_realization
-
 
     fclose(bler_fd);
 
@@ -2508,7 +2384,6 @@ int main(int argc, char **argv)
     }
 
     uncoded_ber_bit = NULL;
-
     printf("Freeing dlsch structures\n");
 
     for(i = 0; i < 2; i++)
@@ -2528,5 +2403,8 @@ int main(int argc, char **argv)
         return(0);
     }
 }
-
-
+/* temporary dummy implem of get_softmodem_optmask, till basic simulators implemented as device */
+uint64_t get_softmodem_optmask(void)
+{
+    return 0;
+}

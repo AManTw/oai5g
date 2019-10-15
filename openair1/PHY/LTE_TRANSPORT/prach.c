@@ -34,6 +34,7 @@
 #include "PHY/phy_extern.h"
 //#include "prach.h"
 #include "PHY/LTE_TRANSPORT/if4_tools.h"
+
 #include "SCHED/sched_eNB.h"
 #include "common/utils/LOG/vcd_signal_dumper.h"
 #include "prach_extern.h"
@@ -47,6 +48,7 @@ void rx_prach0(PHY_VARS_eNB *eNB,
                uint16_t *max_preamble,
                uint16_t *max_preamble_energy,
                uint16_t *max_preamble_delay,
+               uint16_t *avg_preamble_energy,
                uint16_t Nf,
                uint8_t tdd_mapindex
 #if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
@@ -56,7 +58,7 @@ void rx_prach0(PHY_VARS_eNB *eNB,
               )
 {
     int i;
-    LTE_DL_FRAME_PARMS *fp;
+    LTE_DL_FRAME_PARMS *fp = NULL;
     lte_frame_type_t   frame_type;
     uint16_t           rootSequenceIndex;
     uint8_t            prach_ConfigIndex;
@@ -66,7 +68,7 @@ void rx_prach0(PHY_VARS_eNB *eNB,
     int                subframe;
     int16_t            *prachF = NULL;
     int16_t            **rxsigF = NULL;
-    int                nb_rx;
+    int                nb_rx = 0;
     int16_t *prach2;
     uint8_t preamble_index;
     uint16_t NCS, NCS2;
@@ -95,21 +97,19 @@ void rx_prach0(PHY_VARS_eNB *eNB,
 #if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
     int prach_ifft_cnt = 0;
 #endif
-
-    if(ru)
+    if(eNB)
     {
-        fp    = &ru->frame_parms;
-        nb_rx = ru->nb_rx;
-    }
-    else if(eNB)
-    {
-        fp    = &eNB->frame_parms;
+        fp    = &(eNB->frame_parms);
         nb_rx = fp->nb_antennas_rx;
     }
     else
     {
-        AssertFatal(1 == 0, "rx_prach called without valid RU or eNB descriptor\n");
+        fp    = &(ru->frame_parms);
+        nb_rx = ru->nb_rx;
     }
+    AssertFatal(fp != NULL, "rx_prach called without valid RU or eNB descriptor\n");
+
+    frame_type          = fp->frame_type;
 
     frame_type          = fp->frame_type;
 #if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
@@ -161,9 +161,8 @@ void rx_prach0(PHY_VARS_eNB *eNB,
 
             if(LOG_DEBUGFLAG(PRACH))
             {
-                if(((ru->proc.frame_prach) & 1023) < 20) LOG_I(PHY,
-                            "PRACH (eNB) : running rx_prach (br_flag %d, ce_level %d) for frame %d subframe %d, prach_FreqOffset %d, prach_ConfigIndex %d, rootSequenceIndex %d, repetition number %d,numRepetitionsPrePreambleAttempt %d\n",
-                            br_flag, ce_level, ru->proc.frame_prach, subframe,
+                if(((eNB->proc.frame_prach) & 1023) < 20) LOG_I(PHY, "PRACH (eNB) : running rx_prach (br_flag %d, ce_level %d) for frame %d subframe %d, prach_FreqOffset %d, prach_ConfigIndex %d, rootSequenceIndex %d, repetition number %d,numRepetitionsPrePreambleAttempt %d\n",
+                            br_flag, ce_level, eNB->proc.frame_prach, subframe,
                             fp->prach_emtc_config_common.prach_ConfigInfo.prach_FreqOffset[ce_level],
                             prach_ConfigIndex, rootSequenceIndex,
                             eNB->prach_vars_br.repetition_number[ce_level],
@@ -177,11 +176,12 @@ void rx_prach0(PHY_VARS_eNB *eNB,
             subframe          = eNB->proc.subframe_prach;
             prachF            = eNB->prach_vars.prachF;
             rxsigF            = eNB->prach_vars.rxsigF[0];
-
             if(LOG_DEBUGFLAG(PRACH))
             {
-                if(((ru->proc.frame_prach) & 1023) < 20) LOG_I(PHY, "PRACH (eNB) : running rx_prach for subframe %d, prach_FreqOffset %d, prach_ConfigIndex %d , rootSequenceIndex %d\n", subframe,
-                            fp->prach_config_common.prach_ConfigInfo.prach_FreqOffset, prach_ConfigIndex, rootSequenceIndex);
+                if(((eNB->proc.frame_prach) & 1023) < 20)
+                {
+                    LOG_I(PHY, "PRACH (eNB) : running rx_prach for subframe %d, prach_FreqOffset %d, prach_ConfigIndex %d , rootSequenceIndex %d\n", subframe, fp->prach_config_common.prach_ConfigInfo.prach_FreqOffset, prach_ConfigIndex, rootSequenceIndex);
+                }
             }
         }
     }
@@ -508,7 +508,7 @@ void rx_prach0(PHY_VARS_eNB *eNB,
         }
     }
 
-    if((eNB == NULL) && ru->function == NGFI_RRU_IF4p5)
+    if((eNB == NULL)  && ru->function == NGFI_RRU_IF4p5)
     {
         /// **** send_IF4 of rxsigF to RAU **** ///
 #if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
@@ -519,7 +519,6 @@ void rx_prach0(PHY_VARS_eNB *eNB,
         else
 #endif
             send_IF4p5(ru, ru->proc.frame_prach, ru->proc.subframe_prach, IF4p5_PRACH);
-
         return;
     }
     else if(eNB != NULL)
@@ -543,6 +542,7 @@ void rx_prach0(PHY_VARS_eNB *eNB,
 
     switch(eNB->frame_parms.N_RB_DL)
     {
+
         case 6:
             update_TA = 16;
             break;
@@ -559,13 +559,15 @@ void rx_prach0(PHY_VARS_eNB *eNB,
             update_TA  = 3;
             update_TA2 = 2;
             break;
-
         case 100:
             update_TA  = 1;
             break;
+
     }
 
     *max_preamble_energy = 0;
+    *avg_preamble_energy = 0;
+    uint64_t avg_en = 0;
 
     for(preamble_index = 0 ; preamble_index < 64 ; preamble_index++)
     {
@@ -728,8 +730,8 @@ void rx_prach0(PHY_VARS_eNB *eNB,
                 }
 
                 LOG_M("prach_rx1.m", "prach_rx1", prach[1], 6144 + 792, 1, 1);
-                LOG_M("prach_rxF0.m", "prach_rxF0", rxsigF[0], 24576, 1, 1);
-                LOG_M("prach_rxF1.m", "prach_rxF1", rxsigF[1], 6144, 1, 1);
+                LOG_M("prach_rxF0.m", "prach_rxF0", rxsigF[0], 12288, 1, 1);
+                LOG_M("prach_rxF1.m", "prach_rxF1", rxsigF[1], 12288, 1, 1);
             }
 
             for(aa = 0; aa < nb_rx; aa++)
@@ -758,7 +760,7 @@ void rx_prach0(PHY_VARS_eNB *eNB,
                     // compute energy and accumulate over receive antennas and repetitions for BR
                     for(i = 0; i < 2048; i++)
                     {
-                        prach_ifft[i] += (prach_ifft_tmp[i << 1] * prach_ifft_tmp[i << 1] + prach_ifft_tmp[1 + (i << 1)] * prach_ifft_tmp[1 + (i << 1)]) >> 10;
+                        prach_ifft[i] += (prach_ifft_tmp[i << 1] * prach_ifft_tmp[i << 1] + prach_ifft_tmp[1 + (i << 1)] * prach_ifft_tmp[1 + (i << 1)]) >> 9;
                     }
                 }
                 else
@@ -769,7 +771,7 @@ void rx_prach0(PHY_VARS_eNB *eNB,
                     // compute energy and accumulate over receive antennas and repetitions for BR
                     for(i = 0; i < 256; i++)
                     {
-                        prach_ifft[i] += (prach_ifft_tmp[i << 1] * prach_ifft_tmp[(i << 1)] + prach_ifft_tmp[1 + (i << 1)] * prach_ifft_tmp[1 + (i << 1)]) >> 10;
+                        prach_ifft[i] += (prach_ifft_tmp[i << 1] * prach_ifft_tmp[(i << 1)] + prach_ifft_tmp[1 + (i << 1)] * prach_ifft_tmp[1 + (i << 1)]) >> 9;
                     }
                 }
 
@@ -811,6 +813,7 @@ void rx_prach0(PHY_VARS_eNB *eNB,
             for(i = 0; i < NCS2; i++)
             {
                 lev = (int32_t)prach_ifft[(preamble_shift2 + i)];
+                avg_en += lev;
                 levdB = dB_fixed_times10(lev);
 
                 if(levdB > *max_preamble_energy)
@@ -830,10 +833,10 @@ void rx_prach0(PHY_VARS_eNB *eNB,
                                   *max_preamble, br_flag, ce_level, levdB, lev);
                     }
                 }
-            }
+            } ///ncs2
         }
     }// preamble_index
-
+    *avg_preamble_energy = dB_fixed(avg_en / 64);
     if(LOG_DUMPFLAG(PRACH))
     {
         int en = dB_fixed(signal_energy((int32_t *)&rxsigF[0][0], 840));
@@ -857,6 +860,7 @@ void rx_prach0(PHY_VARS_eNB *eNB,
                 LOG_M("prach_rxF_comp0.m", "prach_rxF_comp0", prachF, 1024, 1, 1);
                 LOG_M("Xu.m", "xu", Xu, N_ZC, 1, 1);
                 LOG_M("prach_ifft0.m", "prach_t0", prach_ifft, 1024, 1, 1);
+                exit(-1);
             }
             else
             {
@@ -883,6 +887,7 @@ void rx_prach(PHY_VARS_eNB *eNB,
               uint16_t *max_preamble,
               uint16_t *max_preamble_energy,
               uint16_t *max_preamble_delay,
+              uint16_t *avg_preamble_energy,
               uint16_t Nf,
               uint8_t tdd_mapindex,
               uint8_t br_flag)
@@ -892,7 +897,7 @@ void rx_prach(PHY_VARS_eNB *eNB,
 
     if(br_flag == 0)
     {
-        rx_prach0(eNB, ru, max_preamble, max_preamble_energy, max_preamble_delay, Nf, tdd_mapindex, 0, 0);
+        rx_prach0(eNB, ru, max_preamble, max_preamble_energy, max_preamble_delay, avg_preamble_energy, Nf, tdd_mapindex, 0, 0);
     }
     else     // This is procedure for eMTC, basically handling the repetitions
     {
@@ -913,7 +918,7 @@ void rx_prach(PHY_VARS_eNB *eNB,
                 // increment repetition number
                 eNB->prach_vars_br.repetition_number[i]++;
                 // do basic PRACH reception
-                rx_prach0(eNB, ru, max_preamble, max_preamble_energy, max_preamble_delay, Nf, tdd_mapindex, 1, i);
+                rx_prach0(eNB, ru, max_preamble, max_preamble_energy, max_preamble_delay, avg_preamble_energy, Nf, tdd_mapindex, 1, i);
 
                 // if last repetition, clear counter
                 if(eNB->prach_vars_br.repetition_number[i] == eNB->frame_parms.prach_emtc_config_common.prach_ConfigInfo.prach_numRepetitionPerPreambleAttempt[i])
@@ -925,4 +930,6 @@ void rx_prach(PHY_VARS_eNB *eNB,
     }
 }
 
+
 #endif /* #if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0)) */
+

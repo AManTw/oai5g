@@ -38,6 +38,7 @@
 //#include "defs.h"
 #include "PHY/defs_eNB.h"
 #include "PHY/phy_extern.h"
+#include "targets/RT/USER/lte-softmodem.h"
 
 int generate_pss(int32_t **txdataF,
                  short amp,
@@ -45,13 +46,10 @@ int generate_pss(int32_t **txdataF,
                  unsigned short symbol,
                  unsigned short slot_offset)
 {
-
     unsigned int Nsymb;
     unsigned short k, m, aa, a;
     uint8_t Nid2;
     short *primary_sync;
-
-
     Nid2 = frame_parms->Nid_cell % 3;
 
     switch(Nid2)
@@ -76,17 +74,17 @@ int generate_pss(int32_t **txdataF,
     a = (frame_parms->nb_antenna_ports_eNB == 1) ? amp : (amp * ONE_OVER_SQRT2_Q15) >> 15;
     //printf("[PSS] amp=%d, a=%d\n",amp,a);
 
-#if BASIC_SIMULATOR
-    /* a hack to remove at some point (the UE doesn't synch with 100 RBs) */
-    a = (frame_parms->nb_antenna_ports_eNB == 1) ? 4 * amp : (amp * ONE_OVER_SQRT2_Q15) >> 15;
-#endif
+    if(IS_SOFTMODEM_BASICSIM)
+        /* a hack to remove at some point (the UE doesn't synch with 100 RBs) */
+    {
+        a = (frame_parms->nb_antenna_ports_eNB == 1) ? 4 * amp : (amp * ONE_OVER_SQRT2_Q15) >> 15;
+    }
 
     Nsymb = (frame_parms->Ncp == NORMAL) ? 14 : 12;
 
     for(aa = 0; aa < frame_parms->nb_antenna_ports_eNB; aa++)
     {
         //  aa = 0;
-
         // The PSS occupies the inner 6 RBs, which start at
         k = frame_parms->ofdm_symbol_size - 3 * 12 + 5;
 
@@ -99,7 +97,6 @@ int generate_pss(int32_t **txdataF,
             ((short *)txdataF[aa])[2 * (slot_offset * Nsymb / 2 * frame_parms->ofdm_symbol_size +
                                         symbol * frame_parms->ofdm_symbol_size + k) + 1] =
                                             (a * primary_sync[2 * m + 1]) >> 15;
-
             k += 1;
 
             if(k >= frame_parms->ofdm_symbol_size)
@@ -107,7 +104,6 @@ int generate_pss(int32_t **txdataF,
                 k++; //skip DC
                 k -= frame_parms->ofdm_symbol_size;
             }
-
         }
     }
 

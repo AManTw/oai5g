@@ -143,11 +143,13 @@ rrc_eNB_allocate_new_UE_context(
 
     memset(new_p, 0, sizeof(struct rrc_eNB_ue_context_s));
     new_p->local_uid = uid_linear_allocator_new(rrc_instance_pP);
+
     for(int i = 0; i < NB_RB_MAX; i++)
     {
         new_p->ue_context.e_rab[i].xid = -1;
         new_p->ue_context.modify_e_rab[i].xid = -1;
     }
+
     return new_p;
 }
 
@@ -165,6 +167,7 @@ rrc_eNB_get_ue_context(
     temp.ue_id_rnti = rntiP;
     struct rrc_eNB_ue_context_s   *ue_context_p = NULL;
     ue_context_p = RB_FIND(rrc_ue_tree_s, &rrc_instance_pP->rrc_ue_head, &temp);
+
     if(ue_context_p != NULL)
     {
         return ue_context_p;
@@ -205,12 +208,10 @@ void rrc_eNB_remove_ue_context(
     }
 
     RB_REMOVE(rrc_ue_tree_s, &rrc_instance_pP->rrc_ue_head, ue_context_pP);
-
     MSC_LOG_EVENT(
         MSC_RRC_ENB,
         "0 Removed UE %"PRIx16" ",
         ue_context_pP->ue_context.rnti);
-
     rrc_eNB_free_mem_UE_context(ctxt_pP, ue_context_pP);
     uid_linear_allocator_free(rrc_instance_pP, ue_context_pP->local_uid);
     free(ue_context_pP);

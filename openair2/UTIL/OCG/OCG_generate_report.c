@@ -45,21 +45,15 @@
 int generate_report(char dst_dir[DIR_LENGTH_MAX], char filename[FILENAME_LENGTH_MAX])
 {
     // for the xml writer, refer to http://xmlsoft.org/html/libxml-xmlwriter.html
-
-    char dst_file[FILENAME_LENGTH_MAX + DIR_LENGTH_MAX] = "";
-    strncat(dst_file, dst_dir, FILENAME_LENGTH_MAX + DIR_LENGTH_MAX - strlen(dst_file) - 1);
-    strncat(dst_file, filename, FILENAME_LENGTH_MAX + DIR_LENGTH_MAX - strlen(dst_file) - 1);
-
+    char dst_file[FILENAME_LENGTH_MAX + DIR_LENGTH_MAX];
+    strncpy(dst_file, dst_dir, FILENAME_LENGTH_MAX + DIR_LENGTH_MAX - strlen(filename) - 1);
+    strcat(dst_file, filename);
     xmlTextWriterPtr writer;
-
     writer = xmlNewTextWriterFilename(dst_file, 0);
-
     // set the output format of the XML file
     xmlTextWriterSetIndent(writer, 1);
     xmlTextWriterSetIndentString(writer, (unsigned char *) "	");
-
     xmlTextWriterStartDocument(writer, NULL, NULL, NULL);
-
     /* Write an element named "X_ORDER_ID" as child of HEADER. */
     xmlTextWriterWriteFormatElement(writer, (unsigned char *) "COMMENT           ", "	in this output file, %d means NOT_PROCESSED; %d means NO_FILE; %d means ERROR; %d means OK	", MODULE_NOT_PROCESSED,
                                     NO_FILE, MODULE_ERROR, MODULE_OK);
@@ -70,11 +64,8 @@ int generate_report(char dst_dir[DIR_LENGTH_MAX], char filename[FILENAME_LENGTH_
     xmlTextWriterWriteFormatElement(writer, (unsigned char *) "OCG_PARSE_XML     ", "	%d	", parse_XML_OK);
     xmlTextWriterWriteFormatElement(writer, (unsigned char *) "OCG_SAVE_XML      ", "	%d	", save_XML_OK);
     //  xmlTextWriterWriteFormatElement(writer, "OCG_CALL_EMU      ", " %d  ", call_emu_OK);
-
     xmlTextWriterEndDocument(writer);
-
     xmlFreeTextWriter(writer);
-
     LOG_I(OCG, "A report of OCG is generated in directory \"%s\"\n\n", dst_dir);
     return MODULE_OK;
 }

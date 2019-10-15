@@ -111,8 +111,6 @@ int open_socket(
     s->un_dest_addr.sun_family = AF_UNIX;
     sprintf(s->un_dest_addr.sun_path, "%s%d", path_dest, rrm_inst);
     msg("Dest %s\n", s->un_dest_addr.sun_path);
-
-
     s->s = socket_fd ;
     return socket_fd ;
 }
@@ -160,13 +158,10 @@ int send_msg_sock(
     //buf = RRM_MALLOC(char, taille);
     //if (buf ==NULL)
     //return -1 ;
-
     memcpy(BUFF, &(smsg->head), sizeof(msg_head_t)) ;
     memcpy(BUFF + sizeof(msg_head_t), smsg->data, smsg->head.size) ;
-
     iov.iov_base    = (void *)BUFF;
     iov.iov_len     = taille ;
-
     msghd.msg_name        = (void *) & (s->un_dest_addr);
     msghd.msg_namelen     = sizeof(s->un_dest_addr);
     msghd.msg_iov         = &iov;
@@ -184,7 +179,6 @@ int send_msg_sock(
     //RRM_FREE(buf) ;
     //RRM_FREE(msg->data) ;
     //RRM_FREE(msg) ;
-
     return ret ;
 }
 
@@ -206,9 +200,7 @@ char *recv_msg(
     int         size_msg ;
     msg_head_t      *head  ;
     int         ret ;
-
     int taille =  SIZE_MAX_PAYLOAD ;
-
     buf         = RRM_CALLOC(char, taille);
 
     if(buf == NULL)
@@ -224,7 +216,6 @@ char *recv_msg(
     msghd.msg_iovlen    = 1;
     msghd.msg_control   = NULL ;
     msghd.msg_controllen = 0 ;
-
     ret = recvmsg(s->s, &msghd, 0) ;
 
     if(ret <= 0)
@@ -244,7 +235,6 @@ char *recv_msg(
 
     head    = (msg_head_t *) buf  ;
     size_msg  = sizeof(msg_head_t) + head->size ;
-
     smsg    = RRM_CALLOC(char, size_msg) ;
 
     if(smsg != NULL)
@@ -253,7 +243,6 @@ char *recv_msg(
     }
 
     RRM_FREE(buf) ;
-
     return smsg ;
 }
 
@@ -271,8 +260,6 @@ int send_msg_fifo(int *s, msg_t *fmsg)
     }
 
     // envoi le header
-
-
     ret1 = rtf_put(*s, (char *) & (fmsg->head), taille);
 
     if(ret1 < 0)

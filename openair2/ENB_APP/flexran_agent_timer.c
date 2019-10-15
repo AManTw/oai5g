@@ -37,8 +37,8 @@ flexran_agent_timer_instance_t timer_instance;
 int agent_timer_init = 0;
 err_code_t flexran_agent_init_timer(void)
 {
-
     LOG_I(FLEXRAN_AGENT, "init RB tree\n");
+
     if(!agent_timer_init)
     {
         RB_INIT(&timer_instance.flexran_agent_head);
@@ -53,11 +53,11 @@ RB_GENERATE(flexran_agent_map, flexran_agent_timer_element_s, entry, flexran_age
 /* The timer_id might not be the best choice for the comparison */
 int flexran_agent_compare_timer(struct flexran_agent_timer_element_s *a, struct flexran_agent_timer_element_s *b)
 {
-
     if(a->timer_id < b->timer_id)
     {
         return -1;
     }
+
     if(a->timer_id > b->timer_id)
     {
         return 1;
@@ -77,20 +77,20 @@ err_code_t flexran_agent_create_timer(uint32_t interval_sec,
                                       void    *timer_args,
                                       long *timer_id)
 {
-
     struct flexran_agent_timer_element_s *e = calloc(1, sizeof(*e));
     DevAssert(e != NULL);
-
     //uint32_t timer_id;
     int ret = -1;
 
     if((interval_sec == 0) && (interval_usec == 0))
     {
+        free(e);
         return TIMER_NULL;
     }
 
     if(timer_type >= FLEXRAN_AGENT_TIMER_TYPE_MAX)
     {
+        free(e);
         return TIMER_TYPE_INVALIDE;
     }
 
@@ -115,12 +115,12 @@ err_code_t flexran_agent_create_timer(uint32_t interval_sec,
                           TIMER_PERIODIC,
                           timer_args,
                           timer_id);
-
         e->type = TIMER_PERIODIC;
     }
 
     if(ret < 0)
     {
+        free(e);
         return TIMER_SETUP_FAILED;
     }
 
@@ -133,16 +133,13 @@ err_code_t flexran_agent_create_timer(uint32_t interval_sec,
     e->cb = cb;
     /*element should be a real pointer*/
     RB_INSERT(flexran_agent_map, &timer_instance.flexran_agent_head, e);
-
     LOG_I(FLEXRAN_AGENT, "Created a new timer with id 0x%lx for agent %d, instance %d \n",
           e->timer_id, e->agent_id, e->instance);
-
     return 0;
 }
 
 err_code_t flexran_agent_destroy_timer(long timer_id)
 {
-
     struct flexran_agent_timer_element_s *e = get_timer_entry(timer_id);
 
     if(e != NULL)
@@ -158,7 +155,6 @@ err_code_t flexran_agent_destroy_timer(long timer_id)
     }
 
     return 0;
-
 error:
     LOG_E(FLEXRAN_AGENT, "timer can't be removed\n");
     return TIMER_REMOVED_FAILED ;
@@ -176,6 +172,7 @@ err_code_t flexran_agent_destroy_timer_by_task_id(xid_t xid)
             RB_REMOVE(flexran_agent_map, &timer_instance.flexran_agent_head, e);
             flexran_agent_destroy_flexran_message(e->timer_args->msg);
             free(e);
+
             if(timer_remove(timer_id) < 0)
             {
                 goto error;
@@ -183,7 +180,6 @@ err_code_t flexran_agent_destroy_timer_by_task_id(xid_t xid)
         }
     }
     return 0;
-
 error:
     LOG_E(FLEXRAN_AGENT, "timer can't be removed\n");
     return TIMER_REMOVED_FAILED ;
@@ -191,9 +187,7 @@ error:
 
 err_code_t flexran_agent_destroy_timers(void)
 {
-
     struct flexran_agent_timer_element_s *e = NULL;
-
     RB_FOREACH(e, flexran_agent_map, &timer_instance.flexran_agent_head)
     {
         RB_REMOVE(flexran_agent_map, &timer_instance.flexran_agent_head, e);
@@ -201,31 +195,29 @@ err_code_t flexran_agent_destroy_timers(void)
         flexran_agent_destroy_flexran_message(e->timer_args->msg);
         free(e);
     }
-
     return 0;
-
 }
 
 void flexran_agent_sleep_until(struct timespec *ts, int delay)
 {
     ts->tv_nsec += delay;
+
     if(ts->tv_nsec >= 1000 * 1000 * 1000)
     {
         ts->tv_nsec -= 1000 * 1000 * 1000;
         ts->tv_sec++;
     }
+
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, ts,  NULL);
 }
 
 
 err_code_t flexran_agent_stop_timer(long timer_id)
 {
-
     struct flexran_agent_timer_element_s *e = NULL;
     struct flexran_agent_timer_element_s search;
     memset(&search, 0, sizeof(struct flexran_agent_timer_element_s));
     search.timer_id = timer_id;
-
     e = RB_FIND(flexran_agent_map, &timer_instance.flexran_agent_head, &search);
 
     if(e != NULL)
@@ -234,16 +226,13 @@ err_code_t flexran_agent_stop_timer(long timer_id)
     }
 
     timer_remove(timer_id);
-
     return 0;
 }
 
 struct flexran_agent_timer_element_s *get_timer_entry(long timer_id)
 {
-
     struct flexran_agent_timer_element_s search;
     memset(&search, 0, sizeof(struct flexran_agent_timer_element_s));
     search.timer_id = timer_id;
-
     return  RB_FIND(flexran_agent_map, &timer_instance.flexran_agent_head, &search);
 }

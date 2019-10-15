@@ -1,38 +1,38 @@
 /*
-    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
-    contributor license agreements.  See the NOTICE file distributed with
-    this work for additional information regarding copyright ownership.
-    The OpenAirInterface Software Alliance licenses this file to You under
-    the OAI Public License, Version 1.1  (the "License"); you may not use this file
-    except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.openairinterface.org/?page_id=698
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-    -------------------------------------------------------------------------------
-    For more information about the OpenAirInterface (OAI) Software Alliance:
-        contact@openairinterface.org
-*/
+ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The OpenAirInterface Software Alliance licenses this file to You under
+ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+ * except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.openairinterface.org/?page_id=698
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *-------------------------------------------------------------------------------
+ * For more information about the OpenAirInterface (OAI) Software Alliance:
+ *      contact@openairinterface.org
+ */
 
 /*****************************************************************************
-    Source      EmmDeregisteredNoCellAvailable.c
+Source      EmmDeregisteredNoCellAvailable.c
 
-    Version     0.1
+Version     0.1
 
-    Date        2012/10/03
+Date        2012/10/03
 
-    Product     NAS stack
+Product     NAS stack
 
-    Subsystem   EPS Mobility Management
+Subsystem   EPS Mobility Management
 
-    Author      Frederic Maurel
+Author      Frederic Maurel
 
-    Description Implements the EPS Mobility Management procedures executed
+Description Implements the EPS Mobility Management procedures executed
         when the EMM-SAP is in EMM-DEREGISTERED.NO-CELL-AVAILABLE
         state.
 
@@ -86,55 +86,52 @@
  ***************************************************************************/
 int EmmDeregisteredNoCellAvailable(nas_user_t *user, const emm_reg_t *evt)
 {
-    LOG_FUNC_IN;
+  LOG_FUNC_IN;
 
-    int rc = RETURNerror;
-    emm_data_t *emm_data = user->emm_data;
-    user_api_id_t *user_api_id = user->user_api_id;
+  int rc = RETURNerror;
+  emm_data_t *emm_data = user->emm_data;
+  user_api_id_t *user_api_id = user->user_api_id;
 
-    assert(emm_fsm_get_status(user) == EMM_DEREGISTERED_NO_CELL_AVAILABLE);
+  assert(emm_fsm_get_status(user) == EMM_DEREGISTERED_NO_CELL_AVAILABLE);
 
-    switch(evt->primitive)
-    {
-        /*  TODO: network re-selection is not allowed when in No Cell
-            Available substate. The AS should search for a suitable cell
-            and notify the NAS when such a cell is found (TS 24.008 section
-            4.2.4.1.2) */
-        case _EMMREG_REGISTER_REQ:
-            /*
-                The user manually re-selected a PLMN to register to
-            */
-            rc = emm_fsm_set_status(user, EMM_DEREGISTERED_PLMN_SEARCH);
+  switch (evt->primitive) {
+    /* TODO: network re-selection is not allowed when in No Cell
+     * Available substate. The AS should search for a suitable cell
+     * and notify the NAS when such a cell is found (TS 24.008 section
+     * 4.2.4.1.2) */
+  case _EMMREG_REGISTER_REQ:
+    /*
+     * The user manually re-selected a PLMN to register to
+     */
+    rc = emm_fsm_set_status(user, EMM_DEREGISTERED_PLMN_SEARCH);
 
-            if(rc != RETURNerror)
-            {
-                /*
-                    Notify EMM that the MT is currently searching an operator
-                    to register to
-                */
-                rc = emm_proc_registration_notify(user_api_id, emm_data, NET_REG_STATE_ON);
+    if (rc != RETURNerror) {
+      /*
+       * Notify EMM that the MT is currently searching an operator
+       * to register to
+       */
+      rc = emm_proc_registration_notify(user_api_id, emm_data, NET_REG_STATE_ON);
 
-                if(rc != RETURNok)
-                {
-                    LOG_TRACE(WARNING, "EMM-FSM   - "
-                              "Failed to notify registration update");
-                }
+      if (rc != RETURNok) {
+        LOG_TRACE(WARNING, "EMM-FSM   - "
+                  "Failed to notify registration update");
+      }
 
-                /*
-                    Perform network re-selection procedure
-                */
-                rc = emm_proc_plmn_selection(user, evt->u.regist.index);
-            }
-
-            break;
-
-        default:
-            LOG_TRACE(ERROR, "EMM-FSM   - Primitive is not valid (%d)",
-                      evt->primitive);
-            break;
+      /*
+       * Perform network re-selection procedure
+       */
+      rc = emm_proc_plmn_selection(user, evt->u.regist.index);
     }
 
-    LOG_FUNC_RETURN(rc);
+    break;
+
+  default:
+    LOG_TRACE(ERROR, "EMM-FSM   - Primitive is not valid (%d)",
+              evt->primitive);
+    break;
+  }
+
+  LOG_FUNC_RETURN (rc);
 }
 
 /****************************************************************************/

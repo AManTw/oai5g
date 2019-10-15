@@ -1,41 +1,41 @@
 /*
-    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
-    contributor license agreements.  See the NOTICE file distributed with
-    this work for additional information regarding copyright ownership.
-    The OpenAirInterface Software Alliance licenses this file to You under
-    the OAI Public License, Version 1.1  (the "License"); you may not use this file
-    except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.openairinterface.org/?page_id=698
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-    -------------------------------------------------------------------------------
-    For more information about the OpenAirInterface (OAI) Software Alliance:
-        contact@openairinterface.org
-*/
+ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The OpenAirInterface Software Alliance licenses this file to You under
+ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+ * except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.openairinterface.org/?page_id=698
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *-------------------------------------------------------------------------------
+ * For more information about the OpenAirInterface (OAI) Software Alliance:
+ *      contact@openairinterface.org
+ */
 
 /*****************************************************************************
       Eurecom OpenAirInterface 3
       Copyright(c) 2012 Eurecom
 
-    Source    network_parser.c
+Source    network_parser.c
 
-    Version   0.1
+Version   0.1
 
-    Date    2012/11/05
+Date    2012/11/05
 
-    Product   Network Simulator
+Product   Network Simulator
 
-    Subsystem Command line parser
+Subsystem Command line parser
 
-    Author    Frederic Maurel
+Author    Frederic Maurel
 
-    Description Command line parser of the Network Simulator process
+Description Command line parser of the Network Simulator process
 
 *****************************************************************************/
 
@@ -52,32 +52,30 @@
 /****************************************************************************/
 
 /*
-    Identifiers of the Network Simulator command line options
-*/
-enum
-{
-    NETWORK_PARSER_HOST,    /* Remote hostname  */
-    NETWORK_PARSER_PORT,    /* Remote port number */
-    NETWORK_PARSER_NB_OPTIONS
+ * Identifiers of the Network Simulator command line options
+ */
+enum {
+  NETWORK_PARSER_HOST,    /* Remote hostname  */
+  NETWORK_PARSER_PORT,    /* Remote port number */
+  NETWORK_PARSER_NB_OPTIONS
 };
 
-/*  -------------------------------------------------------------------
-    Definition of the internal Network Simulator command line structure
-    -------------------------------------------------------------------
-    The command line is defined with a name (default is "NetworkProcess"
-    but it will be replaced by the command name actually used at
-    runtime), a number of options and the list of options.
-    An option is defined with a name, an argument following the name,
-    the usage displayed by the usage function and a default value.
-*/
-static parser_command_line_t networkParserCommandLine =
-{
-    "NetworkProcess",     /* Command name     */
-    NETWORK_PARSER_NB_OPTIONS,    /* Number of options    */
-    {         /* Command line options   */
-        {"-host", "<host>", "Remote hostname\t\t", NETWORK_PARSER_DEFAULT_REMOTE_HOSTNAME},
-        {"-port", "<port>", "Remote port number\t", NETWORK_PARSER_DEFAULT_REMOTE_PORT_NUMBER},
-    }
+/* -------------------------------------------------------------------
+ * Definition of the internal Network Simulator command line structure
+ * -------------------------------------------------------------------
+ *  The command line is defined with a name (default is "NetworkProcess"
+ *  but it will be replaced by the command name actually used at
+ *  runtime), a number of options and the list of options.
+ *  An option is defined with a name, an argument following the name,
+ *  the usage displayed by the usage function and a default value.
+ */
+static parser_command_line_t networkParserCommandLine = {
+  "NetworkProcess",     /* Command name     */
+  NETWORK_PARSER_NB_OPTIONS,    /* Number of options    */
+  {         /* Command line options   */
+    {"-host", "<host>", "Remote hostname\t\t", NETWORK_PARSER_DEFAULT_REMOTE_HOSTNAME},
+    {"-port", "<port>", "Remote port number\t", NETWORK_PARSER_DEFAULT_REMOTE_PORT_NUMBER},
+  }
 };
 
 /****************************************************************************/
@@ -100,7 +98,7 @@ static parser_command_line_t networkParserCommandLine =
  ***************************************************************************/
 inline void network_parser_print_usage(void)
 {
-    parser_print_usage(&networkParserCommandLine);
+  parser_print_usage(&networkParserCommandLine);
 }
 
 /****************************************************************************
@@ -118,9 +116,9 @@ inline void network_parser_print_usage(void)
  **      Others:  None                                       **
  **                                                                        **
  ***************************************************************************/
-inline int network_parser_get_options(int argc, const char **argv)
+inline int network_parser_get_options(int argc, const char** argv)
 {
-    return parser_get_options(argc, argv, &networkParserCommandLine);
+  return parser_get_options(argc, argv, &networkParserCommandLine);
 }
 
 /****************************************************************************
@@ -139,7 +137,7 @@ inline int network_parser_get_options(int argc, const char **argv)
  ***************************************************************************/
 inline int network_parser_get_nb_options(void)
 {
-    return networkParserCommandLine.nb_options;
+  return networkParserCommandLine.nb_options;
 }
 
 /****************************************************************************
@@ -155,9 +153,9 @@ inline int network_parser_get_nb_options(void)
  **      Others:  None                                       **
  **                                                                        **
  ***************************************************************************/
-inline const char *network_parser_get_host(void)
+inline const char* network_parser_get_host(void)
 {
-    return networkParserCommandLine.options[NETWORK_PARSER_HOST].pvalue;
+  return networkParserCommandLine.options[NETWORK_PARSER_HOST].pvalue;
 }
 
 /****************************************************************************
@@ -173,9 +171,9 @@ inline const char *network_parser_get_host(void)
  **      Others:  None                                       **
  **                                                                        **
  ***************************************************************************/
-inline const char *network_parser_get_port(void)
+inline const char* network_parser_get_port(void)
 {
-    return networkParserCommandLine.options[NETWORK_PARSER_PORT].pvalue;
+  return networkParserCommandLine.options[NETWORK_PARSER_PORT].pvalue;
 }
 
 /****************************************************************************/

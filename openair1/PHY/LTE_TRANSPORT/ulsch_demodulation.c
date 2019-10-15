@@ -709,7 +709,7 @@ void ulsch_detection_mrc(LTE_DL_FRAME_PARMS *frame_parms,
             ul_ch_mag128_0[i]    = _mm_adds_epi16(_mm_srai_epi16(ul_ch_mag128_0[i], 1), _mm_srai_epi16(ul_ch_mag128_1[i], 1));
             ul_ch_mag128_0b[i]   = _mm_adds_epi16(_mm_srai_epi16(ul_ch_mag128_0b[i], 1), _mm_srai_epi16(ul_ch_mag128_1b[i], 1));
             rxdataF_comp128_0[i] = _mm_add_epi16(rxdataF_comp128_0[i], (*(__m128i *)&jitterc[0]));
-
+        }
 #elif defined(__arm__)
         rxdataF_comp128_0   = (int16x8_t *)&rxdataF_comp[0][symbol * frame_parms->N_RB_DL * 12];
         rxdataF_comp128_1   = (int16x8_t *)&rxdataF_comp[1][symbol * frame_parms->N_RB_DL * 12];
@@ -725,10 +725,10 @@ void ulsch_detection_mrc(LTE_DL_FRAME_PARMS *frame_parms,
             ul_ch_mag128_0[i]    = vhaddq_s16(ul_ch_mag128_0[i], ul_ch_mag128_1[i]);
             ul_ch_mag128_0b[i]   = vhaddq_s16(ul_ch_mag128_0b[i], ul_ch_mag128_1b[i]);
             rxdataF_comp128_0[i] = vqaddq_s16(rxdataF_comp128_0[i], (*(int16x8_t *)&jitterc[0]));
-
+        }
 
 #endif
-        }
+
     }
 
 #if defined(__x86_64__) || defined(__i386__)
@@ -743,7 +743,7 @@ void ulsch_extract_rbs_single(int32_t **rxdataF,
                               uint32_t nb_rb,
                               uint8_t l,
                               uint8_t Ns,
-                              LTE_DL_FRAME_PARMS * frame_parms)
+                              LTE_DL_FRAME_PARMS *frame_parms)
 {
 
 
@@ -797,7 +797,7 @@ void ulsch_extract_rbs_single(int32_t **rxdataF,
 void ulsch_correct_ext(int32_t **rxdataF_ext,
                        int32_t **rxdataF_ext2,
                        uint16_t symbol,
-                       LTE_DL_FRAME_PARMS * frame_parms,
+                       LTE_DL_FRAME_PARMS *frame_parms,
                        uint16_t nb_rb)
 {
 
@@ -823,7 +823,7 @@ void ulsch_channel_compensation(int32_t **rxdataF_ext,
                                 int32_t **ul_ch_mag,
                                 int32_t **ul_ch_magb,
                                 int32_t **rxdataF_comp,
-                                LTE_DL_FRAME_PARMS * frame_parms,
+                                LTE_DL_FRAME_PARMS *frame_parms,
                                 uint8_t symbol,
                                 uint8_t Qm,
                                 uint16_t nb_rb,
@@ -1062,7 +1062,7 @@ void ulsch_channel_compensation(int32_t **rxdataF_ext,
 }
 
 void ulsch_channel_level(int32_t **drs_ch_estimates_ext,
-                         LTE_DL_FRAME_PARMS * frame_parms,
+                         LTE_DL_FRAME_PARMS *frame_parms,
                          int32_t *avg,
                          uint16_t nb_rb)
 {
@@ -1143,7 +1143,7 @@ void init_ulsch_power_LUT(void)
 
 }
 
-void rx_ulsch(PHY_VARS_eNB * eNB,
+void rx_ulsch(PHY_VARS_eNB *eNB,
               L1_rxtx_proc_t *proc,
               uint8_t UE_id)
 {
@@ -1168,19 +1168,24 @@ void rx_ulsch(PHY_VARS_eNB * eNB,
     int16_t *llrp;
     int subframe = proc->subframe_rx;
 
-    harq_pid = subframe2harq_pid(frame_parms, proc->frame_rx, subframe);
+#if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
+    if(ulsch[UE_id]->ue_type > 0)
+    {
+        harq_pid = 0;
+    }
+    else
+#endif
+    {
+        harq_pid = subframe2harq_pid(frame_parms, proc->frame_rx, subframe);
+    }
     Qm = ulsch[UE_id]->harq_processes[harq_pid]->Qm;
     if(LOG_DEBUGFLAG(DEBUG_ULSCH))
     {
         LOG_I(PHY, "rx_ulsch: harq_pid %d, nb_rb %d first_rb %d\n", harq_pid, ulsch[UE_id]->harq_processes[harq_pid]->nb_rb, ulsch[UE_id]->harq_processes[harq_pid]->first_rb);
     }
 
-    if(ulsch[UE_id]->harq_processes[harq_pid]->nb_rb == 0)
-    {
-        LOG_E(PHY, "PUSCH (%d/%x) nb_rb=0!\n", harq_pid, ulsch[UE_id]->rnti);
-        return;
-    }
-
+    AssertFatal(ulsch[UE_id]->harq_processes[harq_pid]->nb_rb > 0,
+                "PUSCH (%d/%x) nb_rb=0!\n", harq_pid, ulsch[UE_id]->rnti);
     for(l = 0; l < (frame_parms->symbols_per_tti - ulsch[UE_id]->harq_processes[harq_pid]->srs_active); l++)
     {
 
@@ -1362,7 +1367,7 @@ void rx_ulsch(PHY_VARS_eNB * eNB,
 
 }
 
-void rx_ulsch_emul(PHY_VARS_eNB * eNB,
+void rx_ulsch_emul(PHY_VARS_eNB *eNB,
                    L1_rxtx_proc_t *proc,
                    uint8_t UE_index)
 {
@@ -1373,7 +1378,7 @@ void rx_ulsch_emul(PHY_VARS_eNB * eNB,
 }
 
 
-void dump_ulsch(PHY_VARS_eNB * eNB, int frame, int subframe, uint8_t UE_id, int round)
+void dump_ulsch(PHY_VARS_eNB *eNB, int frame, int subframe, uint8_t UE_id, int round)
 {
 
     uint32_t nsymb = (eNB->frame_parms.Ncp == 0) ? 14 : 12;

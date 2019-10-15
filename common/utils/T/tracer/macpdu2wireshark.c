@@ -53,6 +53,7 @@ typedef struct
     int max_mib;
     int max_sib;
     int live;
+    int no_bind;
     /* runtime vars */
     int cur_mib;
     int cur_sib;
@@ -64,9 +65,7 @@ void trace(ev_data *d, int direction, int rnti_type, int rnti,
     ssize_t ret;
     int fsf;
     int i;
-
     d->buf.osize = 0;
-
     PUTS(&d->buf, MAC_LTE_START_STRING);
     PUTC(&d->buf, FDD_RADIO);
     PUTC(&d->buf, direction);
@@ -95,6 +94,7 @@ void trace(ev_data *d, int direction, int rnti_type, int rnti,
     }
 
     PUTC(&d->buf, MAC_LTE_PAYLOAD_TAG);
+
     for(i = 0; i < bufsize; i++)
     {
         PUTC(&d->buf, ((char *)buf)[i]);
@@ -102,6 +102,7 @@ void trace(ev_data *d, int direction, int rnti_type, int rnti,
 
     ret = sendto(d->socket, d->buf.obuf, d->buf.osize, 0,
                  (struct sockaddr *)&d->to, sizeof(struct sockaddr_in));
+
     if(ret != d->buf.osize)
     {
         abort();
@@ -127,10 +128,12 @@ void dl(void *_d, event e)
         {
             return;
         }
+
         if(d->max_sib && d->cur_sib == d->max_sib)
         {
             return;
         }
+
         d->cur_sib++;
     }
 
@@ -149,12 +152,13 @@ void mib(void *_d, event e)
     {
         return;
     }
+
     if(d->max_mib && d->cur_mib == d->max_mib)
     {
         return;
     }
-    d->cur_mib++;
 
+    d->cur_mib++;
     trace(d, DIRECTION_DOWNLINK, NO_RNTI, 0,
           e.e[d->mib_frame].i, e.e[d->mib_subframe].i,
           e.e[d->mib_data].b, e.e[d->mib_data].bsize,
@@ -184,39 +188,33 @@ void setup_data(ev_data *d, void *database, int ul_id, int dl_id, int mib_id,
 {
     database_event_format f;
     int i;
-
     d->ul_rnti           = -1;
     d->ul_frame          = -1;
     d->ul_subframe       = -1;
     d->ul_data           = -1;
-
     d->dl_rnti           = -1;
     d->dl_frame          = -1;
     d->dl_subframe       = -1;
     d->dl_data           = -1;
-
     d->mib_frame         = -1;
     d->mib_subframe      = -1;
     d->mib_data          = -1;
-
     d->preamble_frame    = -1;
     d->preamble_subframe = -1;
     d->preamble_preamble = -1;
-
     d->rar_rnti           = -1;
     d->rar_frame          = -1;
     d->rar_subframe       = -1;
     d->rar_data           = -1;
-
 #define G(var_name, var_type, var) \
   if (!strcmp(f.name[i], var_name)) { \
     if (strcmp(f.type[i], var_type)) goto error; \
     var = i; \
     continue; \
   }
-
     /* ul: rnti, frame, subframe, data */
     f = get_format(database, ul_id);
+
     for(i = 0; i < f.count; i++)
     {
         G("rnti",     "int",    d->ul_rnti);
@@ -224,6 +222,7 @@ void setup_data(ev_data *d, void *database, int ul_id, int dl_id, int mib_id,
         G("subframe", "int",    d->ul_subframe);
         G("data",     "buffer", d->ul_data);
     }
+
     if(d->ul_rnti == -1 || d->ul_frame == -1 || d->ul_subframe == -1 ||
             d->ul_data == -1)
     {
@@ -232,6 +231,7 @@ void setup_data(ev_data *d, void *database, int ul_id, int dl_id, int mib_id,
 
     /* dl: rnti, frame, subframe, data */
     f = get_format(database, dl_id);
+
     for(i = 0; i < f.count; i++)
     {
         G("rnti",     "int",    d->dl_rnti);
@@ -239,6 +239,7 @@ void setup_data(ev_data *d, void *database, int ul_id, int dl_id, int mib_id,
         G("subframe", "int",    d->dl_subframe);
         G("data",     "buffer", d->dl_data);
     }
+
     if(d->dl_rnti == -1 || d->dl_frame == -1 || d->dl_subframe == -1 ||
             d->dl_data == -1)
     {
@@ -247,12 +248,14 @@ void setup_data(ev_data *d, void *database, int ul_id, int dl_id, int mib_id,
 
     /* MIB: frame, subframe, data */
     f = get_format(database, mib_id);
+
     for(i = 0; i < f.count; i++)
     {
         G("frame",    "int",    d->mib_frame);
         G("subframe", "int",    d->mib_subframe);
         G("data",     "buffer", d->mib_data);
     }
+
     if(d->mib_frame == -1 || d->mib_subframe == -1 || d->mib_data == -1)
     {
         goto error;
@@ -260,12 +263,14 @@ void setup_data(ev_data *d, void *database, int ul_id, int dl_id, int mib_id,
 
     /* preamble: frame, subframe, preamble */
     f = get_format(database, preamble_id);
+
     for(i = 0; i < f.count; i++)
     {
         G("frame",    "int", d->preamble_frame);
         G("subframe", "int", d->preamble_subframe);
         G("preamble", "int", d->preamble_preamble);
     }
+
     if(d->preamble_frame == -1 || d->preamble_subframe == -1 ||
             d->preamble_preamble == -1)
     {
@@ -274,6 +279,7 @@ void setup_data(ev_data *d, void *database, int ul_id, int dl_id, int mib_id,
 
     /* rar: rnti, frame, subframe, data */
     f = get_format(database, rar_id);
+
     for(i = 0; i < f.count; i++)
     {
         G("rnti",     "int",    d->rar_rnti);
@@ -281,6 +287,7 @@ void setup_data(ev_data *d, void *database, int ul_id, int dl_id, int mib_id,
         G("subframe", "int",    d->rar_subframe);
         G("data",     "buffer", d->rar_data);
     }
+
     if(d->rar_rnti == -1 || d->rar_frame == -1 || d->rar_subframe == -1 ||
             d->rar_data == -1)
     {
@@ -288,9 +295,7 @@ void setup_data(ev_data *d, void *database, int ul_id, int dl_id, int mib_id,
     }
 
 #undef G
-
     return;
-
 error:
     printf("bad T_messages.txt\n");
     abort();
@@ -301,18 +306,21 @@ void *receiver(void *_d)
     ev_data *d = _d;
     int s;
     char buf[100000];
-
     s = socket(AF_INET, SOCK_DGRAM, 0);
+
     if(s == -1)
     {
         perror("socket");
         abort();
     }
 
-    if(bind(s, (struct sockaddr *)&d->to, sizeof(struct sockaddr_in)) == -1)
+    if(d->no_bind == 0)
     {
-        perror("bind");
-        abort();
+        if(bind(s, (struct sockaddr *)&d->to, sizeof(struct sockaddr_in)) == -1)
+        {
+            perror("bind");
+            abort();
+        }
     }
 
     while(1)
@@ -339,8 +347,9 @@ void usage(void)
         "    -max-mib <n>              report at maximum n MIB\n"
         "    -max-sib <n>              report at maximum n SIBs\n"
         "    -live                     run live\n"
-        "    -live-ip <IP address>     tracee's IP address (default %p)\n"
-        "    -live-port <por>          tracee's port (default %d)\n"
+        "    -live-ip <IP address>     tracee's IP address (default %s)\n"
+        "    -live-port <port>         tracee's port (default %d)\n"
+        "    -no-bind                  don't bind to IP address (for remote logging)\n"
         "-i and -live are mutually exclusive options. One of them must be provided\n"
         "but not both.\n",
         DEFAULT_IP,
@@ -366,7 +375,6 @@ int main(int n, char **v)
     char *live_ip = DEFAULT_LIVE_IP;
     int live_port = DEFAULT_LIVE_PORT;
     int live = 0;
-
     memset(&d, 0, sizeof(ev_data));
 
     for(i = 1; i < n; i++)
@@ -454,6 +462,11 @@ int main(int n, char **v)
             } live_port = atoi(v[++i]);
             continue;
         }
+        if(!strcmp(v[i], "-no-bind"))
+        {
+            d.no_bind = 1;
+            continue;
+        }
         usage();
     }
 
@@ -478,6 +491,7 @@ int main(int n, char **v)
     if(live == 0)
     {
         in = open(input_filename, O_RDONLY);
+
         if(in == -1)
         {
             perror(input_filename);
@@ -491,7 +505,6 @@ int main(int n, char **v)
 
     database = parse_database(database_filename);
     load_config_file(database_filename);
-
     h = new_handler(database);
 
     if(live)
@@ -499,16 +512,19 @@ int main(int n, char **v)
         char mt = 1;
         int  number_of_events = number_of_ids(database);
         int *is_on = calloc(number_of_events, sizeof(int));
+
         if(is_on == NULL)
         {
             printf("ERROR: out of memory\n");
             exit(1);
         }
+
         on_off(database, "ENB_MAC_UE_UL_PDU_WITH_DATA", is_on, 1);
         on_off(database, "ENB_MAC_UE_DL_PDU_WITH_DATA", is_on, 1);
         on_off(database, "ENB_PHY_MIB", is_on, 1);
         on_off(database, "ENB_PHY_INITIATE_RA_PROCEDURE", is_on, 1);
         on_off(database, "ENB_MAC_UE_DL_RAR_PDU_WITH_DATA", is_on, 1);
+
         /* activate selected traces */
         if(socket_send(in, &mt, 1) == -1 ||
                 socket_send(in, &number_of_events, sizeof(int)) == -1 ||
@@ -517,6 +533,7 @@ int main(int n, char **v)
             printf("ERROR: socket_send failed\n");
             exit(1);
         }
+
         free(is_on);
     }
 
@@ -526,14 +543,13 @@ int main(int n, char **v)
     preamble_id = event_id_from_name(database, "ENB_PHY_INITIATE_RA_PROCEDURE");
     rar_id = event_id_from_name(database, "ENB_MAC_UE_DL_RAR_PDU_WITH_DATA");
     setup_data(&d, database, ul_id, dl_id, mib_id, preamble_id, rar_id);
-
     register_handler_function(h, ul_id, ul, &d);
     register_handler_function(h, dl_id, dl, &d);
     register_handler_function(h, mib_id, mib, &d);
     register_handler_function(h, preamble_id, preamble, &d);
     register_handler_function(h, rar_id, rar, &d);
-
     d.socket = socket(AF_INET, SOCK_DGRAM, 0);
+
     if(d.socket == -1)
     {
         perror("socket");
@@ -543,9 +559,7 @@ int main(int n, char **v)
     d.to.sin_family = AF_INET;
     d.to.sin_port = htons(port);
     d.to.sin_addr.s_addr = inet_addr(ip);
-
     new_thread(receiver, &d);
-
     OBUF ebuf = { osize: 0, omaxsize: 0, obuf: NULL };
 
     /* read messages */
@@ -553,15 +567,18 @@ int main(int n, char **v)
     {
         event e;
         e = get_event(in, &ebuf, database);
+
         if(e.type == -1)
         {
             break;
         }
+
         if(!(e.type == ul_id || e.type == dl_id || e.type == mib_id ||
                 e.type == preamble_id || e.type == rar_id))
         {
             continue;
         }
+
         handle_event(h, e);
     }
 

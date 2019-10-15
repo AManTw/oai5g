@@ -51,7 +51,7 @@
 static struct sock *nas_nl_sk = NULL;
 static int exit_netlink_thread = 0;
 //static int nas_netlink_rx_thread(void *);
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0))
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0)
     struct netlink_kernel_cfg oai_netlink_cfg;
 #endif
 
@@ -98,7 +98,7 @@ int nas_netlink_init()
 
     printk("[NAS][NETLINK] Running init ...\n");
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0))
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0)
     oai_netlink_cfg.groups   = 0;
     oai_netlink_cfg.input    = nas_nl_data_ready;
     oai_netlink_cfg.cb_mutex = &nasmesh_mutex;
@@ -107,9 +107,9 @@ int nas_netlink_init()
     nas_nl_sk = netlink_kernel_create(
                     &init_net,
                     OAI_IP_DRIVER_NETLINK_ID,
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,8,0))
+# if LINUX_VERSION_CODE < KERNEL_VERSION(3,8,0)
                     THIS_MODULE,
-#endif
+# endif
                     & oai_netlink_cfg);
 #else /* LINUX_VERSION_CODE >= KERNEL_VERSION(3,6,0) */
     nas_nl_sk = netlink_kernel_create(
@@ -173,7 +173,7 @@ int nas_netlink_send(unsigned char *data, unsigned int len)
 
     nlh->nlmsg_pid = 0;      /* from kernel */
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,7,0))
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,7,0)
     NETLINK_CB(nl_skb).portid = 0;
 #else
     NETLINK_CB(nl_skb).pid = 0;

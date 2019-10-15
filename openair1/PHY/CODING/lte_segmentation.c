@@ -66,6 +66,7 @@ int lte_segmentation(unsigned char *input_buffer,
 
     if((*C) > MAX_NUM_DLSCH_SEGMENTS)
     {
+        printf("%d\n", *(int *)0);
         LOG_E(PHY, "lte_segmentation.c: too many segments %d, B %d, L %d, Bprime %d\n", *C, B, L, Bprime);
         return(-1);
     }
@@ -151,7 +152,8 @@ int lte_segmentation(unsigned char *input_buffer,
                 Bprime, *Cplus, *Kplus, *Cminus, *Kminus);
     *F = ((*Cplus) * (*Kplus) + (*Cminus) * (*Kminus) - (Bprime));
 #ifdef DEBUG_SEGMENTATION
-    printf("C %u, Cplus %u, Cminus %u, Kplus %u, Kminus %u, Bprime_bytes %u, Bprime %u, F %u\n", *C, *Cplus, *Cminus, *Kplus, *Kminus, Bprime >> 3, Bprime, *F);
+    printf("C %u, Cplus %u, Cminus %u, Kplus %u, Kminus %u, Bprime_bytes %u, Bprime %u, F %u\n",
+           *C, *Cplus, *Cminus, *Kplus, *Kminus, Bprime >> 3, Bprime, *F);
 #endif
 
     if((input_buffer) && (output_buffers))

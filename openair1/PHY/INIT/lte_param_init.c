@@ -33,7 +33,7 @@
 #include "phy_init.h"
 #include "PHY/LTE_REFSIG/lte_refsig.h"
 #include "PHY/LTE_TRANSPORT/transport_common_proto.h"
-
+#include "targets/RT/USER/lte-softmodem.h"
 extern PHY_VARS_eNB *eNB;
 extern PHY_VARS_UE *UE;
 extern RU_t *ru;
@@ -57,7 +57,6 @@ void lte_param_init(PHY_VARS_eNB **eNBp,
                     uint8_t osf,
                     uint32_t perfect_ce)
 {
-
     LTE_DL_FRAME_PARMS *frame_parms;
     int i;
     PHY_VARS_eNB *eNB;
@@ -71,23 +70,16 @@ void lte_param_init(PHY_VARS_eNB **eNBp,
     UE  = *UEp;
     ru  = *rup;
     printf("eNB %p, UE %p, ru %p\n", eNB, UE, ru);
-
-
-
     memset((void *)eNB, 0, sizeof(PHY_VARS_eNB));
     memset((void *)UE, 0, sizeof(PHY_VARS_UE));
     memset((void *)ru, 0, sizeof(RU_t));
-
     ru->eNB_list[0] = eNB;
     eNB->RU_list[0] = ru;
     ru->num_eNB = 1;
-
     srand(0);
     randominit(0);
     set_taus_seed(0);
-
     frame_parms = &(eNB->frame_parms);
-
     frame_parms->N_RB_DL            = N_RB_DL;   //50 for 10MHz and 25 for 5 MHz
     frame_parms->N_RB_UL            = N_RB_DL;
     frame_parms->threequarter_fs    = threequarter_fs;
@@ -106,13 +98,9 @@ void lte_param_init(PHY_VARS_eNB **eNBp,
     //  frame_parms->Bsrs = 0;
     //  frame_parms->kTC = 0;44
     //  frame_parms->n_RRC = 0;
-
     init_frame_parms(frame_parms, osf);
-
     //copy_lte_parms_to_phy_framing(frame_parms, &(PHY_config->PHY_framing));
-
     //  phy_init_top(frame_parms); //allocation
-
     UE->is_secondary_ue = 0;
     UE->frame_parms = *frame_parms;
     UE->frame_parms.nb_antennas_rx = N_rx_ue;
@@ -121,14 +109,10 @@ void lte_param_init(PHY_VARS_eNB **eNBp,
     ru->nb_tx = N_tx_phy;
     ru->nb_rx = N_rx_ru;
     ru->if_south = LOCAL_RF;
-
     eNB->configured = 1;
-
     eNB->transmission_mode[0] = transmission_mode;
     UE->transmission_mode[0] = transmission_mode;
-
     dump_frame_parms(frame_parms);
-
     UE->measurements.n_adj_cells = 0;
     UE->measurements.adj_cell_id[0] = Nid_cell + 1;
     UE->measurements.adj_cell_id[1] = Nid_cell + 2;
@@ -146,7 +130,6 @@ void lte_param_init(PHY_VARS_eNB **eNBp,
     phy_init_RU(ru);
     generate_pcfich_reg_mapping(&UE->frame_parms);
     generate_phich_reg_mapping(&UE->frame_parms);
-
     // DL power control init
     //if (transmission_mode == 1) {
     UE->pdsch_config_dedicated->p_a  = pa;
@@ -190,14 +173,13 @@ void lte_param_init(PHY_VARS_eNB **eNBp,
         ru->N_TA_offset = 0;
     }
 
-#if BASIC_SIMULATOR
-    /*  this is required for the basic simulator in TDD mode
-        TODO: find a proper cleaner solution
-    */
-    UE->N_TA_offset = 0;
-#endif
+    if(IS_SOFTMODEM_BASICSIM)
+        /*  this is required for the basic simulator in TDD mode
+            TODO: find a proper cleaner solution
+        */
+    {
+        UE->N_TA_offset = 0;
+    }
 
     printf("Done lte_param_init\n");
-
-
 }

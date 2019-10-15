@@ -1,39 +1,39 @@
 /*
-    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
-    contributor license agreements.  See the NOTICE file distributed with
-    this work for additional information regarding copyright ownership.
-    The OpenAirInterface Software Alliance licenses this file to You under
-    the OAI Public License, Version 1.1  (the "License"); you may not use this file
-    except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.openairinterface.org/?page_id=698
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-    -------------------------------------------------------------------------------
-    For more information about the OpenAirInterface (OAI) Software Alliance:
-        contact@openairinterface.org
-*/
+ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The OpenAirInterface Software Alliance licenses this file to You under
+ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+ * except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.openairinterface.org/?page_id=698
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *-------------------------------------------------------------------------------
+ * For more information about the OpenAirInterface (OAI) Software Alliance:
+ *      contact@openairinterface.org
+ */
 
 /*****************************************************************************
 
-    Source      emm_reg.c
+Source      emm_reg.c
 
-    Version     0.1
+Version     0.1
 
-    Date        2012/10/16
+Date        2012/10/16
 
-    Product     NAS stack
+Product     NAS stack
 
-    Subsystem   EPS Mobility Management
+Subsystem   EPS Mobility Management
 
-    Author      Frederic Maurel
+Author      Frederic Maurel
 
-    Description Defines the EMMREG Service Access Point that provides
+Description Defines the EMMREG Service Access Point that provides
         registration services for location updating and attach/detach
         procedures.
 
@@ -75,12 +75,12 @@
  ***************************************************************************/
 void emm_reg_initialize(nas_user_t *user)
 {
-    LOG_FUNC_IN;
+  LOG_FUNC_IN;
 
-    /* Initialize the EMM state machine */
-    user->emm_fsm_status = emm_fsm_initialize();
+  /* Initialize the EMM state machine */
+  user->emm_fsm_status = emm_fsm_initialize();
 
-    LOG_FUNC_OUT;
+  LOG_FUNC_OUT;
 }
 
 /****************************************************************************
@@ -99,21 +99,21 @@ void emm_reg_initialize(nas_user_t *user)
  ***************************************************************************/
 int emm_reg_send(nas_user_t *user, const emm_reg_t *msg)
 {
-    LOG_FUNC_IN;
+  LOG_FUNC_IN;
 
-    int rc;
+  int rc;
 
-    /* Check the EMM-SAP primitive */
-    emm_reg_primitive_t primitive = msg->primitive;
-    assert((primitive > _EMMREG_START) && (primitive < _EMMREG_END));
+  /* Check the EMM-SAP primitive */
+  emm_reg_primitive_t primitive = msg->primitive;
+  assert( (primitive > _EMMREG_START) && (primitive < _EMMREG_END));
 
-    /* avoid gcc warnings */
-    (void)primitive;
+  /* avoid gcc warnings */
+  (void)primitive;
 
-    /* Execute the EMM procedure */
-    rc = emm_fsm_process(user, msg);
+  /* Execute the EMM procedure */
+  rc = emm_fsm_process(user, msg);
 
-    LOG_FUNC_RETURN(rc);
+  LOG_FUNC_RETURN (rc);
 }
 
 /****************************************************************************/

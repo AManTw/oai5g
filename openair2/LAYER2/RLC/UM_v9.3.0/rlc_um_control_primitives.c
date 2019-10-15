@@ -146,7 +146,7 @@ void config_req_rlc_um_asn1(
 
         rlc_p = &rlc_union_p->rlc.um;
     }
-    if((sourceL2Id > 0) && (destinationL2Id > 0))
+    else if((sourceL2Id > 0) && (destinationL2Id > 0))
     {
         key = RLC_COLL_KEY_SOURCE_DEST_VALUE(ctxt_pP->module_id, ctxt_pP->rnti, ctxt_pP->enb_flag, rb_idP, sourceL2Id, destinationL2Id, srb_flagP);
     }

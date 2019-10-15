@@ -56,7 +56,7 @@ int init_ue_paging_info(PHY_VARS_UE *ue, long defaultPagingCycle, long nB)
     }
     else
     {
-        AssertFatal(1 == 0, "init_ue_paging_info: Ns is %d\n", Ns);
+        AssertFatal(1 == 0, "init_ue_paging_info: Ns is %u\n", Ns);
     }
 
     return(0);

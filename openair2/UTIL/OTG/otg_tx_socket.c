@@ -69,9 +69,7 @@ control_hdr_t *control_hdr;
 
 void socket_packet_send(int src, int dst, int state, int ctime)
 {
-
     init_control_header();
-
     LOG_I(OTG, "SOCKET:: IP version %d, Transport Protocol %d \n", g_otg->ip_v[src], g_otg->trans_proto[src]);
 
     if((g_otg->ip_v[src] == 1) && (g_otg->trans_proto[src] == 2))
@@ -93,9 +91,6 @@ void socket_packet_send(int src, int dst, int state, int ctime)
     {
         client_socket_udp_ip6(src, dst, state, ctime);
     }
-
-
-
 }
 
 
@@ -103,19 +98,14 @@ void socket_packet_send(int src, int dst, int state, int ctime)
 
 void client_socket_tcp_ip4(int src, int dst, int state, int ctime)
 {
-
 #define PORT 7777
-
-
     LOG_I(OTG, "SOCKET:: TCP-IP4 :: src= %d , dst= %d , state= %d \n", src, dst, state);
-
 #if defined (WIN32)
     WSADATA WSAData;
     int erreur = WSAStartup(MAKEWORD(2, 2), &WSAData);
 #else
     int erreur = 0;
 #endif
-
     SOCKET sock;
     SOCKADDR_IN sin;
     int sock_err;
@@ -127,14 +117,11 @@ void client_socket_tcp_ip4(int src, int dst, int state, int ctime)
     {
         /* Create socket */
         sock = socket(AF_INET, SOCK_STREAM, 0);
-
         /* Configure the connection */
         sin.sin_addr.s_addr = inet_addr(g_otg->dst_ip[src]);
         sin.sin_family = AF_INET;
         sin.sin_port = htons(PORT);
-
         /* connection is ok */
-
         printf("SOCKET:: TCP-IP4 :: \n");
 
         if(connect(sock, (SOCKADDR *)&sin, sizeof(sin)) != SOCKET_ERROR)
@@ -142,39 +129,28 @@ void client_socket_tcp_ip4(int src, int dst, int state, int ctime)
             LOG_I(OTG, "SOCKET:: TCP-IP4 :: Create socket %s with dst port %d\n", inet_ntoa(sin.sin_addr), htons(sin.sin_port));
             ctime = 0;
             LOG_I(OTG, "SOCKET:: TCP-IP4 :: ctime=%d, duration=%d \n", ctime, g_otg->duration[src]);
-
             init_control_header();
-
 
             do
             {
                 //payload=NULL;
                 //payload=packet_gen_socket(src, dst, state, ctime);
                 //payload="CCCCC";
-
                 char *payload_rest;
                 payload_rest = packet_gen_socket(src, dst, state, ctime);
 
                 if(payload_rest != NULL)
                 {
-
-
-
                     payload_t *payload;
                     payload = malloc(sizeof(payload_t));
                     // Data serialization
                     char *tx_buffer;
                     tx_buffer = (char *)malloc(PAYLOAD_MAX);
-
                     payload->control_hdr = otg_info_hdr_gen(src, dst, TCP, IPV4);
-
                     payload->payload_rest = payload_rest;
                     memcpy(tx_buffer, payload->control_hdr, sizeof(control_hdr_t));
                     memcpy(tx_buffer + sizeof(control_hdr_t), payload->payload_rest, strlen(payload_rest));
-
-
                     int total_size = sizeof(control_hdr_t) + strlen(payload_rest);
-
 
                     if((sock_err = send(sock, tx_buffer, total_size, 0)) != SOCKET_ERROR)
                     {
@@ -184,16 +160,13 @@ void client_socket_tcp_ip4(int src, int dst, int state, int ctime)
                     {
                         LOG_I(OTG, "SOCKET:: TCP-IP4 :: Transmission Error\n");
                     }
-
+                    free(payload);
+                    free(tx_buffer);
                 }
 
                 ctime += 1;
-
-
             }
             while(ctime <= g_otg->duration[src]) ;
-
-
         }
         /* connection is not possible..." */
         else
@@ -201,10 +174,8 @@ void client_socket_tcp_ip4(int src, int dst, int state, int ctime)
             LOG_I(OTG, "SOCKET:: TCP-IP4 :: connection is not possible to connect \n");
         }
 
-
         /* close the socket */
         closesocket(sock);
-
     }
 }
 
@@ -212,19 +183,14 @@ void client_socket_tcp_ip4(int src, int dst, int state, int ctime)
 
 void client_socket_udp_ip4(int src, int dst, int state, int ctime)
 {
-
     char *payload_rest;
     signed int udp_send;
-
-
-
     int sockfd, ok, addr_in_size;
     u_short portnum = 12345;
     struct sockaddr_in *to;
     struct hostent *toinfo;
     char *htoname = "127.0.0.1";
     u_long toaddr;
-
     LOG_I(OTG, "SOCKET:: UDP-IP4 :: src= %d , dst= %d , state= %d \n", src, dst, state);
     to = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
 
@@ -246,7 +212,6 @@ void client_socket_udp_ip4(int src, int dst, int state, int ctime)
 
     to->sin_port = portnum;
 
-
     //
     /*
 
@@ -258,8 +223,6 @@ void client_socket_udp_ip4(int src, int dst, int state, int ctime)
         memset(control_hdr, 0, sizeof(control_hdr_t));
     */
     //
-
-
     if((sockfd = socket(PF_INET, SOCK_DGRAM, 0)) == -1)
     {
         LOG_W(OTG, "SOCKET:: UDP-IP4 :: Error %d in socket: %s\n", errno, sys_errlist[errno]);
@@ -272,21 +235,21 @@ void client_socket_udp_ip4(int src, int dst, int state, int ctime)
 
         if(payload_rest != NULL)
         {
-
             payload_t *payload;
             payload = malloc(sizeof(payload_t));
             // Data serialization
             char *tx_buffer;
             tx_buffer = (char *)malloc(PAYLOAD_MAX);
-
-
+            if(tx_buffer == NULL || payload == NULL)
+            {
+                LOG_E(OTG, "Memory allocation failed\n");
+                return;
+            }
             payload->control_hdr = otg_info_hdr_gen(src, dst, UDP, IPV4);
             payload->payload_rest = payload_rest;
             memcpy(tx_buffer, payload->control_hdr, sizeof(control_hdr_t));
             memcpy(tx_buffer + sizeof(control_hdr_t), payload->payload_rest, strlen(payload_rest));
             int total_size = sizeof(control_hdr_t) + strlen(payload_rest);
-
-
             udp_send = sendto(sockfd, tx_buffer, total_size, 0, (struct sockaddr *)to, addr_in_size);
             LOG_I(OTG, "SOCKET:: UDP-IP4 :: Payload to send :: data sent:%d \n", udp_send);
             // Update TX OTG info
@@ -294,20 +257,8 @@ void client_socket_udp_ip4(int src, int dst, int state, int ctime)
             //otg_info->rx_num_bytes[src][dst]+=  udp_send + (HDR_IP_v4 + HDR_UDP);
             //
 
-            if(NULL != payload)
-            {
-                payload = NULL;
-                free(payload);
-            }
-
-            if(NULL != tx_buffer)
-            {
-                tx_buffer = NULL;
-                free(tx_buffer);
-            }
-
-
-
+            free(payload);
+            free(tx_buffer);
         }
 
         if(udp_send == -1)
@@ -315,33 +266,27 @@ void client_socket_udp_ip4(int src, int dst, int state, int ctime)
             LOG_I(OTG, "SOCKET:: UDP-IP4 :: Transmission Error\n");
             exit(errno);
         }
-
         else
         {
             LOG_I(OTG, "SOCKET:: UDP-IP4 :: No data to transmit\n");
         }
 
         ctime += 1;
-
-
     }
     while(ctime <= g_otg->duration[src]) ;
 
     closesocket(sockfd);
-
 }
 
 
 void client_socket_tcp_ip6(int src, int dst, int state, int ctime)
 {
     printf("client TCP IPv6\n");
-
 }
 
 void client_socket_udp_ip6(int src, int dst, int state, int ctime)
 {
     printf("client UDP IPv6\n");
-
 }
 
 
@@ -349,20 +294,13 @@ void client_socket_udp_ip6(int src, int dst, int state, int ctime)
 
 char *packet_gen_socket(int src, int dst, int state, int ctime)
 {
-
     int size;
     char *payload = NULL;
-
-
     set_ctime(ctime);
     LOG_I(OTG, "SOCKET :: num_nodes_tx:: %d , seed:: %d \n", g_otg->num_nodes, g_otg->seed);
-
     LOG_I(OTG, "SOCKET :: NODE_INFO (Source= %d, Destination= %d,State= %d) ctime %d \n", src, dst, state, otg_info->ctime);
-
-
     LOG_I(OTG, "SOCKET :: INFO_SIM (src=%d, dst=%d, state=%d) application=%d, idt dist =%d, pkts dist= %d\n", src, dst, state, g_otg->application_type[src][dst], g_otg->idt_dist[src][dst][state],
           g_otg->size_dist[src][dst][state]);
-
     LOG_I(OTG, "SOCKET :: Transmission info: idt=%d, simulation time=%d \n", otg_info->idt[src][dst], ctime);
 
     // do not generate packet for this pair of src, dst : no app type and/or idt are defined
@@ -387,7 +325,6 @@ char *packet_gen_socket(int src, int dst, int state, int ctime)
 
     if((otg_info->idt[src][dst] == (ctime - otg_info->ptime[src][dst][state])) || (otg_info->idt[src][dst] == 0))
     {
-
         LOG_I(OTG, "SOCKET :: Time To Transmit (Source= %d, Destination= %d,State= %d) , (IDT= %d ,simu time= %d, previous packet time= %d) \n", src, dst, state, otg_info->idt[src][dst], ctime,
               otg_info->ptime[src][dst][state]);
         otg_info->ptime[src][dst][state] = ctime;
@@ -398,8 +335,6 @@ char *packet_gen_socket(int src, int dst, int state, int ctime)
         LOG_I(OTG, "SOCKET :: It is not the time to transmit (ctime= %d, previous time=%d, packet idt=%d),  node( %d,%d) \n", ctime, otg_info->ptime[src][dst][state], otg_info->idt[src][dst], src, dst);
         return 0; // do not generate the packet, and keep the idt
     }
-
-
 
     size = size_dist(src, dst, state);
     LOG_I(OTG, "SOCKET :: Generate Packet for (Source= %d, Destination= %d,State= %d) , pkt size dist= %d, simu time= %d ,packet size=%d \n",
@@ -415,9 +350,7 @@ char *packet_gen_socket(int src, int dst, int state, int ctime)
     }
 
     payload = payload_pkts(size);
-
     return(payload);
-
 }
 
 
@@ -432,10 +365,7 @@ control_hdr_t *otg_info_hdr_gen(int src, int dst, int trans_proto, int ip_v)
     LOG_I(OTG, "SOCKET :: control header src %d\n", control_hdr->dst);
     LOG_I(OTG, "SOCKET :: control header src %d\n", control_hdr->trans_proto);
     LOG_I(OTG, "SOCKET :: control header src %d\n", control_hdr->ip_v);
-
-
     return control_hdr;
-
 }
 
 

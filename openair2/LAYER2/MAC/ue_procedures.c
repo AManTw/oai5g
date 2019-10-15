@@ -19,14 +19,14 @@
         contact@openairinterface.org
 */
 
-/*! \file ue_procedures.c
-    \brief procedures related to UE
-    \author  Navid Nikaein and Raymond Knopp
-    \date 2010 - 2014
-    \version 1
-    \email: navid.nikaein@eurecom.fr
-    @ingroup _mac
 
+/*! \file asn1_msg.c
+    \brief primitives to build the asn1 messages / primitives to build FeMBMS asn1  messages
+    \author Raymond Knopp, Navid Nikaein and Javier Morgade
+    \date 2011 / 2019
+    \version 1.0
+    \company Eurecom
+    \email: raymond.knopp@eurecom.fr, navid.nikaein@eurecom.fr javier.morgade@ieee.org
 */
 
 #ifdef EXMIMO
@@ -46,6 +46,7 @@
 #include "RRC/L2_INTERFACE/openair_rrc_L2_interface.h"
 #include "RRC/LTE/rrc_extern.h"
 #include "common/utils/LOG/log.h"
+#include "nfapi/oai_integration/vendor_ext.h"
 #include "common/utils/LOG/vcd_signal_dumper.h"
 #include "UTIL/OPT/opt.h"
 #include "OCG.h"
@@ -60,7 +61,7 @@
 
 #include "assertions.h"
 
-#include "SIMULATION/TOOLS/sim.h"	// for taus
+#include "SIMULATION/TOOLS/sim.h" // for taus
 
 #define DEBUG_HEADER_PARSING 1
 #define ENABLE_MAC_PAYLOAD_DEBUG 1
@@ -68,7 +69,7 @@
 
 extern UL_IND_t *UL_INFO;
 
-extern uint8_t  nfapi_mode;
+
 extern int next_ra_frame;
 extern module_id_t next_Mod_id;
 
@@ -92,7 +93,6 @@ mapping BSR_names[] =
 
 void ue_init_mac(module_id_t module_idP)
 {
-
     int i;
     // default values as deined in 36.331 sec 9.2.2
     LOG_I(MAC, "[UE%d] Applying default macMainConfig\n", module_idP);
@@ -125,7 +125,6 @@ void ue_init_mac(module_id_t module_idP)
     UE_mac_inst[module_idP].scheduling_info.retxBSR_SF =
         MAC_UE_BSR_TIMER_NOT_RUNNING;
     UE_mac_inst[module_idP].BSR_reporting_active = BSR_TRIGGER_NONE;
-
     UE_mac_inst[module_idP].scheduling_info.periodicPHR_SF =
         get_sf_perioidicPHR_Timer(UE_mac_inst[module_idP].
                                   scheduling_info.periodicPHR_Timer);
@@ -145,11 +144,11 @@ void ue_init_mac(module_id_t module_idP)
         UE_mac_inst[module_idP].scheduling_info.Bj[i] = -1;
         UE_mac_inst[module_idP].scheduling_info.bucket_size[i] = -1;
 
-        if(i < DTCH)  		// initilize all control channels lcgid to 0
+        if(i < DTCH)      // initilize all control channels lcgid to 0
         {
             UE_mac_inst[module_idP].scheduling_info.LCGID[i] = 0;
         }
-        else  		// initialize all the data channels lcgid to 1
+        else        // initialize all the data channels lcgid to 1
         {
             UE_mac_inst[module_idP].scheduling_info.LCGID[i] = 1;
         }
@@ -159,7 +158,7 @@ void ue_init_mac(module_id_t module_idP)
         UE_mac_inst[module_idP].scheduling_info.LCID_buffer_remain[i] = 0;
     }
 
-    if(nfapi_mode == 3)
+    if(NFAPI_MODE == NFAPI_UE_STUB_PNF)
     {
         pthread_mutex_init(&UE_mac_inst[module_idP].UL_INFO_mutex, NULL);
         UE_mac_inst[module_idP].UE_mode[0] = NOT_SYNCHED; //PRACH;
@@ -169,8 +168,6 @@ void ue_init_mac(module_id_t module_idP)
         next_Mod_id = 0;
         tx_request_pdu_list = NULL;
         tx_req_num_elems = 0;
-
-
     }
 
 #ifdef CBA
@@ -193,7 +190,6 @@ unsigned char *parse_header(unsigned char *mac_header,
                             unsigned short *rx_lengths,
                             unsigned short tb_length)
 {
-
     unsigned char not_done = 1, num_ces = 0, num_cont_res =
             0, num_padding = 0, num_sdus = 0, lcid, num_sdu_cnt;
     unsigned char *mac_header_ptr = mac_header;
@@ -201,7 +197,6 @@ unsigned char *parse_header(unsigned char *mac_header,
 
     while(not_done == 1)
     {
-
         if(((SCH_SUBHEADER_FIXED *) mac_header_ptr)->E == 0)
         {
             //      printf("E=0\n");
@@ -213,7 +208,7 @@ unsigned char *parse_header(unsigned char *mac_header,
         if(lcid < UE_CONT_RES)
         {
             //printf("[MAC][UE] header %x.%x.%x\n",mac_header_ptr[0],mac_header_ptr[1],mac_header_ptr[2]);
-            if(not_done == 0)  	// last MAC SDU, length is implicit
+            if(not_done == 0)     // last MAC SDU, length is implicit
             {
                 mac_header_ptr++;
                 length =
@@ -238,9 +233,8 @@ unsigned char *parse_header(unsigned char *mac_header,
 #ifdef DEBUG_HEADER_PARSING
                     LOG_D(MAC, "[UE] parse long sdu, size %x \n", length);
 #endif
-
                 }
-                else  	//if (((SCH_SUBHEADER_SHORT *)mac_header_ptr)->F == 0) {
+                else      //if (((SCH_SUBHEADER_SHORT *)mac_header_ptr)->F == 0) {
                 {
                     length = ((SCH_SUBHEADER_SHORT *) mac_header_ptr)->L;
                     mac_header_ptr += 2;
@@ -255,7 +249,7 @@ unsigned char *parse_header(unsigned char *mac_header,
             rx_lengths[num_sdus] = length;
             num_sdus++;
         }
-        else  		// This is a control element subheader
+        else        // This is a control element subheader
         {
             if(lcid == SHORT_PADDING)
             {
@@ -274,7 +268,6 @@ unsigned char *parse_header(unsigned char *mac_header,
                 }
                 else if(lcid == UE_CONT_RES)
                 {
-
                     // FNA: check MAC Header is one of thoses defined in Annex B of 36.321
                     // Check there is only 1 Contention Resolution
                     if(num_cont_res)
@@ -283,8 +276,8 @@ unsigned char *parse_header(unsigned char *mac_header,
                               "[UE] Msg4 Wrong received format: More than 1 Contention Resolution\n");
                         // exit parsing
                         return NULL;
-
                     }
+
                     // UE_CONT_RES shall never be the last subheader unless this is the only MAC subheader
                     if((not_done == 0)
                             && ((num_sdus) || (num_ces > 1) || (num_padding)))
@@ -295,6 +288,7 @@ unsigned char *parse_header(unsigned char *mac_header,
                         // exit parsing
                         return NULL;
                     }
+
                     num_cont_res++;
                     ce_len += 6;
                 }
@@ -309,7 +303,6 @@ unsigned char *parse_header(unsigned char *mac_header,
 
     *num_ce = num_ces;
     *num_sdu = num_sdus;
-
     return (mac_header_ptr);
 }
 
@@ -317,15 +310,12 @@ uint32_t
 ue_get_SR(module_id_t module_idP, int CC_id, frame_t frameP,
           uint8_t eNB_id, uint16_t rnti, sub_frame_t subframe)
 {
-
     // no UL-SCH resources available for this tti && UE has a valid PUCCH resources for SR configuration for this tti
     //  int MGL=6;// measurement gap length in ms
-    int MGRP = 0;		// measurement gap repetition period in ms
+    int MGRP = 0;   // measurement gap repetition period in ms
     int gapOffset = -1;
     int T = 0;
-
     DevCheck(module_idP < (int) NB_UE_INST, module_idP, NB_UE_INST, 0);
-
     AssertFatal(CC_id == 0,
                 "Transmission on secondary CCs is not supported yet\n");
 
@@ -387,11 +377,10 @@ ue_get_SR(module_id_t module_idP, int CC_id, frame_t frameP,
                 physicalConfigDedicated->schedulingRequestConfig->choice.
                 setup.dsr_TransMax)),
               UE_mac_inst[module_idP].scheduling_info.SR_pending);
-
         UE_mac_inst[module_idP].scheduling_info.SR_COUNTER++;
 
         // start the sr-prohibittimer : rel 9 and above
-        if(UE_mac_inst[module_idP].scheduling_info.sr_ProhibitTimer > 0)  	// timer configured
+        if(UE_mac_inst[module_idP].scheduling_info.sr_ProhibitTimer > 0)    // timer configured
         {
             UE_mac_inst[module_idP].scheduling_info.sr_ProhibitTimer--;
             UE_mac_inst[module_idP].scheduling_info.
@@ -413,9 +402,8 @@ ue_get_SR(module_id_t module_idP, int CC_id, frame_t frameP,
                 physicalConfigDedicated->schedulingRequestConfig->choice.
                 setup.dsr_TransMax)),
               UE_mac_inst[module_idP].scheduling_info.SR_pending);
-
         //UE_mac_inst[module_idP].ul_active =1;
-        return (1);		//instruct phy to signal SR
+        return (1);   //instruct phy to signal SR
     }
     else
     {
@@ -429,9 +417,9 @@ ue_get_SR(module_id_t module_idP, int CC_id, frame_t frameP,
             UE_mac_inst[module_idP].ul_active = 0;
             UE_mac_inst[module_idP].BSR_reporting_active =
                 BSR_TRIGGER_NONE;
-
             LOG_I(MAC, "[UE %d] Release all SRs \n", module_idP);
         }
+
         UE_mac_inst[module_idP].scheduling_info.SR_pending = 0;
         UE_mac_inst[module_idP].scheduling_info.SR_COUNTER = 0;
         return (0);
@@ -447,7 +435,6 @@ ue_send_sdu(module_id_t module_idP,
             uint8_t *sdu, uint16_t sdu_len, uint8_t eNB_index)
 //------------------------------------------------------------------------------
 {
-
     unsigned char rx_ces[MAX_NUM_CE], num_ce, num_sdu, i, *payload_ptr;
     unsigned char rx_lcids[NB_RB_MAX];
     unsigned short rx_lengths[NB_RB_MAX];
@@ -457,7 +444,6 @@ ue_send_sdu(module_id_t module_idP,
 #endif
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME
     (VCD_SIGNAL_DUMPER_FUNCTIONS_UE_SEND_SDU, VCD_FUNCTION_IN);
-
 
     //LOG_D(MAC,"sdu: %x.%x.%x\n",sdu[0],sdu[1],sdu[2]);
 
@@ -473,13 +459,11 @@ ue_send_sdu(module_id_t module_idP,
     payload_ptr =
         parse_header(sdu, &num_ce, &num_sdu, rx_ces, rx_lcids, rx_lengths,
                      sdu_len);
-
 #ifdef DEBUG_HEADER_PARSING
     LOG_D(MAC,
           "[UE %d] ue_send_sdu : Frame %d eNB_index %d : num_ce %d num_sdu %d\n",
           module_idP, frameP, eNB_index, num_ce, num_sdu);
 #endif
-
 #if defined(ENABLE_MAC_PAYLOAD_DEBUG)
     LOG_T(MAC, "[UE %d] First 32 bytes of DLSCH : \n", module_idP);
 
@@ -493,14 +477,12 @@ ue_send_sdu(module_id_t module_idP,
 
     if(payload_ptr != NULL)
     {
-
         for(i = 0; i < num_ce; i++)
         {
             //    printf("ce %d : %d\n",i,rx_ces[i]);
             switch(rx_ces[i])
             {
                 case UE_CONT_RES:
-
                     LOG_I(MAC,
                           "[UE %d][RAPROC] Frame %d : received contention resolution msg: %x.%x.%x.%x.%x.%x, Terminating RA procedure\n",
                           module_idP, frameP, payload_ptr[0], payload_ptr[1],
@@ -524,7 +506,8 @@ ue_send_sdu(module_id_t module_idP,
                                 LOG_E(MAC,
                                       "[UE %d][RAPROC] Contention detected, RA failed\n",
                                       module_idP);
-                                if(nfapi_mode == 3)   // phy_stub mode
+
+                                if(NFAPI_MODE == NFAPI_UE_STUB_PNF) // phy_stub mode
                                 {
                                     //  Modification for phy_stub mode operation here. We only need to make sure that the ue_mode is back to
                                     // PRACH state.
@@ -536,6 +519,7 @@ ue_send_sdu(module_id_t module_idP,
                                 {
                                     ra_failed(module_idP, CC_id, eNB_index);
                                 }
+
                                 UE_mac_inst
                                 [module_idP].
                                 RA_contention_resolution_timer_active = 0;
@@ -551,12 +535,13 @@ ue_send_sdu(module_id_t module_idP,
                         UE_mac_inst
                         [module_idP].
                         RA_contention_resolution_timer_active = 0;
-                        if(nfapi_mode == 3) // phy_stub mode
+
+                        if(NFAPI_MODE == NFAPI_UE_STUB_PNF) // phy_stub mode
                         {
                             // Modification for phy_stub mode operation here. We only need to change the ue_mode to PUSCH
                             UE_mac_inst[module_idP].UE_mode[eNB_index] = PUSCH;
                         }
-                        else   // Full stack mode
+                        else     // Full stack mode
                         {
                             ra_succeeded(module_idP, CC_id, eNB_index);
                         }
@@ -572,10 +557,11 @@ ue_send_sdu(module_id_t module_idP,
 #endif
 
                     // Eliminate call to process_timing_advance for the phy_stub UE operation mode. Is this correct?
-                    if(nfapi_mode != 3)
+                    if(NFAPI_MODE != NFAPI_UE_STUB_PNF)
                     {
                         process_timing_advance(module_idP, CC_id, payload_ptr[0]);
                     }
+
                     payload_ptr++;
                     break;
 
@@ -594,14 +580,13 @@ ue_send_sdu(module_id_t module_idP,
             LOG_D(MAC, "[UE] SDU %d : LCID %d, length %d\n", i,
                   rx_lcids[i], rx_lengths[i]);
 #endif
+
             if(rx_lcids[i] == CCCH)
             {
-
                 LOG_D(MAC,
                       "[UE %d] rnti %x Frame %d : DLSCH -> DL-CCCH, RRC message (eNB %d, %d bytes)\n",
                       module_idP, UE_mac_inst[module_idP].crnti, frameP,
                       eNB_index, rx_lengths[i]);
-
 #if defined(ENABLE_MAC_PAYLOAD_DEBUG)
                 int j;
 
@@ -612,43 +597,43 @@ ue_send_sdu(module_id_t module_idP,
 
                 LOG_T(MAC, "\n");
 #endif
-
                 mac_rrc_data_ind_ue(module_idP,
                                     CC_id,
                                     frameP, subframeP,
                                     UE_mac_inst[module_idP].crnti,
                                     CCCH,
-                                    (uint8_t *) payload_ptr,
-                                    rx_lengths[i], eNB_index, 0);
-
+                                    (uint8_t *)payload_ptr,
+                                    rx_lengths[i],
+                                    eNB_index,
+                                    0
+                                   );
             }
             else if((rx_lcids[i] == DCCH) || (rx_lcids[i] == DCCH1))
             {
-                LOG_D(MAC,
-                      "[UE %d] Frame %d : DLSCH -> DL-DCCH%d, RRC message (eNB %d, %d bytes)\n",
-                      module_idP, frameP, rx_lcids[i], eNB_index,
-                      rx_lengths[i]);
-                mac_rlc_data_ind(module_idP, UE_mac_inst[module_idP].crnti,
-                                 eNB_index, frameP, ENB_FLAG_NO,
-                                 MBMS_FLAG_NO, rx_lcids[i],
-                                 (char *) payload_ptr, rx_lengths[i], 1,
+                LOG_D(MAC, "[UE %d] Frame %d : DLSCH -> DL-DCCH%d, RRC message (eNB %d, %d bytes)\n", module_idP, frameP, rx_lcids[i], eNB_index, rx_lengths[i]);
+                mac_rlc_data_ind(module_idP,
+                                 UE_mac_inst[module_idP].crnti,
+                                 eNB_index,
+                                 frameP,
+                                 ENB_FLAG_NO,
+                                 MBMS_FLAG_NO,
+                                 rx_lcids[i],
+                                 (char *)payload_ptr,
+                                 rx_lengths[i],
+                                 1,
                                  NULL);
-
             }
-            else if((rx_lcids[i] < NB_RB_MAX) && (rx_lcids[i] > DCCH1))
+            else if((rx_lcids[i]  < NB_RB_MAX) && (rx_lcids[i] > DCCH1))
             {
-
-                LOG_D(MAC,
-                      "[UE %d] Frame %d : DLSCH -> DL-DTCH%d (eNB %d, %d bytes)\n",
-                      module_idP, frameP, rx_lcids[i], eNB_index,
-                      rx_lengths[i]);
-
+                LOG_D(MAC, "[UE %d] Frame %d : DLSCH -> DL-DTCH%d (eNB %d, %d bytes)\n", module_idP, frameP, rx_lcids[i], eNB_index, rx_lengths[i]);
 #if defined(ENABLE_MAC_PAYLOAD_DEBUG)
                 int j;
+
                 for(j = 0; j < rx_lengths[i]; j++)
                 {
                     LOG_T(MAC, "%x.", (unsigned char) payload_ptr[j]);
                 }
+
                 LOG_T(MAC, "\n");
 #endif
                 mac_rlc_data_ind(module_idP,
@@ -666,9 +651,10 @@ ue_send_sdu(module_id_t module_idP,
                 LOG_E(MAC, "[UE %d] Frame %d : unknown LCID %d (eNB %d)\n",
                       module_idP, frameP, rx_lcids[i], eNB_index);
             }
+
             payload_ptr += rx_lengths[i];
         }
-    }				// end if (payload_ptr != NULL)
+    }       // end if (payload_ptr != NULL)
 
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME
     (VCD_SIGNAL_DUMPER_FUNCTIONS_UE_SEND_SDU, VCD_FUNCTION_OUT);
@@ -676,6 +662,46 @@ ue_send_sdu(module_id_t module_idP,
     stop_meas(&UE_mac_inst[module_idP].rx_dlsch_sdu);
 #endif
 }
+
+#if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
+void
+ue_decode_si_mbms(module_id_t module_idP, int CC_id, frame_t frameP,
+                  uint8_t eNB_index, void *pdu, uint16_t len)
+{
+#if UE_TIMING_TRACE
+    start_meas(&UE_mac_inst[module_idP].rx_si);
+#endif
+    VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME
+    (VCD_SIGNAL_DUMPER_FUNCTIONS_UE_DECODE_SI, VCD_FUNCTION_IN);
+
+    LOG_D(MAC, "[UE %d] Frame %d Sending SI MBMS to RRC (LCID Id %d,len %d)\n",
+          module_idP, frameP, BCCH, len);
+
+    mac_rrc_data_ind_ue(module_idP, CC_id, frameP, 0,  // unknown subframe
+                        SI_RNTI,
+                        BCCH_SI_MBMS, (uint8_t *) pdu, len, eNB_index,
+                        0);
+    VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME
+    (VCD_SIGNAL_DUMPER_FUNCTIONS_UE_DECODE_SI, VCD_FUNCTION_OUT);
+#if UE_TIMING_TRACE
+    stop_meas(&UE_mac_inst[module_idP].rx_si);
+#endif
+    if(opt_enabled == 1)
+    {
+        trace_pdu(DIRECTION_UPLINK,
+                  (uint8_t *) pdu,
+                  len,
+                  module_idP,
+                  WS_SI_RNTI,
+                  0xffff,
+                  UE_mac_inst[module_idP].rxFrame,
+                  UE_mac_inst[module_idP].rxSubframe, 0, 0);
+        LOG_D(OPT,
+              "[UE %d][BCH] Frame %d trace pdu for CC_id %d rnti %x with size %d\n",
+              module_idP, frameP, CC_id, 0xffff, len);
+    }
+}
+#endif
 
 void
 ue_decode_si(module_id_t module_idP, int CC_id, frame_t frameP,
@@ -686,11 +712,9 @@ ue_decode_si(module_id_t module_idP, int CC_id, frame_t frameP,
 #endif
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME
     (VCD_SIGNAL_DUMPER_FUNCTIONS_UE_DECODE_SI, VCD_FUNCTION_IN);
-
     LOG_D(MAC, "[UE %d] Frame %d Sending SI to RRC (LCID Id %d,len %d)\n",
           module_idP, frameP, BCCH, len);
-
-    mac_rrc_data_ind_ue(module_idP, CC_id, frameP, 0,	// unknown subframe
+    mac_rrc_data_ind_ue(module_idP, CC_id, frameP, 0, // unknown subframe
                         SI_RNTI,
                         BCCH, (uint8_t *) pdu, len, eNB_index,
                         0);
@@ -699,6 +723,7 @@ ue_decode_si(module_id_t module_idP, int CC_id, frame_t frameP,
 #if UE_TIMING_TRACE
     stop_meas(&UE_mac_inst[module_idP].rx_si);
 #endif
+
     if(opt_enabled == 1)
     {
         trace_pdu(DIRECTION_UPLINK,
@@ -724,12 +749,10 @@ ue_decode_p(module_id_t module_idP, int CC_id, frame_t frameP,
 #endif
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME
     (VCD_SIGNAL_DUMPER_FUNCTIONS_UE_DECODE_PCCH, VCD_FUNCTION_IN);
-
     LOG_D(MAC,
           "[UE %d] Frame %d Sending Paging message to RRC (LCID Id %d,len %d)\n",
           module_idP, frameP, PCCH, len);
-
-    mac_rrc_data_ind_ue(module_idP, CC_id, frameP, 0,	// unknown subframe
+    mac_rrc_data_ind_ue(module_idP, CC_id, frameP, 0, // unknown subframe
                         P_RNTI,
                         PCCH, (uint8_t *) pdu, len, eNB_index,
                         0);
@@ -738,6 +761,7 @@ ue_decode_p(module_id_t module_idP, int CC_id, frame_t frameP,
 #if UE_TIMING_TRACE
     stop_meas(&UE_mac_inst[module_idP].rx_p);
 #endif
+
     if(opt_enabled == 1)
     {
         trace_pdu(DIRECTION_UPLINK,
@@ -774,9 +798,9 @@ unsigned char *parse_mch_header(unsigned char *mac_header,
 
         lcid = ((SCH_SUBHEADER_FIXED *) mac_header_ptr)->LCID;
 
-        if(lcid < SHORT_PADDING)  	// subheader for MSI, MCCH or MTCH
+        if(lcid < SHORT_PADDING)    // subheader for MSI, MCCH or MTCH
         {
-            if(not_done == 0)  	// last MAC SDU, length is implicit
+            if(not_done == 0)     // last MAC SDU, length is implicit
             {
                 mac_header_ptr++;
                 length = tb_length - (mac_header_ptr - mac_header);
@@ -786,9 +810,9 @@ unsigned char *parse_mch_header(unsigned char *mac_header,
                     length -= rx_lengths[i];
                 }
             }
-            else  		// not the last MAC SDU
+            else        // not the last MAC SDU
             {
-                if(((SCH_SUBHEADER_LONG *) mac_header_ptr)->F == 1)  	// subheader has length of 3octets
+                if(((SCH_SUBHEADER_LONG *) mac_header_ptr)->F == 1)     // subheader has length of 3octets
                 {
                     //    length = ((SCH_SUBHEADER_LONG *)mac_header_ptr)->L;
                     length =
@@ -798,7 +822,7 @@ unsigned char *parse_mch_header(unsigned char *mac_header,
                                   L_LSB & 0xff);
                     mac_header_ptr += 3;
                 }
-                else  	// subheader has length of 2octets
+                else      // subheader has length of 2octets
                 {
                     length = ((SCH_SUBHEADER_SHORT *) mac_header_ptr)->L;
                     mac_header_ptr += 2;
@@ -809,7 +833,7 @@ unsigned char *parse_mch_header(unsigned char *mac_header,
             rx_lengths[num_sdus] = length;
             num_sdus++;
         }
-        else  		// subheader for padding
+        else        // subheader for padding
         {
             //     if (lcid == SHORT_PADDING)
             mac_header_ptr++;
@@ -826,7 +850,6 @@ ue_send_mch_sdu(module_id_t module_idP, uint8_t CC_id, frame_t frameP,
                 uint8_t *sdu, uint16_t sdu_len, uint8_t eNB_index,
                 uint8_t sync_area)
 {
-
     unsigned char num_sdu, i, j, *payload_ptr;
     unsigned char rx_lcids[NB_RB_MAX];
     unsigned short rx_lengths[NB_RB_MAX];
@@ -835,13 +858,11 @@ ue_send_mch_sdu(module_id_t module_idP, uint8_t CC_id, frame_t frameP,
 #endif
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME
     (VCD_SIGNAL_DUMPER_FUNCTIONS_UE_SEND_MCH_SDU, VCD_FUNCTION_IN);
-
     LOG_D(MAC,
           "[UE %d] Frame %d : process the mch PDU for sync area %d \n",
           module_idP, frameP, sync_area);
     LOG_D(MAC, "[UE %d] sdu: %x.%x\n", module_idP, sdu[0], sdu[1]);
     LOG_D(MAC, "[UE %d] parse_mch_header, demultiplex\n", module_idP);
-
     payload_ptr =
         parse_mch_header(sdu, &num_sdu, rx_lcids, rx_lengths, sdu_len);
     LOG_D(MAC, "[UE %d] parse_mch_header, found %d sdus\n", module_idP,
@@ -861,7 +882,6 @@ ue_send_mch_sdu(module_id_t module_idP, uint8_t CC_id, frame_t frameP,
             for(j = 0; j < rx_lengths[i] / 2; j++)
             {
                 uint16_t stop_mtch_val = ((uint16_t)(payload_ptr[2 * j] & 0x07) << 8) | (uint16_t)payload_ptr[2 * j + 1];
-
                 UE_mac_inst[module_idP].pmch_lcids[j] = (payload_ptr[2 * j] & 0xF8) >> 3;
                 UE_mac_inst[module_idP].pmch_stop_mtch[j] = stop_mtch_val;
                 LOG_D(MAC, "lcid(%d),stop_mtch_val %d frameP(%d)\n", UE_mac_inst[module_idP].pmch_lcids[j], stop_mtch_val, frameP);
@@ -876,6 +896,7 @@ ue_send_mch_sdu(module_id_t module_idP, uint8_t CC_id, frame_t frameP,
                 if(UE_mac_inst[module_idP].mcch_status == 1)
                 {
                     LOG_D(MAC, "[UE %d] Frame %d : MCH->MSI for sync area %d (eNB %d, %d bytes), i(%d)\n", module_idP, frameP, sync_area, eNB_index, rx_lengths[i], UE_mac_inst[module_idP].pmch_stop_mtch[j]);
+
                     if(UE_mac_inst[module_idP].pmch_stop_mtch[j] < 2043)
                     {
                         UE_mac_inst[module_idP].pmch_stop_mtch[j] += UE_mac_inst[module_idP].msi_current_alloc;
@@ -910,7 +931,6 @@ ue_send_mch_sdu(module_id_t module_idP, uint8_t CC_id, frame_t frameP,
             if(j < 28 && UE_mac_inst[module_idP].msi_status_v[j] == 1)
             {
                 LOG_D(MAC, "[UE %d] Frame %d : MCH->MTCH for sync area %d (eNB %d, %d bytes), j=%d\n", module_idP, frameP, sync_area, eNB_index, rx_lengths[i], j);
-
                 mac_rlc_data_ind(
                     module_idP,
                     UE_mac_inst[module_idP].crnti,
@@ -923,7 +943,6 @@ ue_send_mch_sdu(module_id_t module_idP, uint8_t CC_id, frame_t frameP,
                     rx_lengths[i],
                     1,
                     NULL);
-
             }
         }
         else
@@ -954,14 +973,12 @@ void ue_send_sl_sdu(module_id_t module_idP,
                     sl_discovery_flag_t sl_discovery_flag
                    )
 {
-
     int rlc_sdu_len;
     char *rlc_sdu;
     uint32_t destinationL2Id = 0x00000000;
 
     if(sl_discovery_flag == SL_DISCOVERY_FLAG_NO)
     {
-
         // Notes: 1. no control elements are supported yet
         //        2. we exit with error if LCID != 3
         //        3. we exit with error if E=1 (more than one SDU/CE)
@@ -974,18 +991,19 @@ void ue_send_sl_sdu(module_id_t module_idP,
         LOG_I(MAC, "[DestinationL2Id:  0x%08x]  \n", destinationL2Id);
         //in case of 1-n communication, verify that UE belongs to that group
         int i = 0;
+
         for(i = 0; i < MAX_NUM_DEST; i++)
             if(UE_mac_inst[module_idP].destinationList[i] == destinationL2Id)
             {
                 break;
             }
+
         //match the destinationL2Id with UE L2Id or groupL2ID
         if(!((destinationL2Id == UE_mac_inst[module_idP].sourceL2Id) | (i < MAX_NUM_DEST)))
         {
             LOG_I(MAC, "[Destination Id is neither matched with Source Id nor with Group Id, drop the packet!!! \n");
             return;
         }
-
 
         if(longh->F == 1)
         {
@@ -997,6 +1015,7 @@ void ue_send_sl_sdu(module_id_t module_idP,
             rlc_sdu_len = ((SLSCH_SUBHEADER_24_Bit_DST_SHORT *)sdu)->L;
             rlc_sdu = (char *)sdu + sizeof(SLSCH_SUBHEADER_24_Bit_DST_SHORT);
         }
+
         mac_rlc_data_ind(
             module_idP,
             0x1234,
@@ -1023,7 +1042,6 @@ void ue_send_sl_sdu(module_id_t module_idP,
                             len,
                             eNB_index,
                             0);
-
     }
 }
 
@@ -1054,7 +1072,8 @@ int8_t ue_get_mbsfn_sf_alloction(module_id_t module_idP, uint8_t mbsfn_sync_area
     }
 }
 
-int ue_query_p_mch_info(module_id_t module_idP, uint32_t frameP, uint32_t subframe, int commonSFAlloc_period, int commonSFAlloc_offset, int num_sf_alloc, int *mtch_active, int *msi_active, uint8_t *mch_lcid)
+int ue_query_p_mch_info(module_id_t module_idP, uint32_t frameP, uint32_t subframe, int commonSFAlloc_period, int commonSFAlloc_offset, int num_sf_alloc, int *mtch_active, int *msi_active,
+                        uint8_t *mch_lcid)
 {
     int i, mtch_mcs = -1;
     int mtch_flag = 0;
@@ -1084,7 +1103,8 @@ int ue_query_p_mch_info(module_id_t module_idP, uint32_t frameP, uint32_t subfra
                 if((num_sf_alloc == 0) && (sf_AllocEnd_r9 >= 1))
                 {
                     msi_flag = 1;
-                    LOG_D(MAC, "msi(%d) should be allocated:frame(%d),submframe(%d),num_sf_alloc(%d),sf_AllocEnd_r9(%d),common_num_sf_alloc(%d)\n", i, frameP, subframe, num_sf_alloc, sf_AllocEnd_r9, UE_mac_inst[module_idP].common_num_sf_alloc);
+                    LOG_D(MAC, "msi(%d) should be allocated:frame(%d),submframe(%d),num_sf_alloc(%d),sf_AllocEnd_r9(%d),common_num_sf_alloc(%d)\n", i, frameP, subframe, num_sf_alloc, sf_AllocEnd_r9,
+                          UE_mac_inst[module_idP].common_num_sf_alloc);
                     UE_mac_inst[module_idP].msi_current_alloc = num_sf_alloc;
                     UE_mac_inst[module_idP].msi_pmch = i;
                 }
@@ -1096,7 +1116,8 @@ int ue_query_p_mch_info(module_id_t module_idP, uint32_t frameP, uint32_t subfra
                 {
                     //msi should be just after
                     msi_flag = 1;
-                    LOG_D(MAC, "msi(%d) should be allocated:frame(%d),submframe(%d),num_sf_alloc(%d),sf_AllocEnd_r9(%d),common_num_sf_alloc(%d)\n", i, frameP, subframe, num_sf_alloc, sf_AllocEnd_r9, UE_mac_inst[module_idP].common_num_sf_alloc);
+                    LOG_D(MAC, "msi(%d) should be allocated:frame(%d),submframe(%d),num_sf_alloc(%d),sf_AllocEnd_r9(%d),common_num_sf_alloc(%d)\n", i, frameP, subframe, num_sf_alloc, sf_AllocEnd_r9,
+                          UE_mac_inst[module_idP].common_num_sf_alloc);
                     UE_mac_inst[module_idP].msi_current_alloc = num_sf_alloc;
                     UE_mac_inst[module_idP].msi_pmch = i;
                 }
@@ -1111,6 +1132,7 @@ int ue_query_p_mch_info(module_id_t module_idP, uint32_t frameP, uint32_t subfra
             if(UE_mac_inst[module_idP].pmch_stop_mtch[i] != 2047)
             {
                 mtch_flag = 1;
+
                 if(UE_mac_inst[module_idP].pmch_Config[UE_mac_inst[module_idP].msi_pmch] != NULL)
                 {
                     mtch_mcs = UE_mac_inst[module_idP].pmch_Config[UE_mac_inst[module_idP].msi_pmch]->dataMCS_r9;
@@ -1119,8 +1141,10 @@ int ue_query_p_mch_info(module_id_t module_idP, uint32_t frameP, uint32_t subfra
                 {
                     mtch_mcs = -1;
                 }
+
                 *mch_lcid = (uint8_t)i;
-                LOG_D(MAC, "mtch should be allocated:frame(%d),submframe(%d),num_sf_alloc(%d),mtch_mcs(%d),pmch_stop_mtch(%d),lcid(%d),msi_pmch(%d)\n", frameP, subframe, num_sf_alloc, mtch_mcs, UE_mac_inst[module_idP].pmch_stop_mtch[i], UE_mac_inst[module_idP].pmch_lcids[i], UE_mac_inst[module_idP].msi_pmch);
+                LOG_D(MAC, "mtch should be allocated:frame(%d),submframe(%d),num_sf_alloc(%d),mtch_mcs(%d),pmch_stop_mtch(%d),lcid(%d),msi_pmch(%d)\n", frameP, subframe, num_sf_alloc, mtch_mcs,
+                      UE_mac_inst[module_idP].pmch_stop_mtch[i], UE_mac_inst[module_idP].pmch_lcids[i], UE_mac_inst[module_idP].msi_pmch);
                 break;
             }
         }
@@ -1128,7 +1152,6 @@ int ue_query_p_mch_info(module_id_t module_idP, uint32_t frameP, uint32_t subfra
 
     *mtch_active = mtch_flag;
     *msi_active = msi_flag;
-
     return mtch_mcs;
 }
 
@@ -1136,9 +1159,9 @@ int ue_query_p_mch(module_id_t module_idP, uint32_t frameP, uint32_t subframe, i
 {
     int i, j, mtch_mcs = -1;
     int mtch_flag = 0;
-
     // Acount for sf_allocable in CSA
     int num_sf_alloc = 0;
+
     for(i = 0; i < 8; i++)
     {
         if(UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[i] == NULL)
@@ -1155,6 +1178,7 @@ int ue_query_p_mch(module_id_t module_idP, uint32_t frameP, uint32_t subframe, i
         uint32_t common_mbsfn_SubframeConfig = UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[i]->subframeAllocation.choice.oneFrame.buf[2] |
                                                (UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[i]->subframeAllocation.choice.oneFrame.buf[1] << 8) |
                                                (UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[i]->subframeAllocation.choice.oneFrame.buf[0] << 16);
+
         for(j = 0; j < 24; j++)
         {
             num_sf_alloc += ((common_mbsfn_SubframeConfig & (0x800000 >> j)) == (0x800000 >> j));
@@ -1177,12 +1201,11 @@ int ue_query_p_mch(module_id_t module_idP, uint32_t frameP, uint32_t subframe, i
         int common_mbsfn_alloc_offset = UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[i]->radioframeAllocationOffset;
         int common_mbsfn_period  = 1 << UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[i]->radioframeAllocationPeriod;
         int commonSF_AllocPeriod = 4 << UE_mac_inst[module_idP].commonSF_AllocPeriod_r9;
-
         uint32_t common_mbsfn_SubframeConfig = UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[i]->subframeAllocation.choice.oneFrame.buf[2] |
                                                (UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[i]->subframeAllocation.choice.oneFrame.buf[1] << 8) |
                                                (UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[i]->subframeAllocation.choice.oneFrame.buf[0] << 16);
-
         int jj = frameP % 4;
+
         if((frameP % common_mbsfn_period) != (common_mbsfn_alloc_offset + jj))
         {
             continue;
@@ -1200,7 +1223,9 @@ int ue_query_p_mch(module_id_t module_idP, uint32_t frameP, uint32_t subframe, i
                         UE_mac_inst[module_idP].common_num_sf_alloc++;
                         UE_mac_inst[module_idP].common_num_sf_alloc = UE_mac_inst[module_idP].common_num_sf_alloc % (num_sf_alloc * commonSF_AllocPeriod / common_mbsfn_period);//48;
                     }
+
                     break;
+
                 case 2:
                     if((common_mbsfn_SubframeConfig & (0x400000 >> (jj * 6))) == (0x400000 >> (jj * 6)))
                     {
@@ -1209,7 +1234,9 @@ int ue_query_p_mch(module_id_t module_idP, uint32_t frameP, uint32_t subframe, i
                         UE_mac_inst[module_idP].common_num_sf_alloc++;
                         UE_mac_inst[module_idP].common_num_sf_alloc = UE_mac_inst[module_idP].common_num_sf_alloc % (num_sf_alloc * commonSF_AllocPeriod / common_mbsfn_period);//48;
                     }
+
                     break;
+
                 case 3:
                     if((common_mbsfn_SubframeConfig & (0x200000 >> (jj * 6))) == (0x200000 >> (jj * 6)))
                     {
@@ -1218,7 +1245,9 @@ int ue_query_p_mch(module_id_t module_idP, uint32_t frameP, uint32_t subframe, i
                         UE_mac_inst[module_idP].common_num_sf_alloc++;
                         UE_mac_inst[module_idP].common_num_sf_alloc = UE_mac_inst[module_idP].common_num_sf_alloc % (num_sf_alloc * commonSF_AllocPeriod / common_mbsfn_period);//48;
                     }
+
                     break;
+
                 case 6:
                     if((common_mbsfn_SubframeConfig & (0x100000 >> (jj * 6))) == (0x100000 >> (jj * 6)))
                     {
@@ -1227,7 +1256,9 @@ int ue_query_p_mch(module_id_t module_idP, uint32_t frameP, uint32_t subframe, i
                         UE_mac_inst[module_idP].common_num_sf_alloc++;
                         UE_mac_inst[module_idP].common_num_sf_alloc = UE_mac_inst[module_idP].common_num_sf_alloc % (num_sf_alloc * commonSF_AllocPeriod / common_mbsfn_period);//48;
                     }
+
                     break;
+
                 case 7:
                     if((common_mbsfn_SubframeConfig & (0x80000 >> (jj * 6))) == (0x80000 >> (jj * 6)))
                     {
@@ -1236,7 +1267,9 @@ int ue_query_p_mch(module_id_t module_idP, uint32_t frameP, uint32_t subframe, i
                         UE_mac_inst[module_idP].common_num_sf_alloc++;
                         UE_mac_inst[module_idP].common_num_sf_alloc = UE_mac_inst[module_idP].common_num_sf_alloc % (num_sf_alloc * commonSF_AllocPeriod / common_mbsfn_period);//48;
                     }
+
                     break;
+
                 case 8:
                     if((common_mbsfn_SubframeConfig & (0x40000 >> (jj * 6))) == (0x40000 >> (jj * 6)))
                     {
@@ -1245,6 +1278,7 @@ int ue_query_p_mch(module_id_t module_idP, uint32_t frameP, uint32_t subframe, i
                         UE_mac_inst[module_idP].common_num_sf_alloc++;
                         UE_mac_inst[module_idP].common_num_sf_alloc = UE_mac_inst[module_idP].common_num_sf_alloc % (num_sf_alloc * commonSF_AllocPeriod / common_mbsfn_period); //48;
                     }
+
                     break;
             }
         }
@@ -1252,6 +1286,7 @@ int ue_query_p_mch(module_id_t module_idP, uint32_t frameP, uint32_t subframe, i
         {
             // TODO TDD
         }
+
         if(mtch_flag == 1)
         {
             break;
@@ -1263,12 +1298,10 @@ int ue_query_p_mch(module_id_t module_idP, uint32_t frameP, uint32_t subframe, i
 
 int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_t subframe, uint8_t eNB_index, uint8_t *sync_area, uint8_t *mcch_active)
 {
-
     int i = 0, j = 0, ii = 0, jj = 0, msi_pos = 0, mcch_mcs = -1, mtch_mcs = -1;
     int mcch_flag = 0, mtch_flag = 0, msi_flag = 0;
     long mch_scheduling_period = -1;
     uint8_t mch_lcid = 0;
-
 #if UE_TIMING_TRACE
     start_meas(&UE_mac_inst[module_idP].ue_query_mch);
 #endif
@@ -1290,12 +1323,10 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
 
         ii = 0;
         msi_pos = 0;
-
         long mbsfn_period =  1 << UE_mac_inst[module_idP].mbsfn_SubframeConfig[j]->radioframeAllocationPeriod;
         long mbsfn_alloc_offset = UE_mac_inst[module_idP].mbsfn_SubframeConfig[j]->radioframeAllocationOffset;
         long mcch_period  = 32 << UE_mac_inst[module_idP].mbsfn_AreaInfo[j]->mcch_Config_r9.mcch_RepetitionPeriod_r9;
         long mcch_offset        = UE_mac_inst[module_idP].mbsfn_AreaInfo[j]->mcch_Config_r9.mcch_Offset_r9;
-
         LOG_D(MAC,
               "[UE %d] Frame %d subframe %d: Checking MBSFN Sync Area %d/%d with SF allocation %d/%d for MCCH and MTCH (mbsfn period %ld, mcch period %ld,mac sched period (%ld,%ld))\n",
               module_idP, frameP, subframe, i, UE_mac_inst[module_idP].num_active_mbsfn_area,
@@ -1326,7 +1357,6 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
         {
             if(frameP % mbsfn_period == mbsfn_alloc_offset)    // MBSFN frameP
             {
-
                 if(UE_mac_inst[module_idP].pmch_Config[0])
                 {
                     //  Find the first subframe in this MCH to transmit MSI
@@ -1576,6 +1606,7 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
 
                 // Acount for sf_allocable in CSA
                 int num_sf_alloc = 0;
+
                 for(i = 0; i < 8; i++)
                 {
                     if(UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[i] == NULL)
@@ -1589,6 +1620,7 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
                     }
 
                     uint32_t common_mbsfn_SubframeConfig = UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[i]->subframeAllocation.choice.oneFrame.buf[0];
+
                     for(j = 0; j < 6; j++)
                     {
                         num_sf_alloc += ((common_mbsfn_SubframeConfig & (0x80 >> j)) == (0x80 >> j));
@@ -1609,6 +1641,7 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
                             {
                                 mtch_mcs = -1;
                             }
+
                             mch_lcid = (uint8_t)i;
                             break;
                         }
@@ -1620,7 +1653,6 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
                 {
                     LOG_D(MAC, "[UE %d] Frame %d Subframe %d: sync area %d SF alloc %d: msi flag %d, mcch flag %d, mtch flag %d\n",
                           module_idP, frameP, subframe, i, j, msi_flag, mcch_flag, mtch_flag);
-
                     *sync_area = i;
                     break;
                 }
@@ -1634,8 +1666,8 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
             uint32_t MCCH_mbsfn_SubframeConfig = /* UE_mac_inst[module_idP].mbsfn_AreaInfo[i]->mcch_Config_r9.sf_AllocInfo_r9.buf[2] |
                                           (UE_mac_inst[module_idP].mbsfn_AreaInfo[i]->mcch_Config_r9.sf_AllocInfo_r9.buf[1]<<8) | */
                 (UE_mac_inst[module_idP].mbsfn_AreaInfo[i]->mcch_Config_r9.sf_AllocInfo_r9.buf[0] << 16);
-
             jj = frameP % 4;
+
             if((frameP % mbsfn_period) == (mbsfn_alloc_offset + jj))
             {
                 if(UE_mac_inst[module_idP].tdd_Config == NULL)
@@ -1650,13 +1682,16 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
                                     mcch_flag = 1;
                                     LOG_D(MAC, "frameP(%d),mcch_period(%ld),mbsfn_SubframeConfig(%x),MCCH_mbsfn_SubframeConfig(%x),mask(%x),jj(%d),num_sf_alloc(%d)\n",
                                           frameP, mcch_period, mbsfn_SubframeConfig, MCCH_mbsfn_SubframeConfig, (0x800000 >> (jj * 6)), jj, UE_mac_inst[module_idP].common_num_sf_alloc);
+
                                     if(UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[0] == NULL)
                                     {
                                         UE_mac_inst[module_idP].common_num_sf_alloc++;
                                     }
                                 }
                             }
+
                             break;
+
                         case 2:
                             if((mbsfn_SubframeConfig & (0x400000 >> (jj * 6))) == (0x400000 >> (jj * 6)))
                             {
@@ -1665,13 +1700,16 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
                                     mcch_flag = 1;
                                     LOG_D(MAC, "frameP(%d),mcch_period(%ld),mbsfn_SubframeConfig(%x),MCCH_mbsfn_SubframeConfig(%x),mask(%x),jj(%d),num_sf_alloc(%d)\n",
                                           frameP, mcch_period, mbsfn_SubframeConfig, MCCH_mbsfn_SubframeConfig, (0x400000 >> (jj * 6)), jj, UE_mac_inst[module_idP].common_num_sf_alloc);
+
                                     if(UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[0] == NULL)
                                     {
                                         UE_mac_inst[module_idP].common_num_sf_alloc++;
                                     }
                                 }
                             }
+
                             break;
+
                         case 3:
                             if((mbsfn_SubframeConfig & (0x200000 >> (jj * 6))) == (0x200000 >> (jj * 6)))
                             {
@@ -1680,13 +1718,16 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
                                     LOG_D(MAC, "frameP(%d),mcch_period(%ld),mbsfn_SubframeConfig(%x),MCCH_mbsfn_SubframeConfig(%x),mask(%x),jj(%d),num_sf_alloc(%d)\n",
                                           frameP, mcch_period, mbsfn_SubframeConfig, MCCH_mbsfn_SubframeConfig, (0x200000 >> (jj * 6)), jj, UE_mac_inst[module_idP].common_num_sf_alloc);
                                     mcch_flag = 1;
+
                                     if(UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[0] == NULL)
                                     {
                                         UE_mac_inst[module_idP].common_num_sf_alloc++;
                                     }
                                 }
                             }
+
                             break;
+
                         case 6:
                             if((mbsfn_SubframeConfig & (0x100000 >> (jj * 6))) == (0x100000 >> (jj * 6)))
                             {
@@ -1695,13 +1736,16 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
                                     LOG_D(MAC, "frameP(%d),mcch_period(%ld),mbsfn_SubframeConfig(%x),MCCH_mbsfn_SubframeConfig(%x),mask(%x),jj(%d),num_sf_alloc(%d)\n",
                                           frameP, mcch_period, mbsfn_SubframeConfig, MCCH_mbsfn_SubframeConfig, (0x100000 >> (jj * 6)), jj, UE_mac_inst[module_idP].common_num_sf_alloc);
                                     mcch_flag = 1;
+
                                     if(UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[0] == NULL)
                                     {
                                         UE_mac_inst[module_idP].common_num_sf_alloc++;
                                     }
                                 }
                             }
+
                             break;
+
                         case 7:
                             if((mbsfn_SubframeConfig & (0x80000 >> (jj * 6))) == (0x80000 >> (jj * 6)))
                             {
@@ -1709,14 +1753,18 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
                                 {
                                     LOG_D(MAC, "frameP(%d),mcch_period(%ld),mbsfn_SubframeConfig(%x),MCCH_mbsfn_SubframeConfig(%x),mask(%x),jj(%d),num_sf_alloc(%d)\n",
                                           frameP, mcch_period, mbsfn_SubframeConfig, MCCH_mbsfn_SubframeConfig, (0x80000 >> (jj * 6)), jj, UE_mac_inst[module_idP].common_num_sf_alloc);
+
                                     if(UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[0] == NULL)
                                     {
                                         UE_mac_inst[module_idP].common_num_sf_alloc++;
                                     }
+
                                     mcch_flag = 1;
                                 }
                             }
+
                             break;
+
                         case 8:
                             if((mbsfn_SubframeConfig & (0x40000 >> (jj * 6))) == (0x40000 >> (jj * 6)))
                             {
@@ -1724,13 +1772,16 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
                                 {
                                     LOG_D(MAC, "frameP(%d),mcch_period(%ld),mbsfn_SubframeConfig(%x),MCCH_mbsfn_SubframeConfig(%x),mask(%x),jj(%d),num_sf_alloc(%d)\n",
                                           frameP, mcch_period, mbsfn_SubframeConfig, MCCH_mbsfn_SubframeConfig, (0x40000 >> (jj * 6)), jj, UE_mac_inst[module_idP].common_num_sf_alloc);
+
                                     if(UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[0] == NULL)
                                     {
                                         UE_mac_inst[module_idP].common_num_sf_alloc++;
                                     }
+
                                     mcch_flag = 1;
                                 }
                             }
+
                             break;
                     }// end switch
                 }
@@ -1757,7 +1808,7 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
     stop_meas(&UE_mac_inst[module_idP].ue_query_mch);
 #endif
 
-    if((mcch_flag == 1))  	// || (msi_flag==1))
+    if((mcch_flag == 1))    // || (msi_flag==1))
     {
         *mcch_active = 1;
     }
@@ -1770,10 +1821,12 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
             {
                 UE_mac_inst[module_idP].commonSF_Alloc_r9_mbsfn_SubframeConfig[i] = NULL;
             }
+
             for(i = 0; i < 15; i++)
             {
                 UE_mac_inst[module_idP].pmch_Config[i] = NULL;
             }
+
             for(i = 0; i < 28 ; i++)
             {
                 UE_mac_inst[module_idP].pmch_lcids[i] = -1;
@@ -1790,6 +1843,7 @@ int ue_query_mch(module_id_t module_idP, uint8_t CC_id, uint32_t frameP, uint32_
                 UE_mac_inst[module_idP].msi_status_v[i] = 0;
             }
         }
+
         return mcch_mcs;
     }
     else if((mtch_flag == 1) && (UE_mac_inst[module_idP].msi_status_v[(mch_lcid > 27) ? 27 : mch_lcid] == 1))
@@ -1816,12 +1870,10 @@ generate_ulsch_header(uint8_t *mac_header,
                       BSR_SHORT *short_bsr,
                       BSR_LONG *long_bsr, unsigned short post_padding)
 {
-
     SCH_SUBHEADER_FIXED *mac_header_ptr =
         (SCH_SUBHEADER_FIXED *) mac_header;
     unsigned char first_element = 0, last_size = 0, i;
     unsigned char mac_header_control_elements[16], *ce_ptr;
-
     LOG_D(MAC, "[UE] Generate ULSCH : num_sdus %d\n", num_sdus);
 #ifdef DEBUG_HEADER_PARSING
 
@@ -1929,7 +1981,6 @@ generate_ulsch_header(uint8_t *mac_header,
         *((BSR_TRUNCATED *) ce_ptr) = (*truncated_bsr);
         ce_ptr += sizeof(BSR_TRUNCATED);
         //    printf("(cont_res) : offset %d\n",ce_ptr-mac_header_control_elements);
-
     }
     else if(short_bsr)
     {
@@ -1958,7 +2009,6 @@ generate_ulsch_header(uint8_t *mac_header,
         last_size = 1;
         *((BSR_SHORT *) ce_ptr) = (*short_bsr);
         ce_ptr += sizeof(BSR_SHORT);
-
         //    printf("(cont_res) : offset %d\n",ce_ptr-mac_header_control_elements);
     }
     else if(long_bsr)
@@ -1986,7 +2036,6 @@ generate_ulsch_header(uint8_t *mac_header,
         mac_header_ptr->E = 0;
         mac_header_ptr->LCID = LONG_BSR;
         last_size = 1;
-
         *(ce_ptr) =
             (long_bsr->
              Buffer_size0 << 2) | ((long_bsr->Buffer_size1 & 0x30) >> 4);
@@ -1998,9 +2047,9 @@ generate_ulsch_header(uint8_t *mac_header,
             ((long_bsr->
               Buffer_size2 & 0x03) << 2) | (long_bsr->Buffer_size3 & 0x3F);
         ce_ptr += BSR_LONG_SIZE;
-
         //    printf("(cont_res) : offset %d\n",ce_ptr-mac_header_control_elements);
     }
+
     //  printf("last_size %d,mac_header_ptr %p\n",last_size,mac_header_ptr);
 
     for(i = 0; i < num_sdus; i++)
@@ -2025,6 +2074,7 @@ generate_ulsch_header(uint8_t *mac_header,
 #endif
                 mac_header_ptr += last_size;
             }
+
             mac_header_ptr->R = 0;
             mac_header_ptr->E = 0;
             mac_header_ptr->LCID = sdu_lcids[i];
@@ -2047,12 +2097,11 @@ generate_ulsch_header(uint8_t *mac_header,
             else
             {
                 first_element = 1;
-
             }
 
             if(sdu_lengths[i] < 128)
             {
-                ((SCH_SUBHEADER_SHORT *) mac_header_ptr)->R = 0;	// 3
+                ((SCH_SUBHEADER_SHORT *) mac_header_ptr)->R = 0;  // 3
                 ((SCH_SUBHEADER_SHORT *) mac_header_ptr)->E = 0;
                 ((SCH_SUBHEADER_SHORT *) mac_header_ptr)->F = 0;
                 ((SCH_SUBHEADER_SHORT *) mac_header_ptr)->LCID =
@@ -2092,7 +2141,7 @@ generate_ulsch_header(uint8_t *mac_header,
         }
     }
 
-    if(post_padding > 0)  	// we have lots of padding at the end of the packet
+    if(post_padding > 0)    // we have lots of padding at the end of the packet
     {
         mac_header_ptr->E = 1;
         mac_header_ptr += last_size;
@@ -2102,13 +2151,12 @@ generate_ulsch_header(uint8_t *mac_header,
         mac_header_ptr->LCID = SHORT_PADDING;
         mac_header_ptr++;
     }
-    else  			// no end of packet padding
+    else          // no end of packet padding
     {
         // last SDU subhead is of fixed type (sdu length implicitly to be computed at UE)
         mac_header_ptr++;
         //mac_header_ptr=last_size; // FIXME: should be ++
     }
-
 
     if((ce_ptr - mac_header_control_elements) > 0)
     {
@@ -2117,6 +2165,7 @@ generate_ulsch_header(uint8_t *mac_header,
         mac_header_ptr +=
             (unsigned char)(ce_ptr - mac_header_control_elements);
     }
+
 #ifdef DEBUG_HEADER_PARSING
     LOG_T(MAC, " [UE] header : ");
 
@@ -2128,7 +2177,6 @@ generate_ulsch_header(uint8_t *mac_header,
     LOG_T(MAC, "\n");
 #endif
     return ((unsigned char *) mac_header_ptr - mac_header);
-
 }
 
 void
@@ -2136,7 +2184,6 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
            sub_frame_t subframe, uint8_t eNB_index,
            uint8_t *ulsch_buffer, uint16_t buflen, uint8_t *access_mode)
 {
-
     uint8_t total_rlc_pdu_header_len = 0, rlc_pdu_header_len_last = 0;
     uint16_t buflen_remain = 0;
     uint8_t bsr_len = 0, bsr_ce_len = 0, bsr_header_len = 0;
@@ -2157,7 +2204,7 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
     POWER_HEADROOM_CMD phr;
     POWER_HEADROOM_CMD *phr_p = &phr;
     unsigned short short_padding = 0, post_padding = 0, padding_len = 0;
-    int j;			// used for padding
+    int j;      // used for padding
     // Compute header length
     int lcg_id = 0;
     int lcg_id_bsr_trunc = 0;
@@ -2165,21 +2212,16 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
     int num_lcg_id_with_data = 0;
     rlc_buffer_occupancy_t lcid_buffer_occupancy_old =
         0, lcid_buffer_occupancy_new = 0;
-
     LOG_D(MAC,
           "[UE %d] MAC PROCESS UL TRANSPORT BLOCK at frame%d subframe %d TBS=%d\n",
           module_idP, frameP, subframe, buflen);
-
-
     AssertFatal(CC_id == 0,
                 "Transmission on secondary CCs is not supported yet\n");
-
 #if UE_TIMING_TRACE
     start_meas(&UE_mac_inst[module_idP].tx_ulsch_sdu);
 #endif
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME
     (VCD_SIGNAL_DUMPER_FUNCTIONS_UE_GET_SDU, VCD_FUNCTION_IN);
-
 #ifdef CBA
 
     if(*access_mode == CBA_ACCESS)
@@ -2201,9 +2243,10 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
               "[UE %d] frameP %d subframe %d CBA transmission oppurtunity, tbs %d\n",
               module_idP, frameP, subframe, buflen);
     }
+
 #endif
     bsr_header_len = 0;
-    phr_header_len = 1;		//sizeof(SCH_SUBHEADER_FIXED);
+    phr_header_len = 1;   //sizeof(SCH_SUBHEADER_FIXED);
 
     while(lcg_id < MAX_NUM_LCGID)
     {
@@ -2211,6 +2254,7 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
         {
             num_lcg_id_with_data++;
         }
+
         lcg_id++;
     }
 
@@ -2224,8 +2268,8 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
               UE_mac_inst[module_idP].scheduling_info.BSR_bytes[2],
               UE_mac_inst[module_idP].scheduling_info.BSR_bytes[3],
               UE_mac_inst[module_idP].BSR_reporting_active, buflen);
-
     }
+
     //Restart ReTxBSR Timer at new grant indication (36.321)
     if(UE_mac_inst[module_idP].scheduling_info.retxBSR_SF !=
             MAC_UE_BSR_TIMER_NOT_RUNNING)
@@ -2234,6 +2278,7 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
             get_sf_retxBSRTimer(UE_mac_inst[module_idP].
                                 scheduling_info.retxBSR_Timer);
     }
+
     // periodicBSR-Timer expires, trigger BSR
     if((UE_mac_inst[module_idP].scheduling_info.periodicBSR_Timer !=
             LTE_PeriodicBSR_Timer_r12_infinity)
@@ -2242,17 +2287,15 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
         // Trigger BSR Periodic
         UE_mac_inst[module_idP].BSR_reporting_active |=
             BSR_TRIGGER_PERIODIC;
-
         LOG_D(MAC,
               "[UE %d] MAC BSR Triggered PeriodicBSR Timer expiry at frame%d subframe %d TBS=%d\n",
               module_idP, frameP, subframe, buflen);
-
     }
+
     //Compute BSR Length if Regular or Periodic BSR is triggered
     //WARNING: if BSR long is computed, it may be changed to BSR short during or after multiplexing if there remains less than 1 LCGROUP with data after Tx
     if(UE_mac_inst[module_idP].BSR_reporting_active)
     {
-
         AssertFatal((UE_mac_inst[module_idP].BSR_reporting_active &
                      BSR_TRIGGER_PADDING) == 0,
                     "Inconsistent BSR Trigger=%d !\n",
@@ -2265,20 +2308,20 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
 
             if(num_lcg_id_with_data <= 1)
             {
-                bsr_ce_len = sizeof(BSR_SHORT);	//1 byte
+                bsr_ce_len = sizeof(BSR_SHORT); //1 byte
             }
             else
             {
-                bsr_ce_len = BSR_LONG_SIZE;	//3 bytes
+                bsr_ce_len = BSR_LONG_SIZE; //3 bytes
             }
         }
     }
 
     bsr_len = bsr_ce_len + bsr_header_len;
-
     phr_ce_len =
         (UE_mac_inst[module_idP].PHR_reporting_active ==
          1) ? 1 /* sizeof(POWER_HEADROOM_CMD) */ : 0;
+
     if((phr_ce_len > 0)
             && ((phr_ce_len + phr_header_len + bsr_len) <= buflen))
     {
@@ -2306,7 +2349,6 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
         if(UE_mac_inst[module_idP].scheduling_info.LCID_status[lcid] ==
                 LCID_NOT_EMPTY)
         {
-
             lcid_rlc_pdu_count = 0;
             is_lcid_processed = FALSE;
             lcid_buffer_occupancy_old =
@@ -2315,9 +2357,7 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
                                                  crnti, eNB_index, frameP,
                                                  subframe, ENB_FLAG_NO,
                                                  lcid);
-
             lcid_buffer_occupancy_new = lcid_buffer_occupancy_old;
-
             AssertFatal(lcid_buffer_occupancy_new ==
                         UE_mac_inst[module_idP].
                         scheduling_info.LCID_buffer_remain[lcid],
@@ -2325,7 +2365,6 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
                         lcid, lcid_buffer_occupancy_new,
                         UE_mac_inst[module_idP].
                         scheduling_info.LCID_buffer_remain[lcid]);
-
             AssertFatal(lcid_buffer_occupancy_new <=
                         UE_mac_inst[module_idP].
                         scheduling_info.BSR_bytes[UE_mac_inst[module_idP].
@@ -2338,19 +2377,16 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
                                                   scheduling_info.LCGID
                                                   [lcid]]);
 
-
             //Multiplex all available DCCH RLC PDUs considering to multiplex the last PDU each time for maximize the data
             //Adjust at the end of the loop
             while((!is_lcid_processed) && (lcid_buffer_occupancy_new)
                     && (bsr_len + phr_len + total_rlc_pdu_header_len +
                         sdu_length_total + MIN_MAC_HDR_RLC_SIZE <= buflen))
             {
-
                 // Workaround for issue in OAI eNB or EPC which are not able to process SRB2 message multiplexed with SRB1 on the same MAC PDU
                 if((get_softmodem_params()->usim_test == 0) && (lcid == DCCH1)
                         && (lcid_rlc_pdu_count == 0) && (num_sdus))
                 {
-
                     // Skip SRB2 multiplex if at least one SRB1 SDU is already multiplexed
                     break;
                 }
@@ -2359,8 +2395,6 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
                     buflen - (bsr_len + phr_len +
                               total_rlc_pdu_header_len + sdu_length_total +
                               1);
-
-
                 LOG_D(MAC,
                       "[UE %d] Frame %d : UL-DXCH -> ULSCH, RLC %d has %d bytes to "
                       "send (Transport Block size %d BSR size=%d PHR=%d SDU Length Total %d , mac header len %d BSR byte before Tx=%d)\n",
@@ -2371,8 +2405,6 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
                       scheduling_info.BSR_bytes[UE_mac_inst[module_idP].
                                                 scheduling_info.LCGID
                                                 [lcid]]);
-
-
                 sdu_lengths[num_sdus] = mac_rlc_data_req(module_idP,
                                         UE_mac_inst
                                         [module_idP].
@@ -2388,13 +2420,9 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
                                         0
 #endif
                                                         );
-
-
-
                 AssertFatal(buflen_remain >= sdu_lengths[num_sdus],
                             "LCID=%d RLC has segmented %d bytes but MAC has max=%d\n",
                             lcid, sdu_lengths[num_sdus], buflen_remain);
-
 
                 if(sdu_lengths[num_sdus])
                 {
@@ -2432,10 +2460,8 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
 
                     //Update number of SDU
                     num_sdus++;
-
                     //Update total MAC Header size for RLC PDUs and save last one
                     total_rlc_pdu_header_len += rlc_pdu_header_len_last;
-
                     lcid_rlc_pdu_count++;
                 }
                 else
@@ -2452,20 +2478,17 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
                                                      eNB_index, frameP,
                                                      subframe, ENB_FLAG_NO,
                                                      lcid);
-
                 is_lcid_processed = (is_lcid_processed)
                                     || (lcid_buffer_occupancy_new <= 0);
             }
 
             //Update Buffer remain and BSR bytes after transmission
-
             AssertFatal(lcid_buffer_occupancy_new <=
                         lcid_buffer_occupancy_old,
                         "MAC UE Tx error : Buffer Occupancy After Tx=%d greater than before=%d BO! for LCID=%d RLC PDU nb=%d Frame %d Subrame %d\n",
                         lcid_buffer_occupancy_new,
                         lcid_buffer_occupancy_old, lcid,
                         lcid_rlc_pdu_count, frameP, subframe);
-
             UE_mac_inst[module_idP].scheduling_info.
             LCID_buffer_remain[lcid] = lcid_buffer_occupancy_new;
             UE_mac_inst[module_idP].
@@ -2481,6 +2504,7 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
                         == 0))
             {
                 num_lcg_id_with_data--;
+
                 // Change BSR size to BSR SHORT if num_lcg_id_with_data becomes to 1
                 if((bsr_len) && (num_lcg_id_with_data == 1))
                 {
@@ -2489,17 +2513,15 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
                 }
             }
 
-
             UE_mac_inst[module_idP].scheduling_info.LCID_status[lcid] =
                 LCID_EMPTY;
         }
     }
 
-
-
     // Compute BSR Values and update Nb LCGID with data after multiplexing
     num_lcg_id_with_data = 0;
     lcg_id_bsr_trunc = 0;
+
     for(lcg_id = 0; lcg_id < MAX_NUM_LCGID; lcg_id++)
     {
         UE_mac_inst[module_idP].scheduling_info.BSR[lcg_id] =
@@ -2515,7 +2537,6 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
         }
     }
 
-
     if(bsr_ce_len)
     {
         //Print updated BSR when sent
@@ -2527,7 +2548,6 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
               UE_mac_inst[module_idP].scheduling_info.BSR_bytes[2],
               UE_mac_inst[module_idP].scheduling_info.BSR_bytes[3],
               UE_mac_inst[module_idP].BSR_reporting_active, buflen);
-
         LOG_D(MAC,
               "[UE %d] Frame %d Subframe %d TX BSR Regular or Periodic size=%d BSR0=%d BSR1=%d BSR2=%d BSR3=%d\n",
               module_idP, frameP, subframe, bsr_ce_len,
@@ -2536,10 +2556,11 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
               UE_mac_inst[module_idP].scheduling_info.BSR[2],
               UE_mac_inst[module_idP].scheduling_info.BSR[3]);
     }
+
     // build PHR and update the timers
     if(phr_ce_len == sizeof(POWER_HEADROOM_CMD))
     {
-        if(nfapi_mode == 3)
+        if(NFAPI_MODE == NFAPI_UE_STUB_PNF)
         {
             //Substitute with a static value for the MAC layer abstraction (phy_stub mode)
             phr_p->PH = 40;
@@ -2548,7 +2569,6 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
         {
             phr_p->PH = get_phr_mapping(module_idP, CC_id, eNB_index);
         }
-
 
         phr_p->R = 0;
         LOG_D(MAC,
@@ -2584,7 +2604,6 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
         padding_len = buflen - (bsr_len + phr_len);
     }
 
-
     if((padding_len) && (bsr_len == 0))
     {
         /* if the number of padding bits is equal to or larger than the size of the Long BSR plus its subheader, report Long BSR */
@@ -2595,8 +2614,6 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
             // Trigger BSR Padding
             UE_mac_inst[module_idP].BSR_reporting_active |=
                 BSR_TRIGGER_PADDING;
-
-
         }
         else if(padding_len >= (1 + sizeof(BSR_SHORT)))
         {
@@ -2643,8 +2660,10 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
             UE_mac_inst[module_idP].BSR_reporting_active |=
                 BSR_TRIGGER_PADDING;
         }
+
         bsr_len = bsr_header_len + bsr_ce_len;
     }
+
     //Fill BSR Infos
     if(bsr_ce_len == 0)
     {
@@ -2664,7 +2683,6 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
             UE_mac_inst[module_idP].scheduling_info.BSR[LCGID2];
         bsr_l->Buffer_size3 =
             UE_mac_inst[module_idP].scheduling_info.BSR[LCGID3];
-
         LOG_D(MAC,
               "[UE %d] Frame %d subframe %d BSR Trig=%d report long BSR (level LCGID0 %d,level LCGID1 %d,level LCGID2 %d,level LCGID3 %d)\n",
               module_idP, frameP, subframe,
@@ -2673,11 +2691,11 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
               UE_mac_inst[module_idP].scheduling_info.BSR[LCGID1],
               UE_mac_inst[module_idP].scheduling_info.BSR[LCGID2],
               UE_mac_inst[module_idP].scheduling_info.BSR[LCGID3]);
-
     }
     else if(bsr_ce_len == sizeof(BSR_SHORT))
     {
         bsr_l = NULL;
+
         if((bsr_t != NULL)
                 && (UE_mac_inst[module_idP].BSR_reporting_active &
                     BSR_TRIGGER_PADDING))
@@ -2688,14 +2706,12 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
             bsr_t->Buffer_size =
                 UE_mac_inst[module_idP].scheduling_info.
                 BSR[lcg_id_bsr_trunc];
-
             LOG_D(MAC,
                   "[UE %d] Frame %d subframe %d BSR Trig=%d report TRUNCATED BSR with level %d for LCGID %d\n",
                   module_idP, frameP, subframe,
                   UE_mac_inst[module_idP].BSR_reporting_active,
                   UE_mac_inst[module_idP].
                   scheduling_info.BSR[lcg_id_bsr_trunc], lcg_id_bsr_trunc);
-
         }
         else
         {
@@ -2704,7 +2720,6 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
             bsr_s->Buffer_size =
                 UE_mac_inst[module_idP].scheduling_info.
                 BSR[lcg_id_bsr_trunc];
-
             LOG_D(MAC,
                   "[UE %d] Frame %d subframe %d BSR Trig=%d report SHORT BSR with level %d for LCGID %d\n",
                   module_idP, frameP, subframe,
@@ -2713,6 +2728,7 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
                   scheduling_info.BSR[lcg_id_bsr_trunc], lcg_id_bsr_trunc);
         }
     }
+
     // 1-bit padding or 2-bit padding  special padding subheader
     // Check for max padding size, ie MAC Hdr for last RLC PDU = 1
     if(sdu_length_total)
@@ -2731,6 +2747,7 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
         short_padding = padding_len;
         // only add padding header
         post_padding = 0;
+
         //update total MAC Hdr size for RLC data
         if(sdu_length_total)
         {
@@ -2744,6 +2761,7 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
         post_padding =
             buflen - (bsr_len + phr_len + total_rlc_pdu_header_len +
                       sdu_length_total + 1);
+
         // If by adding MAC Hdr for last RLC PDU the padding is 0 then set MAC Hdr for last RLC PDU = 1 and compute 1 or 2 byte padding
         if(post_padding == 0)
         {
@@ -2757,13 +2775,12 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
     }
     else
     {
-        if(padding_len == buflen)  	// nona mac pdu
+        if(padding_len == buflen)     // nona mac pdu
         {
             *access_mode = CANCELED_ACCESS;
         }
 
         short_padding = 0;
-
         post_padding =
             buflen - (bsr_len + phr_len + total_rlc_pdu_header_len +
                       sdu_length_total + 1);
@@ -2771,30 +2788,30 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
 
     // Generate header
     // if (num_sdus>0) {
-
-    payload_offset = generate_ulsch_header(ulsch_buffer,	// mac header
-                                           num_sdus,	// num sdus
-                                           short_padding,	// short pading
-                                           sdu_lengths,	// sdu length
-                                           sdu_lcids,	// sdu lcid
-                                           phr_p,	// power headroom
-                                           NULL,	// crnti
-                                           bsr_t,	// truncated bsr
-                                           bsr_s,	// short bsr
-                                           bsr_l, post_padding);	// long_bsr
-
+    payload_offset = generate_ulsch_header(ulsch_buffer,  // mac header
+                                           num_sdus,  // num sdus
+                                           short_padding, // short pading
+                                           sdu_lengths, // sdu length
+                                           sdu_lcids, // sdu lcid
+                                           phr_p, // power headroom
+                                           NULL,  // crnti
+                                           bsr_t, // truncated bsr
+                                           bsr_s, // short bsr
+                                           bsr_l, post_padding);  // long_bsr
     LOG_D(MAC,
           "[UE %d] Generate header :bufflen %d  sdu_length_total %d, num_sdus %d, sdu_lengths[0] %d, sdu_lcids[0] %d => payload offset %d,  total_rlc_pdu_header_len %d, padding %d,post_padding %d, bsr len %d, phr len %d, reminder %d \n",
           module_idP, buflen, sdu_length_total, num_sdus, sdu_lengths[0],
           sdu_lcids[0], payload_offset, total_rlc_pdu_header_len,
           short_padding, post_padding, bsr_len, phr_len,
           buflen - sdu_length_total - payload_offset);
+
     // cycle through SDUs and place in ulsch_buffer
     if(sdu_length_total)
     {
         memcpy(&ulsch_buffer[payload_offset], ulsch_buff,
                sdu_length_total);
     }
+
     // fill remainder of DLSCH with random data
     if(post_padding)
     {
@@ -2804,6 +2821,7 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
                 (char)(taus() & 0xff);
         }
     }
+
     LOG_D(MAC,
           "[UE %d][SR] Gave SDU to PHY, clearing any scheduling request\n",
           module_idP);
@@ -2816,12 +2834,10 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
         LOG_D(MAC,
               "[UE %d] MAC BSR Sent !! bsr (ce%d,hdr%d) buff_len %d\n",
               module_idP, bsr_ce_len, bsr_header_len, buflen);
-
         // Reset ReTx BSR Timer
         UE_mac_inst[module_idP].scheduling_info.retxBSR_SF =
             get_sf_retxBSRTimer(UE_mac_inst[module_idP].
                                 scheduling_info.retxBSR_Timer);
-
         LOG_D(MAC, "[UE %d] MAC ReTx BSR Timer Reset =%d\n", module_idP,
               UE_mac_inst[module_idP].scheduling_info.retxBSR_SF);
 
@@ -2834,12 +2850,11 @@ ue_get_sdu(module_id_t module_idP, int CC_id, frame_t frameP,
                 get_sf_periodicBSRTimer(UE_mac_inst
                                         [module_idP].scheduling_info.
                                         periodicBSR_Timer);
-
             LOG_D(MAC, "[UE %d] MAC Periodic BSR Timer Reset =%d\n",
                   module_idP,
                   UE_mac_inst[module_idP].scheduling_info.periodicBSR_SF);
-
         }
+
         // Reset BSR Trigger flags
         UE_mac_inst[module_idP].BSR_reporting_active = BSR_TRIGGER_NONE;
     }
@@ -2883,7 +2898,7 @@ ue_scheduler(const module_id_t module_idP,
              const uint8_t eNB_indexP, const int CC_id)
 //------------------------------------------------------------------------------
 {
-    int lcid;			// lcid index
+    int lcid;     // lcid index
     int TTI = 1;
     int bucketsizeduration = -1;
     int bucketsizeduration_max = -1;
@@ -2892,7 +2907,6 @@ ue_scheduler(const module_id_t module_idP,
     struct LTE_RACH_ConfigCommon *rach_ConfigCommon =
         (struct LTE_RACH_ConfigCommon *) NULL;
     protocol_ctxt_t ctxt;
-
 #if defined(ENABLE_ITTI)
     MessageDef *msg_p;
     int result;
@@ -2902,11 +2916,11 @@ ue_scheduler(const module_id_t module_idP,
 #endif
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME
     (VCD_SIGNAL_DUMPER_FUNCTIONS_UE_SCHEDULER, VCD_FUNCTION_IN);
-
     PROTOCOL_CTXT_SET_BY_MODULE_ID(&ctxt, module_idP, ENB_FLAG_NO,
                                    UE_mac_inst[module_idP].crnti, txFrameP,
                                    txSubframeP, eNB_indexP);
 #if defined(ENABLE_ITTI)
+
     if(module_idP == 0)
     {
         do
@@ -2916,7 +2930,6 @@ ue_scheduler(const module_id_t module_idP,
 
             if(msg_p != NULL)
             {
-
                 switch(ITTI_MSG_ID(msg_p))
                 {
                     case RRC_MAC_CCCH_DATA_REQ:
@@ -2925,10 +2938,8 @@ ue_scheduler(const module_id_t module_idP,
                               ITTI_MSG_NAME(msg_p), ITTI_MSG_ORIGIN_NAME(msg_p), ITTI_MSG_INSTANCE(msg_p),
                               RRC_MAC_CCCH_DATA_REQ(msg_p).frame,
                               RRC_MAC_CCCH_DATA_REQ(msg_p).enb_index);
-
                         // TODO process CCCH data req.
                         break;
-
 
                     default:
                         LOG_E(MAC, "Received unexpected message %s\n", ITTI_MSG_NAME(msg_p));
@@ -2942,6 +2953,7 @@ ue_scheduler(const module_id_t module_idP,
         }
         while(msg_p != NULL);
     }
+
 #endif
 
     //Mac_rlc_xface->frameP=frameP;
@@ -2952,16 +2964,23 @@ ue_scheduler(const module_id_t module_idP,
     // data to/from NETLINK is treated in pdcp_run.
     // one socket is used in multiple UE's L2 FAPI simulator and
     // only first UE need to do this.
-    if(module_idP == 0)
+    if(UE_NAS_USE_TUN)
     {
         pdcp_run(&ctxt);
     }
+    else
+    {
+        if(module_idP == 0)
+        {
+            pdcp_run(&ctxt);
+        }
+    }
+
     //#endif
     UE_mac_inst[module_idP].txFrame = txFrameP;
     UE_mac_inst[module_idP].txSubframe = txSubframeP;
     UE_mac_inst[module_idP].rxFrame = rxFrameP;
     UE_mac_inst[module_idP].rxSubframe = rxSubframeP;
-
 #ifdef CELLULAR
     rrc_rx_tx_ue(module_idP, txFrameP, 0, eNB_indexP);
 #else
@@ -3018,7 +3037,6 @@ ue_scheduler(const module_id_t module_idP,
     // Check Contention resolution timer (put in a function later)
     if(UE_mac_inst[module_idP].RA_contention_resolution_timer_active == 1)
     {
-
         if(UE_mac_inst[module_idP].radioResourceConfigCommon)
         {
             rach_ConfigCommon =
@@ -3031,14 +3049,11 @@ ue_scheduler(const module_id_t module_idP,
             VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME
             (VCD_SIGNAL_DUMPER_FUNCTIONS_UE_SCHEDULER,
              VCD_FUNCTION_OUT);
-
             stop_meas(&UE_mac_inst[module_idP].ue_scheduler);
             AssertFatal(1 == 0, "");
-
 #if UE_TIMING_TRACE
             stop_meas(&UE_mac_inst[module_idP].ue_scheduler);
 #endif
-
             //return(RRC_OK);
         }
 
@@ -3048,7 +3063,6 @@ ue_scheduler(const module_id_t module_idP,
               ((1 +
                 rach_ConfigCommon->
                 ra_SupervisionInfo.mac_ContentionResolutionTimer) << 3));
-
         UE_mac_inst[module_idP].RA_contention_resolution_cnt++;
 
         if(UE_mac_inst[module_idP].RA_contention_resolution_cnt ==
@@ -3063,7 +3077,8 @@ ue_scheduler(const module_id_t module_idP,
             LOG_E(MAC,
                   "Module id %u Contention resolution timer expired, RA failed\n",
                   module_idP);
-            if(nfapi_mode == 3)   // phy_stub mode
+
+            if(NFAPI_MODE == NFAPI_UE_STUB_PNF) // phy_stub mode
             {
                 // Modification for phy_stub mode operation here. We only need to make sure that the ue_mode is back to
                 // PRACH state.
@@ -3075,9 +3090,11 @@ ue_scheduler(const module_id_t module_idP,
             {
                 ra_failed(module_idP, CC_id, eNB_indexP);
             }
+
             //ra_failed(module_idP, 0, eNB_indexP);
         }
     }
+
     // Get RLC status info and update Bj for all lcids that are active
     for(lcid = DCCH; lcid < MAX_NUM_LCID; lcid++)
     {
@@ -3120,7 +3137,6 @@ ue_scheduler(const module_id_t module_idP,
                 }
             }
 
-
             /*
                 if (lcid == DCCH) {
                 LOG_D(MAC,"[UE %d][SR] Frame %d subframe %d Pending data for SRB1=%d for LCGID %d \n",
@@ -3141,6 +3157,7 @@ ue_scheduler(const module_id_t module_idP,
     {
         UE_mac_inst[module_idP].scheduling_info.retxBSR_SF--;
     }
+
     // Decrement Periodic Timer if it is running and not null
     if((UE_mac_inst[module_idP].scheduling_info.periodicBSR_SF !=
             MAC_UE_BSR_TIMER_NOT_RUNNING)
@@ -3148,6 +3165,7 @@ ue_scheduler(const module_id_t module_idP,
     {
         UE_mac_inst[module_idP].scheduling_info.periodicBSR_SF--;
     }
+
     //Check whether Regular BSR is triggered
     if(update_bsr(module_idP, txFrameP, txSubframeP, eNB_indexP) == TRUE)
     {
@@ -3161,6 +3179,7 @@ ue_scheduler(const module_id_t module_idP,
               "[UE %d][BSR] Regular BSR Triggered Frame %d subframe %d SR for PUSCH is pending\n",
               module_idP, txFrameP, txSubframeP);
     }
+
     // UE has no valid phy config dedicated ||  no valid/released  SR
     if((UE_mac_inst[module_idP].physicalConfigDedicated == NULL))
     {
@@ -3182,20 +3201,18 @@ ue_scheduler(const module_id_t module_idP,
                 physicalConfigDedicated->schedulingRequestConfig->present ==
                 LTE_SchedulingRequestConfig_PR_release))
     {
-
         // initiate RA with CRNTI included in msg3 (no contention) as descibed in 36.321 sec 5.1.5
-
         // cancel all pending SRs
         UE_mac_inst[module_idP].scheduling_info.SR_pending = 0;
         UE_mac_inst[module_idP].ul_active = 0;
         LOG_T(MAC, "[UE %d] Release all SRs \n", module_idP);
     }
+
     // Put this in a function
     // Call PHR procedure as described in Section 5.4.6 in 36.321
-    if(UE_mac_inst[module_idP].PHR_state == LTE_MAC_MainConfig__phr_Config_PR_setup)  	// normal operation
+    if(UE_mac_inst[module_idP].PHR_state == LTE_MAC_MainConfig__phr_Config_PR_setup)    // normal operation
     {
-
-        if(UE_mac_inst[module_idP].PHR_reconfigured == 1)  	// upon (re)configuration of the power headroom reporting functionality by upper layers
+        if(UE_mac_inst[module_idP].PHR_reconfigured == 1)     // upon (re)configuration of the power headroom reporting functionality by upper layers
         {
             UE_mac_inst[module_idP].PHR_reporting_active = 1;
             UE_mac_inst[module_idP].PHR_reconfigured = 0;
@@ -3233,9 +3250,9 @@ ue_scheduler(const module_id_t module_idP,
             }
         }
     }
-    else  			// release / nothing
+    else          // release / nothing
     {
-        UE_mac_inst[module_idP].PHR_reporting_active = 0;	// release PHR
+        UE_mac_inst[module_idP].PHR_reporting_active = 0; // release PHR
     }
 
     //If the UE has UL resources allocated for new transmission for this TTI here:
@@ -3260,7 +3277,6 @@ int
 cba_access(module_id_t module_idP, frame_t frameP,
            sub_frame_t subframe, uint8_t eNB_index, uint16_t buflen)
 {
-
     mac_rlc_status_resp_t rlc_status;
     int header_offset = 4;
     int rv = 0;
@@ -3310,7 +3326,7 @@ cba_access(module_id_t module_idP, frame_t frameP,
         return 0;
     }
 
-    if(cba_backoff == 0)  	// apply probablisitc method
+    if(cba_backoff == 0)    // apply probablisitc method
     {
         UE_mac_inst[module_idP].cba_last_access[0] = uniform_rngen(0, 1);
 
@@ -3320,24 +3336,20 @@ cba_access(module_id_t module_idP, frame_t frameP,
                   "[UE %d] Frame %d Subframe %d: CBA probability-based backoff (%d), UL active state %d \n",
                   module_idP, frameP, subframe, cba_backoff,
                   UE_mac_inst[module_idP].ul_active);
-
             rv = 1;
         }
     }
     else
     {
-
         if(UE_mac_inst[module_idP].cba_last_access[0] <= 0)
         {
             UE_mac_inst[module_idP].cba_last_access[0] =
                 round(uniform_rngen(1, cba_backoff));
-
             LOG_I(MAC,
                   "[UE %d] Frame %d Subframe %d: start a new CBA backoff  %d/%d UL active state %d \n",
                   module_idP, frameP, subframe,
                   UE_mac_inst[module_idP].cba_last_access[0], cba_backoff,
                   UE_mac_inst[module_idP].ul_active);
-
             rv = 1;
             /*
                 rlc_status = mac_rlc_status_ind(module_idP, UE_mac_inst[module_idP].crnti,frameP,ENB_FLAG_NO,MBMS_FLAG_NO, // eNB_index
@@ -3416,7 +3428,6 @@ cba_access(module_id_t module_idP, frame_t frameP,
         }
         }
     */
-
 }
 #endif
 
@@ -3425,7 +3436,6 @@ boolean_t
 update_bsr(module_id_t module_idP, frame_t frameP,
            sub_frame_t subframeP, eNB_index_t eNB_index)
 {
-
     mac_rlc_status_resp_t rlc_status;
     boolean_t bsr_regular_triggered = FALSE;
     uint8_t lcid;
@@ -3439,9 +3449,9 @@ update_bsr(module_id_t module_idP, frame_t frameP,
     uint8_t pos_next = 0;
     uint8_t highest_priority = 16;
     uint8_t array_index = 0;
-
     // Reset All BSR Infos
     lcid_bytes_in_buffer[0] = 0;
+
     for(lcid = DCCH; lcid < MAX_NUM_LCID; lcid++)
     {
         // Reset transmission status
@@ -3476,24 +3486,23 @@ update_bsr(module_id_t module_idP, frame_t frameP,
                                             , 0, 0
 #endif
                                            );
-
             lcid_bytes_in_buffer[lcid] = rlc_status.bytes_in_buffer;
 
             if(rlc_status.bytes_in_buffer > 0)
             {
                 LOG_D(MAC, "[UE %d] PDCCH Tick : LCID%d LCGID%d has data to transmit =%d bytes at frame %d subframe %d\n",
                       module_idP, lcid, lcgid, rlc_status.bytes_in_buffer, frameP, subframeP);
-
                 UE_mac_inst[module_idP].scheduling_info.LCID_status[lcid] = LCID_NOT_EMPTY;
+
                 //Update BSR_bytes and position in lcid_reordered_array only if Group is defined
                 if(lcgid < MAX_NUM_LCGID)
                 {
                     num_lcid_with_data ++;
                     // sum lcid buffer which has same lcgid
                     UE_mac_inst[module_idP].scheduling_info.BSR_bytes[lcgid] += rlc_status.bytes_in_buffer;
-
                     //Fill in the array
                     array_index = 0;
+
                     do
                     {
                         if(UE_mac_inst[module_idP].logicalChannelConfig[lcid]->ul_SpecificParameters->priority <= highest_priority)
@@ -3502,19 +3511,18 @@ update_bsr(module_id_t module_idP, frame_t frameP,
                             for(pos_next = num_lcid_with_data - 1; pos_next > array_index; pos_next--)
                             {
                                 lcid_reordered_array[pos_next] = lcid_reordered_array[pos_next - 1];
-
                             }
+
                             lcid_reordered_array[array_index] = lcid;
                             break;
-
                         }
+
                         array_index ++;
                     }
                     while((array_index < num_lcid_with_data) && (array_index < MAX_NUM_LCID));
                 }
             }
         }
-
     }
 
     // Check whether a regular BSR can be triggered according to the first cases in 36.321
@@ -3530,6 +3538,7 @@ update_bsr(module_id_t module_idP, frame_t frameP,
                 array_index++)
         {
             lcid = lcid_reordered_array[array_index];
+
             /*  UL data, for a logical channel which belongs to a LCG, becomes available for transmission in the RLC entity
                 either the data belongs to a logical channel with higher priority than the priorities of the logical channels
                 which belong to any LCG and for which data is already available for transmission
@@ -3543,13 +3552,11 @@ update_bsr(module_id_t module_idP, frame_t frameP,
                      0))
             {
                 bsr_regular_triggered = TRUE;
-
                 LOG_D(MAC,
                       "[UE %d] PDCCH Tick : MAC BSR Triggered LCID%d LCGID%d data become available at frame %d subframe %d\n",
                       module_idP, lcid,
                       UE_mac_inst[module_idP].scheduling_info.LCGID[lcid],
                       frameP, subframeP);
-
                 break;
             }
         }
@@ -3566,9 +3573,9 @@ update_bsr(module_id_t module_idP, frame_t frameP,
                       "[UE %d] PDCCH Tick : MAC BSR Triggered ReTxBSR Timer expiry at frame %d subframe %d\n",
                       module_idP, frameP, subframeP);
             }
-
         }
     }
+
     //Store Buffer Occupancy in remain buffers for next TTI
     for(lcid = DCCH; lcid < MAX_NUM_LCID; lcid++)
     {
@@ -3582,33 +3589,31 @@ update_bsr(module_id_t module_idP, frame_t frameP,
 uint8_t
 locate_BsrIndexByBufferSize(const uint32_t *table, int size, int value)
 {
-
     uint8_t ju, jm, jl;
     int ascend;
-
     DevAssert(size > 0);
     DevAssert(size <= 256);
 
     if(value == 0)
     {
-        return 0;		//elseif (value > 150000) return 63;
+        return 0;   //elseif (value > 150000) return 63;
     }
 
-    jl = 0;			// lower bound
-    ju = size - 1;		// upper bound
-    ascend = (table[ju] >= table[jl]) ? 1 : 0;	// determine the order of the the table:  1 if ascending order of table, 0 otherwise
+    jl = 0;     // lower bound
+    ju = size - 1;    // upper bound
+    ascend = (table[ju] >= table[jl]) ? 1 : 0;  // determine the order of the the table:  1 if ascending order of table, 0 otherwise
 
-    while(ju - jl > 1)  	//If we are not yet done,
+    while(ju - jl > 1)    //If we are not yet done,
     {
-        jm = (ju + jl) >> 1;	//compute a midpoint,
+        jm = (ju + jl) >> 1;  //compute a midpoint,
 
         if((value >= table[jm]) == ascend)
         {
-            jl = jm;		// replace the lower limit
+            jl = jm;    // replace the lower limit
         }
         else
         {
-            ju = jm;		//replace the upper limit
+            ju = jm;    //replace the upper limit
         }
 
         LOG_T(MAC,
@@ -3622,14 +3627,12 @@ locate_BsrIndexByBufferSize(const uint32_t *table, int size, int value)
     }
     else
     {
-        return jl + 1;		//equally  ju
+        return jl + 1;    //equally  ju
     }
-
 }
 
 int get_sf_periodicBSRTimer(uint8_t sf_offset)
 {
-
     switch(sf_offset)
     {
         case LTE_PeriodicBSR_Timer_r12_sf5:
@@ -3697,7 +3700,6 @@ int get_sf_periodicBSRTimer(uint8_t sf_offset)
 
 int get_sf_retxBSRTimer(uint8_t sf_offset)
 {
-
     switch(sf_offset)
     {
         case LTE_RetxBSR_Timer_r12_sf320:
@@ -3732,7 +3734,6 @@ int get_sf_retxBSRTimer(uint8_t sf_offset)
 
 int get_ms_bucketsizeduration(uint8_t bucketsizeduration)
 {
-
     switch(bucketsizeduration)
     {
         case LTE_LogicalChannelConfig__ul_SpecificParameters__bucketSizeDuration_ms50:
@@ -3773,10 +3774,8 @@ int get_ms_bucketsizeduration(uint8_t bucketsizeduration)
 
 void update_phr(module_id_t module_idP, int CC_id)
 {
-
     AssertFatal(CC_id == 0,
                 "Transmission on secondary CCs is not supported yet\n");
-
     UE_mac_inst[module_idP].PHR_reporting_active = 0;
     UE_mac_inst[module_idP].scheduling_info.periodicPHR_SF =
         get_sf_perioidicPHR_Timer(UE_mac_inst[module_idP].
@@ -3790,7 +3789,6 @@ void update_phr(module_id_t module_idP, int CC_id)
 uint8_t
 get_phr_mapping(module_id_t module_idP, int CC_id, uint8_t eNB_index)
 {
-
     AssertFatal(CC_id == 0,
                 "Transmission on secondary CCs is not supported yet\n");
 
@@ -3804,11 +3802,10 @@ get_phr_mapping(module_id_t module_idP, int CC_id, uint8_t eNB_index)
     {
         return 63;
     }
-    else  			// -23 to 40
+    else          // -23 to 40
     {
         return (uint8_t) get_PHR(module_idP, CC_id,
                                  eNB_index) + PHR_MAPPING_OFFSET;
-
     }
 }
 
@@ -3849,16 +3846,13 @@ int get_db_dl_PathlossChange(uint8_t dl_PathlossChange)
 
 SLSS_t *ue_get_slss(module_id_t Mod_id, int CC_id, frame_t frame_tx, sub_frame_t subframe_tx)
 {
-
     return((SLSS_t *)NULL);
 }
 
 SLDCH_t *ue_get_sldch(module_id_t Mod_id, int CC_id, frame_t frame_tx, sub_frame_t subframe_tx)
 {
-
     //UE_MAC_INST *ue = &UE_mac_inst[Mod_id];
     SLDCH_t *sldch = &UE_mac_inst[Mod_id].sldch;
-
     sldch->payload_length = mac_rrc_data_req_ue(Mod_id,
                             CC_id,
                             frame_tx,
@@ -3868,15 +3862,12 @@ SLDCH_t *ue_get_sldch(module_id_t Mod_id, int CC_id, frame_t frame_tx, sub_frame
                             0, //eNB_indexP
                             0);
 
-
-
     if(sldch->payload_length > 0)
     {
         LOG_I(MAC, "Got %d bytes from RRC for SLDCH @ %p\n", sldch->payload_length, sldch);
         return (sldch);
     }
     else
-
     {
         return((SLDCH_t *)NULL);
     }
@@ -3885,19 +3876,17 @@ SLDCH_t *ue_get_sldch(module_id_t Mod_id, int CC_id, frame_t frame_tx, sub_frame
 
 SLSCH_t *ue_get_slsch(module_id_t module_idP, int CC_id, frame_t frameP, sub_frame_t subframeP)
 {
-
-    mac_rlc_status_resp_t rlc_status; //, rlc_status_data;
+    mac_rlc_status_resp_t rlc_status = {0, 0, 0, 0, 0}; //, rlc_status_data;
     uint32_t absSF = (frameP * 10) + subframeP;
     UE_MAC_INST *ue = &UE_mac_inst[module_idP];
     int rvtab[4] = {0, 2, 3, 1};
     int sdu_length;
     //uint8_t sl_lcids[2] = {3, 10}; //list of lcids for SL - hardcoded
     int i = 0;
-
     // Note: this is hard-coded for now for the default SL configuration (4 SF PSCCH, 36 SF PSSCH)
     SLSCH_t *slsch = &UE_mac_inst[module_idP].slsch;
-
     LOG_D(MAC, "Checking SLSCH for absSF %d\n", absSF);
+
     if((absSF % 40) == 0)  // fill PSCCH data later in first subframe of SL period
     {
         ue->sltx_active = 0;
@@ -3912,6 +3901,7 @@ SLSCH_t *ue_get_slsch(module_id_t module_idP, int CC_id, frame_t frameP, sub_fra
                     {
                         rlc_status = mac_rlc_status_ind(module_idP, 0x1234, 0, frameP, subframeP, ENB_FLAG_NO, MBMS_FLAG_NO,
                                                         ue->SL_LCID[i], 0xFFFF, ue->sourceL2Id, ue->destinationList[j]);
+
                         if(rlc_status.bytes_in_buffer > 2)
                         {
                             LOG_I(MAC, "SFN.SF %d.%d: Scheduling for %d bytes in Sidelink buffer\n", frameP, subframeP, rlc_status.bytes_in_buffer);
@@ -3925,6 +3915,7 @@ SLSCH_t *ue_get_slsch(module_id_t module_idP, int CC_id, frame_t frameP, sub_fra
                     }
                 }
             }
+
             if(ue->sltx_active == 1)
             {
                 break;
@@ -3936,17 +3927,7 @@ SLSCH_t *ue_get_slsch(module_id_t module_idP, int CC_id, frame_t frameP, sub_fra
     {
         // 10 PRBs, mcs 19
         int TBS = 4584 / 8;
-        int req;
-
-
-        if(TBS <= rlc_status.bytes_in_buffer)
-        {
-            req = TBS;
-        }
-        else
-        {
-            req = rlc_status.bytes_in_buffer;
-        }
+        int req = (TBS <= rlc_status.bytes_in_buffer) ? TBS : rlc_status.bytes_in_buffer;
 
         if(req > 0)
         {
@@ -3968,12 +3949,11 @@ SLSCH_t *ue_get_slsch(module_id_t module_idP, int CC_id, frame_t frameP, sub_fra
             // Notes: 1. hard-coded to 24-bit destination format for now
             if(sdu_length > 0)
             {
-
                 LOG_I(MAC, "SFN.SF %d.%d : got %d bytes from Sidelink buffer (%d requested)\n", frameP, subframeP, sdu_length, req);
                 LOG_I(MAC, "sourceL2Id: 0x%08x \n", ue->sourceL2Id);
                 LOG_I(MAC, "groupL2Id/destinationL2Id: 0x%08x \n", ue->destinationL2Id);
-
                 slsch->payload = (unsigned char *)ue->slsch_pdu.payload;
+
                 if(sdu_length < 128)
                 {
                     slsch->payload++;
@@ -4006,6 +3986,7 @@ SLSCH_t *ue_get_slsch(module_id_t module_idP, int CC_id, frame_t frameP, sub_fra
                     longh->DST1623 = ue->destinationL2Id & 0x000000ff;
                     longh->V = 0x1;
                 }
+
                 slsch->rvidx = 0;
                 slsch->payload_length = TBS;
                 // fill in SLSCH configuration
@@ -4016,7 +3997,6 @@ SLSCH_t *ue_get_slsch(module_id_t module_idP, int CC_id, frame_t frameP, sub_fra
                 ue->sltx_active = 0;
             }
         }
-
     }
     else if((absSF % 40) > 3 && ue->sltx_active == 1)  // handle retransmission of SDU
     {

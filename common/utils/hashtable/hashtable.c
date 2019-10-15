@@ -33,12 +33,28 @@ char *hashtable_rc_code2string(hashtable_rc_t rcP)
 {
     switch(rcP)
     {
-        case HASH_TABLE_OK:                      return "HASH_TABLE_OK"; break;
-        case HASH_TABLE_INSERT_OVERWRITTEN_DATA: return "HASH_TABLE_INSERT_OVERWRITTEN_DATA"; break;
-        case HASH_TABLE_KEY_NOT_EXISTS:          return "HASH_TABLE_KEY_NOT_EXISTS"; break;
-        case HASH_TABLE_KEY_ALREADY_EXISTS:      return "HASH_TABLE_KEY_ALREADY_EXISTS"; break;
-        case HASH_TABLE_BAD_PARAMETER_HASHTABLE: return "HASH_TABLE_BAD_PARAMETER_HASHTABLE"; break;
-        default:                                 return "UNKNOWN hashtable_rc_t";
+        case HASH_TABLE_OK:
+            return "HASH_TABLE_OK";
+            break;
+
+        case HASH_TABLE_INSERT_OVERWRITTEN_DATA:
+            return "HASH_TABLE_INSERT_OVERWRITTEN_DATA";
+            break;
+
+        case HASH_TABLE_KEY_NOT_EXISTS:
+            return "HASH_TABLE_KEY_NOT_EXISTS";
+            break;
+
+        case HASH_TABLE_KEY_ALREADY_EXISTS:
+            return "HASH_TABLE_KEY_ALREADY_EXISTS";
+            break;
+
+        case HASH_TABLE_BAD_PARAMETER_HASHTABLE:
+            return "HASH_TABLE_BAD_PARAMETER_HASHTABLE";
+            break;
+
+        default:
+            return "UNKNOWN hashtable_rc_t";
     }
 }
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -110,33 +126,37 @@ hash_table_t *hashtable_create(const hash_size_t sizeP, hash_size_t (*hashfuncP)
     Cleanup
     The hashtable_destroy() walks through the linked lists for each possible hash value, and releases the elements. It also releases the nodes array and the hash_table_t.
 */
-hashtable_rc_t hashtable_destroy(hash_table_t *hashtblP)
+hashtable_rc_t hashtable_destroy(hash_table_t **hashtblP)
 {
     hash_size_t n;
     hash_node_t *node, *oldnode;
 
-    if(hashtblP == NULL)
+    if(*hashtblP == NULL)
     {
         return HASH_TABLE_BAD_PARAMETER_HASHTABLE;
     }
 
-    for(n = 0; n < hashtblP->size; ++n)
+    for(n = 0; n < (*hashtblP)->size; ++n)
     {
-        node = hashtblP->nodes[n];
+        node = (*hashtblP)->nodes[n];
+
         while(node)
         {
             oldnode = node;
             node = node->next;
+
             if(oldnode->data)
             {
-                hashtblP->freefunc(oldnode->data);
+                (*hashtblP)->freefunc(oldnode->data);
             }
+
             free(oldnode);
         }
     }
-    free(hashtblP->nodes);
-    free(hashtblP);
-    hashtblP = NULL;
+
+    free((*hashtblP)->nodes);
+    free((*hashtblP));
+    *hashtblP = NULL;
     return HASH_TABLE_OK;
 }
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -153,14 +173,17 @@ hashtable_rc_t hashtable_is_key_exists(const hash_table_t *const hashtblP, const
 
     hash = hashtblP->hashfunc(keyP) % hashtblP->size;
     node = hashtblP->nodes[hash];
+
     while(node)
     {
         if(node->key == keyP)
         {
             return HASH_TABLE_OK;
         }
+
         node = node->next;
     }
+
     return HASH_TABLE_KEY_NOT_EXISTS;
 }
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -170,15 +193,18 @@ hashtable_rc_t hashtable_apply_funct_on_elements(hash_table_t *const hashtblP, v
     hash_node_t  *node         = NULL;
     unsigned int  i            = 0;
     unsigned int  num_elements = 0;
+
     if(hashtblP == NULL)
     {
         return HASH_TABLE_BAD_PARAMETER_HASHTABLE;
     }
+
     while((num_elements < hashtblP->num_elements) && (i < hashtblP->size))
     {
         if(hashtblP->nodes[i] != NULL)
         {
             node = hashtblP->nodes[i];
+
             while(node)
             {
                 num_elements += 1;
@@ -186,8 +212,10 @@ hashtable_rc_t hashtable_apply_funct_on_elements(hash_table_t *const hashtblP, v
                 node = node->next;
             }
         }
+
         i += 1;
     }
+
     return HASH_TABLE_OK;
 }
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -196,6 +224,7 @@ hashtable_rc_t hashtable_dump_content(const hash_table_t *const hashtblP, char *
 {
     hash_node_t  *node         = NULL;
     unsigned int  i            = 0;
+
     if(hashtblP == NULL)
     {
         *remaining_bytes_in_buffer_pP = snprintf(
@@ -204,11 +233,13 @@ hashtable_rc_t hashtable_dump_content(const hash_table_t *const hashtblP, char *
                                             "HASH_TABLE_BAD_PARAMETER_HASHTABLE");
         return HASH_TABLE_BAD_PARAMETER_HASHTABLE;
     }
+
     while((i < hashtblP->size) && (*remaining_bytes_in_buffer_pP > 0))
     {
         if(hashtblP->nodes[i] != NULL)
         {
             node = hashtblP->nodes[i];
+
             while(node)
             {
                 *remaining_bytes_in_buffer_pP = snprintf(
@@ -220,8 +251,10 @@ hashtable_rc_t hashtable_dump_content(const hash_table_t *const hashtblP, char *
                 node = node->next;
             }
         }
+
         i += 1;
     }
+
     return HASH_TABLE_OK;
 }
 
@@ -234,13 +267,15 @@ hashtable_rc_t hashtable_insert(hash_table_t *const hashtblP, const hash_key_t k
 {
     hash_node_t *node = NULL;
     hash_size_t  hash = 0;
+
     if(hashtblP == NULL)
     {
         return HASH_TABLE_BAD_PARAMETER_HASHTABLE;
     }
-    hash = hashtblP->hashfunc(keyP) % hashtblP->size;
 
+    hash = hashtblP->hashfunc(keyP) % hashtblP->size;
     node = hashtblP->nodes[hash];
+
     while(node)
     {
         if(node->key == keyP)
@@ -249,17 +284,22 @@ hashtable_rc_t hashtable_insert(hash_table_t *const hashtblP, const hash_key_t k
             {
                 hashtblP->freefunc(node->data);
             }
+
             node->data = dataP;
             return HASH_TABLE_INSERT_OVERWRITTEN_DATA;
         }
+
         node = node->next;
     }
+
     if(!(node = malloc(sizeof(hash_node_t))))
     {
         return -1;
     }
+
     node->key = keyP;
     node->data = dataP;
+
     if(hashtblP->nodes[hash])
     {
         node->next = hashtblP->nodes[hash];
@@ -268,6 +308,7 @@ hashtable_rc_t hashtable_insert(hash_table_t *const hashtblP, const hash_key_t k
     {
         node->next = NULL;
     }
+
     hashtblP->nodes[hash] = node;
     hashtblP->num_elements += 1;
     return HASH_TABLE_OK;
@@ -286,8 +327,10 @@ hashtable_rc_t hashtable_remove(hash_table_t *const hashtblP, const hash_key_t k
     {
         return HASH_TABLE_BAD_PARAMETER_HASHTABLE;
     }
+
     hash = hashtblP->hashfunc(keyP) % hashtblP->size;
     node = hashtblP->nodes[hash];
+
     while(node)
     {
         if(node->key == keyP)
@@ -300,17 +343,21 @@ hashtable_rc_t hashtable_remove(hash_table_t *const hashtblP, const hash_key_t k
             {
                 hashtblP->nodes[hash] = node->next;
             }
+
             if(node->data)
             {
                 hashtblP->freefunc(node->data);
             }
+
             free(node);
             hashtblP->num_elements -= 1;
             return HASH_TABLE_OK;
         }
+
         prevnode = node;
         node = node->next;
     }
+
     return HASH_TABLE_KEY_NOT_EXISTS;
 }
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -328,9 +375,9 @@ hashtable_rc_t hashtable_get(const hash_table_t *const hashtblP, const hash_key_
         *dataP = NULL;
         return HASH_TABLE_BAD_PARAMETER_HASHTABLE;
     }
-    hash = hashtblP->hashfunc(keyP) % hashtblP->size;
-    /*	fprintf(stderr, "hashtable_get() key=%s, hash=%d\n", key, hash);*/
 
+    hash = hashtblP->hashfunc(keyP) % hashtblP->size;
+    /*  fprintf(stderr, "hashtable_get() key=%s, hash=%d\n", key, hash);*/
     node = hashtblP->nodes[hash];
 
     while(node)
@@ -340,8 +387,10 @@ hashtable_rc_t hashtable_get(const hash_table_t *const hashtblP, const hash_key_
             *dataP = node->data;
             return HASH_TABLE_OK;
         }
+
         node = node->next;
     }
+
     *dataP = NULL;
     return HASH_TABLE_KEY_NOT_EXISTS;
 }
@@ -370,6 +419,7 @@ hashtable_rc_t hashtable_resize(hash_table_t *const hashtblP, const hash_size_t 
 
     newtbl.size     = sizeP;
     newtbl.hashfunc = hashtblP->hashfunc;
+    newtbl.num_elements = 0;
 
     if(!(newtbl.nodes = calloc(sizeP, sizeof(hash_node_t *))))
     {
@@ -384,14 +434,12 @@ hashtable_rc_t hashtable_resize(hash_table_t *const hashtblP, const hash_size_t 
             hashtable_insert(&newtbl, node->key, node->data);
             // Lionel GAUTHIER: BAD CODE TO BE REWRITTEN
             hashtable_remove(hashtblP, node->key);
-
         }
     }
 
     free(hashtblP->nodes);
     hashtblP->size = newtbl.size;
     hashtblP->nodes = newtbl.nodes;
-
     return HASH_TABLE_OK;
 }
 

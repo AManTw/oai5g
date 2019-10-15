@@ -128,6 +128,8 @@ void rlc_am_v9_3_0_test_windows()
     rlc_am_entity_t am2;
     unsigned int    i;
     unsigned int    j;
+    memset(am1, 0, sizeof(rlc_am_entity_t));
+    memset(am2, 0, sizeof(rlc_am_entity_t));
 
     rlc_am_init(&am1, g_frame);
     rlc_am_init(&am2, g_frame);
@@ -233,7 +235,6 @@ void rlc_am_v9_3_0_test_windows()
             assert(rlc_am_in_rx_window(&am1, i) == 0);
         }
     }
-
 }
 //-----------------------------------------------------------------------------
 void rlc_am_v9_3_0_test_read_write_bit_field()
@@ -241,11 +242,9 @@ void rlc_am_v9_3_0_test_read_write_bit_field()
 {
     unsigned int bit_pos_write       = 0; // range from 0 (MSB/left) to 7 (LSB/right)
     uint8_t        *byte_pos_write      = g_buffer;
-
     unsigned int bit_pos_read       = 0; // range from 0 (MSB/left) to 7 (LSB/right)
     uint8_t        *byte_pos_read      = g_buffer;
     uint16_t        read_value;
-
     memset(g_buffer, 0, sizeof(g_buffer));
     // byte 0
     rlc_am_write8_bit_field(&byte_pos_write, &bit_pos_write, 1, 1);
@@ -258,7 +257,6 @@ void rlc_am_v9_3_0_test_read_write_bit_field()
     rlc_am_write8_bit_field(&byte_pos_write, &bit_pos_write, 1, 0);
     assert(g_buffer[0] == 0x96);
     assert(g_buffer[1] == 0x00);
-
     // byte 1
     rlc_am_write8_bit_field(&byte_pos_write, &bit_pos_write, 1, 1);
     rlc_am_write8_bit_field(&byte_pos_write, &bit_pos_write, 1, 1);
@@ -269,10 +267,8 @@ void rlc_am_v9_3_0_test_read_write_bit_field()
     rlc_am_write8_bit_field(&byte_pos_write, &bit_pos_write, 1, 0);
     rlc_am_write8_bit_field(&byte_pos_write, &bit_pos_write, 1, 1);
     assert(g_buffer[0] == 0x96);
-
     assert(g_buffer[1] == 0xD9);
     assert(g_buffer[2] == 0x00);
-
     // byte 2
     rlc_am_write8_bit_field(&byte_pos_write, &bit_pos_write, 1, 0);
     rlc_am_write8_bit_field(&byte_pos_write, &bit_pos_write, 1, 0);
@@ -284,7 +280,6 @@ void rlc_am_v9_3_0_test_read_write_bit_field()
     rlc_am_write8_bit_field(&byte_pos_write, &bit_pos_write, 1, 1);
     assert(g_buffer[0] == 0x96);
     assert(g_buffer[1] == 0xD9);
-
     assert(g_buffer[2] == 0x11);
     assert(g_buffer[3] == 0x00);
     // byte 3 & 4
@@ -300,7 +295,6 @@ void rlc_am_v9_3_0_test_read_write_bit_field()
     assert(g_buffer[0] == 0x96);
     assert(g_buffer[1] == 0xD9);
     assert(g_buffer[2] == 0x11);
-
     assert(g_buffer[3] == 0x99);
     assert(g_buffer[4] == 0xA7);
     assert(g_buffer[5] == 0x00);
@@ -316,7 +310,6 @@ void rlc_am_v9_3_0_test_read_write_bit_field()
     assert(g_buffer[2] == 0x11);
     assert(g_buffer[3] == 0x99);
     assert(g_buffer[4] == 0xA7);
-
     assert(g_buffer[5] == 0xF4);
     assert(g_buffer[6] == 0x86);
     assert(g_buffer[7] == 0x00);
@@ -335,7 +328,6 @@ void rlc_am_v9_3_0_test_read_write_bit_field()
     assert(g_buffer[4] == 0xA7);
     assert(g_buffer[5] == 0xF4);
     assert(g_buffer[6] == 0x86);
-
     assert(g_buffer[7] == 0xCD);
     assert(g_buffer[8] == 0x7D);
     assert(g_buffer[9] == 0x58);
@@ -355,7 +347,6 @@ void rlc_am_v9_3_0_test_read_write_bit_field()
     assert(g_buffer[7]  == 0xCD);
     assert(g_buffer[8]  == 0x7D);
     assert(g_buffer[9]  == 0x58);
-
     assert(g_buffer[10] == 0xAA);
     assert(g_buffer[11] == 0xDB);
     assert(g_buffer[12] == 0xAA);
@@ -386,7 +377,6 @@ void rlc_am_v9_3_0_test_read_write_bit_field()
     assert(g_buffer[12] == 0xAA);
     assert(g_buffer[13] == 0xBD);
     assert(g_buffer[14] == 0x34);
-
     assert(g_buffer[15] == 0xE0);
     assert(g_buffer[16] == 0x3F);
     assert(g_buffer[17] == 0x84);
@@ -403,7 +393,6 @@ void rlc_am_v9_3_0_test_read_write_bit_field()
     assert(g_buffer[28] == 0x87);
     assert(g_buffer[29] == 0x88);
     assert(g_buffer[30] == 0x00);
-
     // 0x96 0xD9
     read_value = rlc_am_read_bit_field(&byte_pos_read, &bit_pos_read, 1);// b0
     assert(read_value == 1);
@@ -437,7 +426,6 @@ void rlc_am_v9_3_0_test_read_write_bit_field()
     assert(read_value == 0);
     read_value = rlc_am_read_bit_field(&byte_pos_read, &bit_pos_read, 1);// b15
     assert(read_value == 1);
-
     //  0x11 0x99
     read_value = rlc_am_read_bit_field(&byte_pos_read, &bit_pos_read, 2);
     assert(read_value == 0);
@@ -457,7 +445,6 @@ void rlc_am_v9_3_0_test_read_write_bit_field()
     assert(read_value == 2);
     read_value = rlc_am_read_bit_field(&byte_pos_read, &bit_pos_read, 2);
     assert(read_value == 1);
-
     //  0xA7 0xF4 0x86 0xCD 0x7D;
     read_value = rlc_am_read_bit_field(&byte_pos_read, &bit_pos_read, 10);
     assert(read_value == 0x29F);
@@ -467,10 +454,8 @@ void rlc_am_v9_3_0_test_read_write_bit_field()
     assert(read_value == 0x1B3);
     read_value = rlc_am_read_bit_field(&byte_pos_read, &bit_pos_read, 10);
     assert(read_value == 0x17D);
-
     //  0x58 0xAA 0xDB 0xAA 0xBD 0x34
     //  0xE0 0x3F 0x84 0xBA 0x91 0xEC
-
     read_value = rlc_am_read_bit_field(&byte_pos_read, &bit_pos_read, 1);
     assert(read_value == 0);
     read_value = rlc_am_read_bit_field(&byte_pos_read, &bit_pos_read, 10);
@@ -493,7 +478,6 @@ void rlc_am_v9_3_0_test_read_write_bit_field()
     assert(read_value == 0x2EA);
     read_value = rlc_am_read_bit_field(&byte_pos_read, &bit_pos_read, 10);
     assert(read_value == 0x11E);
-
     bit_pos_read  = 0;
     byte_pos_read = g_buffer;
     // 0x96 0xD9 0x11 0x99 0xA7 0xF4 0x86 0xCD 0x7D 0x58 0xAA 0xDB 0xAA 0xBD 0x34
@@ -544,13 +528,11 @@ void rlc_am_v9_3_0_test_send_sdu(rlc_am_entity_t *am_txP, int sdu_indexP)
         printf("[FRAME %05d][RLC][MOD %02d][RB %02d] TX SDU %d %04d bytes\n", g_frame, am_txP->module_id, am_txP->rb_id, sdu_indexP, strlen(g_sdus[sdu_indexP]) + 1);
         memset(sdu->data, 0, sizeof(struct rlc_am_data_req_alloc));
         strcpy(&sdu->data[sizeof(struct rlc_am_data_req_alloc)], g_sdus[sdu_indexP]);
-
         ((struct rlc_am_data_req *)(sdu->data))->data_size = strlen(g_sdus[sdu_indexP]) + 1;
         ((struct rlc_am_data_req *)(sdu->data))->conf = 1;
         ((struct rlc_am_data_req *)(sdu->data))->mui  = g_mui++;
         ((struct rlc_am_data_req *)(sdu->data))->data_offset = sizeof(struct rlc_am_data_req_alloc);
         rlc_am_data_req(am_txP, g_frame, sdu);
-
         g_send_sdu_ids[g_send_id_write_index[am_txP->rb_id]++][am_txP->rb_id] = sdu_indexP;
         assert(g_send_id_write_index[am_txP->rb_id] < TEST_MAX_SEND_SDU);
     }
@@ -562,14 +544,11 @@ void rlc_am_v9_3_0_test_send_sdu(rlc_am_entity_t *am_txP, int sdu_indexP)
 }
 //-----------------------------------------------------------------------------
 void rlc_am_v9_3_0_test_mac_rlc_loop(struct mac_data_ind *data_indP,  struct mac_data_req *data_requestP, int *drop_countP, int *tx_packetsP,
-                                     int *dropped_tx_packetsP) //-----------------------------------------------------------------------------
+                                     int *dropped_tx_packetsP)   //-----------------------------------------------------------------------------
 {
-
-
     mem_block_t *tb_src;
     mem_block_t *tb_dst;
     unsigned int tb_size;
-
     data_indP->no_tb = 0;
 
     while(data_requestP->data.nb_elements > 0)
@@ -579,10 +558,9 @@ void rlc_am_v9_3_0_test_mac_rlc_loop(struct mac_data_ind *data_indP,  struct mac
         if(tb_src != NULL)
         {
             tb_size = ((struct mac_tb_req *)(tb_src->data))->tb_size_in_bits >> 3;
-            printf("[RLC-LOOP] FOUND TB SIZE IN BITS %d IN BYTES %d sizeof (mac_rlc_max_rx_header_size_t) %d\n",
+            printf("[RLC-LOOP] FOUND TB SIZE IN BITS %d IN BYTES %u sizeof (mac_rlc_max_rx_header_size_t) %d\n",
                    ((struct mac_tb_req *)(tb_src->data))->tb_size_in_bits,
                    tb_size, sizeof(mac_rlc_max_rx_header_size_t));
-
             *tx_packetsP = *tx_packetsP + 1;
 
             if(*drop_countP == 0)
@@ -595,11 +573,9 @@ void rlc_am_v9_3_0_test_mac_rlc_loop(struct mac_data_ind *data_indP,  struct mac
                     ((struct mac_tb_ind *)(tb_dst->data))->data_ptr         = &tb_dst->data[sizeof(mac_rlc_max_rx_header_size_t)];
                     ((struct mac_tb_ind *)(tb_dst->data))->size             = tb_size;
                     ((struct mac_tb_ind *)(tb_dst->data))->error_indication = 0;
-
                     memcpy(((struct mac_tb_ind *)(tb_dst->data))->data_ptr,
                            &((struct mac_tb_req *)(tb_src->data))->data_ptr[0],
                            tb_size);
-
                     list_add_tail_eurecom(tb_dst, &data_indP->data);
                     data_indP->no_tb  += 1;
                 }
@@ -639,8 +615,6 @@ void rlc_am_v9_3_0_test_exchange_pdus(rlc_am_entity_t *am_txP,
     struct mac_status_ind  tx_status;
     struct mac_status_resp mac_rlc_status_resp_tx;
     struct mac_status_resp mac_rlc_status_resp_rx;
-
-
     memset(&data_request_tx, 0, sizeof(struct mac_data_req));
     memset(&data_request_rx, 0, sizeof(struct mac_data_req));
     memset(&data_ind_tx,     0, sizeof(struct mac_data_ind));
@@ -648,19 +622,15 @@ void rlc_am_v9_3_0_test_exchange_pdus(rlc_am_entity_t *am_txP,
     memset(&tx_status,       0, sizeof(struct mac_status_ind));
     memset(&mac_rlc_status_resp_tx, 0, sizeof(struct mac_status_resp));
     memset(&mac_rlc_status_resp_rx, 0, sizeof(struct mac_status_resp));
-
     mac_rlc_status_resp_tx = rlc_am_mac_status_indication(am_txP, g_frame, bytes_txP, tx_status);
     data_request_tx        = rlc_am_mac_data_request(am_txP, g_frame);
     mac_rlc_status_resp_rx = rlc_am_mac_status_indication(am_rxP, g_frame, bytes_rxP, tx_status);
     data_request_rx        = rlc_am_mac_data_request(am_rxP, g_frame);
-
-
     rlc_am_v9_3_0_test_mac_rlc_loop(&data_ind_rx, &data_request_tx, &g_drop_tx, &g_tx_packets, &g_dropped_tx_packets);
     rlc_am_v9_3_0_test_mac_rlc_loop(&data_ind_tx, &data_request_rx, &g_drop_rx, &g_rx_packets, &g_dropped_rx_packets);
     rlc_am_mac_data_indication(am_rxP, g_frame, am_txP->is_enb, data_ind_rx);
     rlc_am_mac_data_indication(am_txP, g_frame, am_txP->is_enb, data_ind_tx);
     g_frame += 1;
-
     //rlc_am_tx_buffer_display(am_txP,NULL);
     //assert(am_txP->t_status_prohibit.time_out != 1);
     //assert(am_rxP->t_status_prohibit.time_out != 1);
@@ -698,14 +668,12 @@ void rlc_am_v9_3_0_test_data_ind(module_id_t module_idP, rb_id_t rb_idP, sdu_siz
 
             if(g_send_sdu_ids[g_send_id_read_index[rb_idP]][rb_idP ^ 1] != i)
             {
-
                 printf("[FRAME %05d][RLC][MOD %d][RB %d][DATA-IND] g_send_sdu_ids[%d] = %d\n", g_frame, module_idP, rb_idP,  g_send_id_read_index[rb_idP] - 2,
                        g_send_sdu_ids[g_send_id_read_index[rb_idP] - 2][rb_idP ^ 1]);
                 printf("[FRAME %05d][RLC][MOD %d][RB %d][DATA-IND] g_send_sdu_ids[%d] = %d\n", g_frame, module_idP, rb_idP,  g_send_id_read_index[rb_idP] - 1,
                        g_send_sdu_ids[g_send_id_read_index[rb_idP] - 1][rb_idP ^ 1]);
                 printf("[FRAME %05d][RLC][MOD %d][RB %d][DATA-IND] g_send_sdu_ids[%d] = %d\n", g_frame, module_idP, rb_idP,  g_send_id_read_index[rb_idP],
                        g_send_sdu_ids[g_send_id_read_index[rb_idP]][rb_idP ^ 1]);
-
                 printf("[FRAME %05d][RLC][MOD %d][RB %d][DATA-IND] g_send_id_read_index = %d sdu sent = %d\n", g_frame, module_idP, rb_idP,  g_send_id_read_index[rb_idP], i);
             }
 
@@ -731,17 +699,13 @@ void rlc_am_v9_3_0_test_tx_rx()
     uint32_t                 t_reordering       = 5000;
     uint32_t                 t_status_prohibit  = 10;
     int                   i, j, r;
-
     srand(0);
-
     rlc_am_init(&g_am_tx, g_frame);
     rlc_am_init(&g_am_rx, g_frame);
     rlc_am_set_debug_infos(&g_am_tx, g_frame, 0, 0, 0, 1, 1 /* LC-id = DRB-id */);
     rlc_am_set_debug_infos(&g_am_rx, g_frame, 1, 1, 1, 1, 1 /* LC-id = DRB-id */);
-
     rlc_am_configure(&g_am_tx, g_frame, max_retx_threshold, poll_pdu, poll_byte, t_poll_retransmit, t_reordering, t_status_prohibit);
     rlc_am_configure(&g_am_rx, g_frame, max_retx_threshold, poll_pdu, poll_byte, t_poll_retransmit, t_reordering, t_status_prohibit);
-
 #ifdef TEST1
     srand(0);
     rlc_am_v9_3_0_test_reset_sdus();
@@ -768,7 +732,6 @@ void rlc_am_v9_3_0_test_tx_rx()
     rlc_am_rx_list_display(&g_am_rx, "RLC-AM RX:");
     assert(g_send_id_read_index[1] == g_send_id_write_index[0]);
     printf("\n\n\n\n\n\n-----------------------------------------------------------------------------------------rlc_am_v9_3_0_test 1: END OF SIMPLE TEST SEVERAL SDUs IN PDU\n\n\n\n");
-
     rlc_am_v9_3_0_test_reset_sdus();
 
     // RANDOM TESTS
@@ -840,7 +803,6 @@ void rlc_am_v9_3_0_test_tx_rx()
     rlc_am_v9_3_0_test_exchange_pdus(&g_am_tx, &g_am_rx, 2000, 200);
     rlc_am_v9_3_0_test_exchange_pdus(&g_am_tx, &g_am_rx, 2000, 200);
     rlc_am_v9_3_0_test_exchange_pdus(&g_am_tx, &g_am_rx, 2000, 200);
-
     rlc_am_v9_3_0_test_send_sdu(&g_am_tx, 1);
     rlc_am_v9_3_0_test_exchange_pdus(&g_am_tx, &g_am_rx, 30, 200);
     rlc_am_v9_3_0_test_exchange_pdus(&g_am_tx, &g_am_rx, 31, 200);
@@ -1003,7 +965,6 @@ void rlc_am_v9_3_0_test_tx_rx()
     rlc_am_v9_3_0_test_exchange_pdus(&g_am_tx, &g_am_rx, 15, 100);
     rlc_am_v9_3_0_test_exchange_pdus(&g_am_tx, &g_am_rx, 15, 100);
     rlc_am_v9_3_0_test_exchange_pdus(&g_am_tx, &g_am_rx, 15, 100);
-
     t_poll_retransmit = 6;
     rlc_am_configure(&g_am_tx, g_frame, max_retx_threshold, poll_pdu, poll_byte, t_poll_retransmit, t_reordering, t_status_prohibit);
 
@@ -1258,7 +1219,6 @@ void rlc_am_v9_3_0_test_tx_rx()
                 assert(g_send_id_read_index[0] == g_send_id_write_index[1]);
                 printf("REAL BLER TX=%d (TARGET=%d) BLER RX=%d (TARGET=%d) \n", (g_dropped_tx_packets * 100) / g_tx_packets, g_target_tx_error_rate,
                        (g_dropped_rx_packets * 100) / g_rx_packets, g_target_rx_error_rate);
-
             }
         }
 
@@ -1273,11 +1233,10 @@ void rlc_am_v9_3_0_test_print_trace(void)
     size_t size;
     char **strings;
     size_t i;
-
     size = backtrace(array, 100);
     strings = backtrace_symbols(array, size);
+    printf("Obtained %lu stack frames.\n", (unsigned long)size);
 
-    printf("Obtained %d stack frames.\n", size);
 
     for(i = 0; i < size; i++)
     {
@@ -1294,15 +1253,10 @@ void rlc_am_v9_3_0_test(void)
     //     initscr();
     //     cbreak();
     //     keypad(stdscr, TRUE);
-
-
-
     // under test
     pool_buffer_init();
     set_comp_log(RLC, LOG_ERR, LOG_MED, 1);
-
     rlc_am_v9_3_0_test_tx_rx();
-
     // already tested
     rlc_am_v9_3_0_test_windows();
     rlc_am_v9_3_0_test_read_write_bit_field();

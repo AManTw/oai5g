@@ -101,7 +101,7 @@ public:
     {
         index = 0;
         id = 0;
-
+        udp = 0;
         local_port = 0;
         remote_addr = 0;
         remote_port = 0;
@@ -178,6 +178,7 @@ public:
 
         sync_mode = 0;
         location_mode = 0;
+        location_coordinates = 0;
         dl_config_timing = 0;
         ul_config_timing = 0;
         tx_timing = 0;

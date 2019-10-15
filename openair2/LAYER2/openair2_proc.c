@@ -53,7 +53,6 @@ extern RAN_CONTEXT_t RC;
 
 int dump_eNB_l2_stats(char *buffer, int length)
 {
-
     int eNB_id, UE_id, number_of_cards;
     int len = length;
     int CC_id = 0;
@@ -88,7 +87,6 @@ int dump_eNB_l2_stats(char *buffer, int length)
     unsigned int  stat_timer_reordering_timed_out;
     unsigned int  stat_timer_poll_retransmit_timed_out;
     unsigned int  stat_timer_status_prohibit_timed_out;
-
 #ifdef EXMIMO
     number_of_cards = 1;
 #else
@@ -106,7 +104,6 @@ int dump_eNB_l2_stats(char *buffer, int length)
         for(CC_id = 0 ; CC_id < MAX_NUM_CCs; CC_id++)
         {
             eNB->eNB_stats[CC_id].dlsch_bitrate = 0;
-
             len += sprintf(&buffer[len], "eNB %d CC %d Frame %d: Active UEs %d, Available PRBs %d, nCCE %d, Scheduling decisions %d, Missed Deadlines %d \n",
                            eNB_id, CC_id, eNB->frame,
                            eNB->eNB_stats[CC_id].num_dlactive_UEs,
@@ -114,27 +111,22 @@ int dump_eNB_l2_stats(char *buffer, int length)
                            eNB->eNB_stats[CC_id].available_ncces,
                            eNB->eNB_stats[CC_id].sched_decisions,
                            eNB->eNB_stats[CC_id].missed_deadlines);
-
             len += sprintf(&buffer[len], "BCCH , NB_TX_MAC = %d, transmitted bytes (TTI %d, total %d) MCS (TTI %d)\n",
                            eNB->eNB_stats[CC_id].total_num_bcch_pdu,
                            eNB->eNB_stats[CC_id].bcch_buffer,
                            eNB->eNB_stats[CC_id].total_bcch_buffer,
                            eNB->eNB_stats[CC_id].bcch_mcs);
-
             len += sprintf(&buffer[len], "PCCH , NB_TX_MAC = %d, transmitted bytes (TTI %d, total %d) MCS (TTI %d)\n",
                            eNB->eNB_stats[CC_id].total_num_pcch_pdu,
                            eNB->eNB_stats[CC_id].pcch_buffer,
                            eNB->eNB_stats[CC_id].total_pcch_buffer,
                            eNB->eNB_stats[CC_id].pcch_mcs);
-
             eNB->eNB_stats[CC_id].dlsch_bitrate = ((eNB->eNB_stats[CC_id].dlsch_bytes_tx * 8) / ((eNB->frame + 1) * 10));
             eNB->eNB_stats[CC_id].total_dlsch_pdus_tx += eNB->eNB_stats[CC_id].dlsch_pdus_tx;
             eNB->eNB_stats[CC_id].total_dlsch_bytes_tx += eNB->eNB_stats[CC_id].dlsch_bytes_tx;
             eNB->eNB_stats[CC_id].total_dlsch_bitrate = ((eNB->eNB_stats[CC_id].total_dlsch_bytes_tx * 8) / ((eNB->frame + 1) * 10));
-
             eNB->eNB_stats[CC_id].ulsch_bitrate = ((eNB->eNB_stats[CC_id].ulsch_bytes_rx * 8) / ((eNB->frame + 1) * 10));
             eNB->eNB_stats[CC_id].total_ulsch_bitrate = ((eNB->eNB_stats[CC_id].total_ulsch_bytes_rx * 8) / ((eNB->frame + 1) * 10));
-
             len += sprintf(&buffer[len], "DLSCH bitrate (TTI %u, avg %u) kbps, Transmitted bytes (TTI %u, total %u), Transmitted PDU (TTI %u, total %u) \n",
                            eNB->eNB_stats[CC_id].dlsch_bitrate,
                            eNB->eNB_stats[CC_id].total_dlsch_bitrate,
@@ -142,7 +134,6 @@ int dump_eNB_l2_stats(char *buffer, int length)
                            eNB->eNB_stats[CC_id].total_dlsch_bytes_tx,
                            eNB->eNB_stats[CC_id].dlsch_pdus_tx,
                            eNB->eNB_stats[CC_id].total_dlsch_pdus_tx);
-
             len += sprintf(&buffer[len], "ULSCH bitrate (TTI %u, avg %u) kbps, Received bytes (TTI %u, total %u), Received PDU (TTI %lu, total %u) \n",
                            eNB->eNB_stats[CC_id].ulsch_bitrate,
                            eNB->eNB_stats[CC_id].total_ulsch_bitrate,
@@ -159,15 +150,12 @@ int dump_eNB_l2_stats(char *buffer, int length)
             for(i = 0; i < UE_list->numactiveCCs[UE_id]; i++)
             {
                 CC_id = UE_list->ordered_CCids[i][UE_id];
-
                 UE_list->eNB_UE_stats[CC_id][UE_id].dlsch_bitrate = ((UE_list->eNB_UE_stats[CC_id][UE_id].TBS * 8) / ((eNB->frame + 1) * 10));
                 UE_list->eNB_UE_stats[CC_id][UE_id].total_dlsch_bitrate = ((UE_list->eNB_UE_stats[CC_id][UE_id].total_pdu_bytes * 8) / ((eNB->frame + 1) * 10));
                 UE_list->eNB_UE_stats[CC_id][UE_id].total_overhead_bytes +=  UE_list->eNB_UE_stats[CC_id][UE_id].overhead_bytes;
                 UE_list->eNB_UE_stats[CC_id][UE_id].avg_overhead_bytes = ((UE_list->eNB_UE_stats[CC_id][UE_id].total_overhead_bytes * 8) / ((eNB->frame + 1) * 10));
-
                 UE_list->eNB_UE_stats[CC_id][UE_id].ulsch_bitrate = ((UE_list->eNB_UE_stats[CC_id][UE_id].ulsch_TBS * 8) / ((eNB->frame + 1) * 10));
                 UE_list->eNB_UE_stats[CC_id][UE_id].total_ulsch_bitrate = ((UE_list->eNB_UE_stats[CC_id][UE_id].total_pdu_bytes_rx * 8) / ((eNB->frame + 1) * 10));
-
                 len += sprintf(&buffer[len], "[MAC] UE %d (DLSCH),status %s, RNTI %x : CQI %d, MCS1 %d, MCS2 %d, RB (tx %d, retx %d, total %d), ncce (tx %d, retx %d) \n",
                                UE_id,
                                map_int_to_str(rrc_status_names, UE_list->eNB_UE_stats[CC_id][UE_id].rrc_status),
@@ -181,7 +169,6 @@ int dump_eNB_l2_stats(char *buffer, int length)
                                UE_list->eNB_UE_stats[CC_id][UE_id].ncce_used,
                                UE_list->eNB_UE_stats[CC_id][UE_id].ncce_used_retx
                               );
-
                 len += sprintf(&buffer[len],
                                "[MAC] DLSCH bitrate (TTI %d, avg %d), Transmitted bytes "
                                "(TTI %d, total %"PRIu64"), Total Transmitted PDU %d, Overhead "
@@ -195,15 +182,13 @@ int dump_eNB_l2_stats(char *buffer, int length)
                                UE_list->eNB_UE_stats[CC_id][UE_id].total_overhead_bytes,
                                UE_list->eNB_UE_stats[CC_id][UE_id].avg_overhead_bytes
                               );
-
-
-                len += sprintf(&buffer[len], "[MAC] UE %d (ULSCH), Status %s, Failute timer %d, RNTI %x : rx power (normalized %d,  target %d), MCS (pre %d, post %d), RB (rx %d, retx %d, total %d), Current TBS %d \n",
+                len += sprintf(&buffer[len], "[MAC] UE %d (ULSCH), Status %s, Failute timer %d, RNTI %x : snr (%d,  target %d), MCS (pre %d, post %d), RB (rx %d, retx %d, total %d), Current TBS %d \n",
                                UE_id,
                                map_int_to_str(rrc_status_names, UE_list->eNB_UE_stats[CC_id][UE_id].rrc_status),
                                UE_list->UE_sched_ctrl[UE_id].ul_failure_timer,
                                UE_list->eNB_UE_stats[CC_id][UE_id].crnti,
-                               UE_list->eNB_UE_stats[CC_id][UE_id].normalized_rx_power,
-                               UE_list->eNB_UE_stats[CC_id][UE_id].target_rx_power,
+                               UE_list->eNB_UE_stats[CC_id][UE_id].snr,
+                               UE_list->eNB_UE_stats[CC_id][UE_id].target_snr,
                                UE_list->eNB_UE_stats[CC_id][UE_id].ulsch_mcs1,
                                UE_list->eNB_UE_stats[CC_id][UE_id].ulsch_mcs2,
                                UE_list->eNB_UE_stats[CC_id][UE_id].rbs_used_rx,
@@ -211,7 +196,6 @@ int dump_eNB_l2_stats(char *buffer, int length)
                                UE_list->eNB_UE_stats[CC_id][UE_id].total_rbs_used_rx,
                                UE_list->eNB_UE_stats[CC_id][UE_id].ulsch_TBS
                               );
-
                 len += sprintf(&buffer[len],
                                "[MAC] ULSCH bitrate (TTI %d, avg %d), received bytes (total %"PRIu64"),"
                                "Total received PDU %d, Total errors %d\n",
@@ -220,7 +204,6 @@ int dump_eNB_l2_stats(char *buffer, int length)
                                UE_list->eNB_UE_stats[CC_id][UE_id].total_pdu_bytes_rx,
                                UE_list->eNB_UE_stats[CC_id][UE_id].total_num_pdus_rx,
                                UE_list->eNB_UE_stats[CC_id][UE_id].num_errors_rx);
-
                 len += sprintf(&buffer[len], "[MAC] Received PHR PH = %d (db)\n", UE_list->UE_template[CC_id][UE_id].phr_info);
                 len += sprintf(&buffer[len], "[MAC] Estimated size LCGID[0][1][2][3] = %u %u %u %u\n",
                                UE_list->UE_template[CC_id][UE_id].ul_buffer_info[LCGID0],
@@ -237,7 +220,6 @@ int dump_eNB_l2_stats(char *buffer, int length)
                                            eNB->frame,
                                            eNB->subframe,
                                            eNB_id);
-
             rlc_status = rlc_stat_req(&ctxt,
                                       SRB_FLAG_YES,
                                       DCCH,
@@ -272,14 +254,13 @@ int dump_eNB_l2_stats(char *buffer, int length)
 
             if(rlc_status == RLC_OP_STATUS_OK)
             {
-                len += sprintf(&buffer[len], "[RLC] DCCH Mode %s, NB_SDU_TO_TX = %d (bytes %d)\tNB_SDU_TO_TX_DISC %d (bytes %d)\n",
+                len += sprintf(&buffer[len], "[RLC] DCCH Mode %s, NB_SDU_TO_TX = %u (bytes %u)\tNB_SDU_TO_TX_DISC %u (bytes %u)\n",
                                (stat_rlc_mode == RLC_MODE_AM) ? "AM" : (stat_rlc_mode == RLC_MODE_UM) ? "UM" : "NONE",
                                stat_tx_pdcp_sdu,
                                stat_tx_pdcp_bytes,
                                stat_tx_pdcp_sdu_discarded,
                                stat_tx_pdcp_bytes_discarded);
-
-                len += sprintf(&buffer[len], "[RLC] DCCH Mode %s, NB_TX_DATA   = %d (bytes %d)\tNB_TX_CONTROL %d (bytes %d)\tNB_TX_RETX %d (bytes %d)\tNB_TX_RETX_BY_STATUS = %d (bytes %d)\n",
+                len += sprintf(&buffer[len], "[RLC] DCCH Mode %s, NB_TX_DATA   = %u (bytes %u)\tNB_TX_CONTROL %u (bytes %u)\tNB_TX_RETX %u (bytes %u)\tNB_TX_RETX_BY_STATUS = %u (bytes %u)\n",
                                (stat_rlc_mode == RLC_MODE_AM) ? "AM" : (stat_rlc_mode == RLC_MODE_UM) ? "UM" : "NONE",
                                stat_tx_data_pdu,
                                stat_tx_data_bytes,
@@ -289,9 +270,7 @@ int dump_eNB_l2_stats(char *buffer, int length)
                                stat_tx_retransmit_bytes,
                                stat_tx_retransmit_pdu_by_status,
                                stat_tx_retransmit_bytes_by_status);
-
-
-                len += sprintf(&buffer[len], "[RLC] DCCH Mode %s, NB_RX_DATA   = %d (bytes %d)\tNB_RX_CONTROL %d (bytes %d)\tNB_RX_DUPL %d (bytes %d)\tNB_RX_DROP = %d (bytes %d)\tNB_RX_OUT_OF_WINDOW = %d (bytes %d)\n",
+                len += sprintf(&buffer[len], "[RLC] DCCH Mode %s, NB_RX_DATA   = %u (bytes %u)\tNB_RX_CONTROL %u (bytes %u)\tNB_RX_DUPL %u (bytes %u)\tNB_RX_DROP = %u (bytes %u)\tNB_RX_OUT_OF_WINDOW = %u (bytes %u)\n",
                                (stat_rlc_mode == RLC_MODE_AM) ? "AM" : (stat_rlc_mode == RLC_MODE_UM) ? "UM" : "NONE",
                                stat_rx_data_pdu,
                                stat_rx_data_bytes,
@@ -303,15 +282,12 @@ int dump_eNB_l2_stats(char *buffer, int length)
                                stat_rx_data_bytes_dropped,
                                stat_rx_data_pdu_out_of_window,
                                stat_rx_data_bytes_out_of_window);
-
-
-                len += sprintf(&buffer[len], "[RLC] DCCH Mode %s, RX_REODERING_TIMEOUT = %d\tRX_POLL_RET_TIMEOUT %d\tRX_PROHIBIT_TIME_OUT %d\n",
+                len += sprintf(&buffer[len], "[RLC] DCCH Mode %s, RX_REODERING_TIMEOUT = %u\tRX_POLL_RET_TIMEOUT %u\tRX_PROHIBIT_TIME_OUT %u\n",
                                (stat_rlc_mode == RLC_MODE_AM) ? "AM" : (stat_rlc_mode == RLC_MODE_UM) ? "UM" : "NONE",
                                stat_timer_reordering_timed_out,
                                stat_timer_poll_retransmit_timed_out,
                                stat_timer_status_prohibit_timed_out);
-
-                len += sprintf(&buffer[len], "[RLC] DCCH Mode %s, NB_SDU_TO_RX = %d (bytes %d)\n",
+                len += sprintf(&buffer[len], "[RLC] DCCH Mode %s, NB_SDU_TO_RX = %u (bytes %u)\n",
                                (stat_rlc_mode == RLC_MODE_AM) ? "AM" : (stat_rlc_mode == RLC_MODE_UM) ? "UM" : "NONE",
                                stat_rx_pdcp_sdu,
                                stat_rx_pdcp_bytes);
@@ -351,14 +327,13 @@ int dump_eNB_l2_stats(char *buffer, int length)
 
             if(rlc_status == RLC_OP_STATUS_OK)
             {
-                len += sprintf(&buffer[len], "[RLC] DTCH Mode %s, NB_SDU_TO_TX = %d (bytes %d)\tNB_SDU_TO_TX_DISC %d (bytes %d)\n",
+                len += sprintf(&buffer[len], "[RLC] DTCH Mode %s, NB_SDU_TO_TX = %u (bytes %u)\tNB_SDU_TO_TX_DISC %u (bytes %u)\n",
                                (stat_rlc_mode == RLC_MODE_AM) ? "AM" : (stat_rlc_mode == RLC_MODE_UM) ? "UM" : "NONE",
                                stat_tx_pdcp_sdu,
                                stat_tx_pdcp_bytes,
                                stat_tx_pdcp_sdu_discarded,
                                stat_tx_pdcp_bytes_discarded);
-
-                len += sprintf(&buffer[len], "[RLC] DTCH Mode %s, NB_TX_DATA   = %d (bytes %d)\tNB_TX_CONTROL %d (bytes %d)\tNB_TX_RETX %d (bytes %d)\tNB_TX_RETX_BY_STATUS = %d (bytes %d)\n",
+                len += sprintf(&buffer[len], "[RLC] DTCH Mode %s, NB_TX_DATA   = %u (bytes %u)\tNB_TX_CONTROL %u (bytes %u)\tNB_TX_RETX %u (bytes %u)\tNB_TX_RETX_BY_STATUS = %u (bytes %u)\n",
                                (stat_rlc_mode == RLC_MODE_AM) ? "AM" : (stat_rlc_mode == RLC_MODE_UM) ? "UM" : "NONE",
                                stat_tx_data_pdu,
                                stat_tx_data_bytes,
@@ -368,9 +343,7 @@ int dump_eNB_l2_stats(char *buffer, int length)
                                stat_tx_retransmit_bytes,
                                stat_tx_retransmit_pdu_by_status,
                                stat_tx_retransmit_bytes_by_status);
-
-
-                len += sprintf(&buffer[len], "[RLC] DTCH Mode %s, NB_RX_DATA   = %d (bytes %d)\tNB_RX_CONTROL %d (bytes %d)\tNB_RX_DUPL %d (bytes %d)\tNB_RX_DROP = %d (bytes %d)\tNB_RX_OUT_OF_WINDOW = %d (bytes %d)\n",
+                len += sprintf(&buffer[len], "[RLC] DTCH Mode %s, NB_RX_DATA   = %u (bytes %u)\tNB_RX_CONTROL %u (bytes %u)\tNB_RX_DUPL %u (bytes %u)\tNB_RX_DROP = %u (bytes %u)\tNB_RX_OUT_OF_WINDOW = %u (bytes %u)\n",
                                (stat_rlc_mode == RLC_MODE_AM) ? "AM" : (stat_rlc_mode == RLC_MODE_UM) ? "UM" : "NONE",
                                stat_rx_data_pdu,
                                stat_rx_data_bytes,
@@ -382,30 +355,24 @@ int dump_eNB_l2_stats(char *buffer, int length)
                                stat_rx_data_bytes_dropped,
                                stat_rx_data_pdu_out_of_window,
                                stat_rx_data_bytes_out_of_window);
-
-
-                len += sprintf(&buffer[len], "[RLC] DTCH Mode %s, RX_REODERING_TIMEOUT = %d\tRX_POLL_RET_TIMEOUT %d\tRX_PROHIBIT_TIME_OUT %d\n",
+                len += sprintf(&buffer[len], "[RLC] DTCH Mode %s, RX_REODERING_TIMEOUT = %u\tRX_POLL_RET_TIMEOUT %u\tRX_PROHIBIT_TIME_OUT %u\n",
                                (stat_rlc_mode == RLC_MODE_AM) ? "AM" : (stat_rlc_mode == RLC_MODE_UM) ? "UM" : "NONE",
                                stat_timer_reordering_timed_out,
                                stat_timer_poll_retransmit_timed_out,
                                stat_timer_status_prohibit_timed_out);
-
-                len += sprintf(&buffer[len], "[RLC] DTCH Mode %s, NB_SDU_TO_RX = %d (bytes %d)\n",
+                len += sprintf(&buffer[len], "[RLC] DTCH Mode %s, NB_SDU_TO_RX = %u (bytes %u)\n",
                                (stat_rlc_mode == RLC_MODE_AM) ? "AM" : (stat_rlc_mode == RLC_MODE_UM) ? "UM" : "NONE",
                                stat_rx_pdcp_sdu,
                                stat_rx_pdcp_bytes);
-
             }
         }
     }
 
     return len + 1 /* SR: for trailing \0 */;
 }
-
 #ifdef PROC
 int openair2_stats_read(char *buffer, char **my_buffer, off_t off, int length)
 {
-
     int len = 0, fg, Overhead, Sign;
     unsigned int i, j, k, kk;
     unsigned int Mod_id = 0, CH_index;
@@ -425,25 +392,19 @@ int openair2_stats_read(char *buffer, char **my_buffer, off_t off, int length)
     //    if (mac_xface->is_cluster_head == 0) {
     for(k = 0; k < NB_INST; k++)
     {
-
-
-
         if(Mac_rlc_xface->Is_cluster_head[k] == 0)
         {
 #ifndef PHY_EMUL_ONE_MACHINE
             Mod_id = k - NB_CH_INST;
-
             len += sprintf(&buffer[len], "UE TTI: %d\n", Mac_rlc_xface->frame);
 
             for(CH_index = 0; CH_index < NB_CNX_UE; CH_index++)
             {
-
-
                 if(UE_mac_inst[Mod_id].Dcch_lchan[CH_index].Active == 1)
                 {
-                    len += sprintf(&buffer[len], "CH %d: Wideband SINR %d dB---\n",
+                    len += sprintf(&buffer[len], "CH %u: Wideband SINR %d dB---\n",
                                    CH_index, UE_mac_inst[Mod_id].Def_meas[CH_index].Wideband_sinr);
-                    len += sprintf(&buffer[len], "CH %d: Subband SINR (dB) :",
+                    len += sprintf(&buffer[len], "CH %u: Subband SINR (dB) :",
                                    CH_index);
 
                     for(fg = 0; fg < NUMBER_OF_MEASUREMENT_SUBBANDS; fg++)
@@ -452,21 +413,14 @@ int openair2_stats_read(char *buffer, char **my_buffer, off_t off, int length)
                     }
 
                     len += sprintf(&buffer[len], "\n");
-
-
                     len += sprintf(&buffer[len], "BCCH %d, NB_RX_MAC = %d (%d errors)\n",
                                    UE_mac_inst[Mod_id].Bcch_lchan[CH_index].Lchan_info.Lchan_id.Index,
                                    UE_mac_inst[Mod_id].Bcch_lchan[CH_index].Lchan_info.NB_RX,
                                    UE_mac_inst[Mod_id].Bcch_lchan[CH_index].Lchan_info.NB_RX_ERRORS);
-
-
-
                     len += sprintf(&buffer[len], "CCCH %d, NB_RX_MAC = %d (%d errors)\n",
                                    UE_mac_inst[Mod_id].Ccch_lchan[CH_index].Lchan_info.Lchan_id.Index,
                                    UE_mac_inst[Mod_id].Ccch_lchan[CH_index].Lchan_info.NB_RX,
                                    UE_mac_inst[Mod_id].Ccch_lchan[CH_index].Lchan_info.NB_RX_ERRORS);
-
-
                     len += sprintf(&buffer[len], "LCHAN %d (DCCH), NB_TX_MAC = %d (%d bits/TTI, %d kbits/sec), NB_RX_MAC = %d (%d errors)\n",
                                    UE_mac_inst[Mod_id].Dcch_lchan[CH_index].Lchan_info.Lchan_id.Index,
                                    UE_mac_inst[Mod_id].Dcch_lchan[CH_index].Lchan_info.NB_TX,
@@ -501,8 +455,6 @@ int openair2_stats_read(char *buffer, char **my_buffer, off_t off, int length)
                                            Pdcp_stats_rx_rate[k][CH_index][i],
                                            (10 * Pdcp_stats_rx_rate[k][CH_index][i]) >> 5,
                                            Sign * (10 * Overhead) >> 5);
-
-
                             int status =  rlc_stat_req(k,
                                                        UE_mac_inst[Mod_id].Dtch_lchan[i][CH_index].Lchan_info.Lchan_id.Index,
                                                        &tx_pdcp_sdu,
@@ -520,21 +472,21 @@ int openair2_stats_read(char *buffer, char **my_buffer, off_t off, int length)
 
                             if(status == RLC_OP_STATUS_OK)
                             {
-                                len += sprintf(&buffer[len], "RLC LCHAN %d, NB_SDU_TO_TX = %d\tNB_SDU_DISC %d\tNB_RX_SDU %d\n",
+                                len += sprintf(&buffer[len], "RLC LCHAN %d, NB_SDU_TO_TX = %u\tNB_SDU_DISC %u\tNB_RX_SDU %u\n",
                                                UE_mac_inst[Mod_id].Dtch_lchan[i][CH_index].Lchan_info.Lchan_id.Index,
                                                tx_pdcp_sdu,
                                                tx_pdcp_sdu_discarded,
                                                rx_sdu);
-                                len += sprintf(&buffer[len], "RLC LCHAN %d, NB_TB_TX_DATA = %d\tNB_TB_TX_CONTROL %d\tNB_TX_TB_RETRANS %d",
+                                len += sprintf(&buffer[len], "RLC LCHAN %d, NB_TB_TX_DATA = %u\tNB_TB_TX_CONTROL %u\tNB_TX_TB_RETRANS %u",
                                                UE_mac_inst[Mod_id].Dtch_lchan[i][CH_index].Lchan_info.Lchan_id.Index,
                                                tx_data_pdu,
                                                tx_control_pdu,
                                                tx_retransmit_pdu);
-                                len += sprintf(&buffer[len], "\tRLC LCHAN %d, NB_TX_TB_RETRANS_BY_STATUS = %d\tNB_TX_TB_RETRANS_PADD %d\n",
+                                len += sprintf(&buffer[len], "\tRLC LCHAN %d, NB_TX_TB_RETRANS_BY_STATUS = %u\tNB_TX_TB_RETRANS_PADD %u\n",
                                                UE_mac_inst[Mod_id].Dtch_lchan[i][CH_index].Lchan_info.Lchan_id.Index,
                                                tx_retransmit_pdu_by_status,
                                                tx_retransmit_pdu_unblock);
-                                len += sprintf(&buffer[len], "RLC LCHAN %d, NB_RX_DATA = %d\tNB_RX_TB_OUT_WIN %d\tNB_RX_TB_CORRUPT %d\n",
+                                len += sprintf(&buffer[len], "RLC LCHAN %d, NB_RX_DATA = %u\tNB_RX_TB_OUT_WIN %u\tNB_RX_TB_CORRUPT %u\n",
                                                UE_mac_inst[Mod_id].Dtch_lchan[i][CH_index].Lchan_info.Lchan_id.Index,
                                                rx_data_pdu,
                                                rx_data_pdu_out_of_window,
@@ -563,11 +515,7 @@ int openair2_stats_read(char *buffer, char **my_buffer, off_t off, int length)
                                                UE_mac_inst[Mod_id].Dtch_lchan[i][CH_index].Lchan_info.NB_RX_TB[kk]);
 
                             len += sprintf(&buffer[len], "\n");
-
-
-
                         }
-
                     }
                 }
             }
@@ -576,7 +524,6 @@ int openair2_stats_read(char *buffer, char **my_buffer, off_t off, int length)
         }
         else if(Mac_rlc_xface->Is_cluster_head[k] == 1)
         {
-
             Mod_id = k;
             len += sprintf(&buffer[len],
                            "-------------------------------------------------------------------CH %d: TTI: %d------------------------------------------------------------------\n",
@@ -586,11 +533,10 @@ int openair2_stats_read(char *buffer, char **my_buffer, off_t off, int length)
             {
                 if(CH_mac_inst[Mod_id].Dcch_lchan[i].Active == 1)
                 {
-                    len += sprintf(&buffer[len], "\nMR index %d: DL SINR (feedback) %d dB, CQI: %s\n\n",
+                    len += sprintf(&buffer[len], "\nMR index %u: DL SINR (feedback) %d dB, CQI: %s\n\n",
                                    i,//CH_rrc_inst[Mod_id].Info.UE_list[i].L2_id[0],
                                    CH_mac_inst[Mod_id].Def_meas[i].Wideband_sinr,
                                    print_cqi(CH_mac_inst[Mod_id].Def_meas[i].cqi));
-
                     len += sprintf(&buffer[len],
                                    "[MAC] LCHAN %d (DCCH), NB_TX_MAC= %d (%d bits/TTI, %d kbits/s), NB_RX_MAC= %d (errors %d, sacch errors %d, sach errors %d, sach_missing %d)\n\n",
                                    CH_mac_inst[Mod_id].Dcch_lchan[i].Lchan_info.Lchan_id.Index,
@@ -667,7 +613,7 @@ int openair2_stats_read(char *buffer, char **my_buffer, off_t off, int length)
                                 }
                             */
                             len += sprintf(&buffer[len],
-                                           "[MAC]LCHAN %d (CNX %d,RAB %d), NB_TX_MAC= %d (%d bits/TTI, %d kbit/s), NB_RX_MAC= %d (errors %d, sacch_errors %d, sach_errors %d, sach_missing %d)\n",
+                                           "[MAC]LCHAN %d (CNX %u,RAB %u), NB_TX_MAC= %d (%d bits/TTI, %d kbit/s), NB_RX_MAC= %d (errors %d, sacch_errors %d, sach_errors %d, sach_missing %d)\n",
                                            CH_mac_inst[Mod_id].Dtch_lchan[j][i].Lchan_info.Lchan_id.Index,
                                            i, j,
                                            CH_mac_inst[Mod_id].Dtch_lchan[j][i].Lchan_info.NB_TX,
@@ -684,7 +630,6 @@ int openair2_stats_read(char *buffer, char **my_buffer, off_t off, int length)
                                            CH_mac_inst[Mod_id].Dtch_lchan[j][i].Lchan_info.Req_rate,
                                            CH_mac_inst[Mod_id].Dtch_lchan[j][i].Lchan_info.Rx_rate,
                                            CH_mac_inst[Mod_id].Dtch_lchan[j][i].Lchan_info.NB_BW_REQ_RX);
-
                             /*
                                     len+=sprintf(&buffer[len],"        TX per TB: ");
                                     for(kk=0;kk<MAX_NUMBER_TB_PER_LCHAN/2;kk++)
@@ -700,7 +645,6 @@ int openair2_stats_read(char *buffer, char **my_buffer, off_t off, int length)
                     }
                 }
             }
-
         }
     }
 
@@ -708,3 +652,4 @@ int openair2_stats_read(char *buffer, char **my_buffer, off_t off, int length)
 }
 
 #endif
+

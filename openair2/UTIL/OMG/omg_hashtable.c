@@ -421,7 +421,7 @@ size_t hash_table_get_keys(omg_hash_table_t *table, void **keys)
 {
     size_t i = 0;
     size_t count = 0;
-    keys = calloc(table->key_count, sizeof(void *));
+    keys = calloc(table->key_count, sizeof(void *)*HASH_LEN);
 
     for(i = 0; i < HASH_LEN; i++)
     {

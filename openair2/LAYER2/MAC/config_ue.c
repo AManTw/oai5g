@@ -20,21 +20,23 @@
         contact@openairinterface.org
 */
 
-/*! \file config.c
-    \brief UE and eNB configuration performed by RRC or as a consequence of RRC procedures
-    \author  Navid Nikaein and Raymond Knopp
-    \date 2010 - 2014
+
+/*! \file config_ue.c
+    \brief UE configuration performed by RRC or as a consequence of RRC procedures / This includes FeMBMS UE procedures
+    \author  Navid Nikaein, Raymond Knopp and Javier Morgade
+    \date 2010 - 2014 / 2019
     \version 0.1
-    \email: navid.nikaein@eurecom.fr
+    \email: navid.nikaein@eurecom.fr, javier.morgade@ieee.org
     @ingroup _mac
 
 */
 
+
 #include "COMMON/platform_types.h"
 #include "COMMON/platform_constants.h"
+#include "nfapi/oai_integration/vendor_ext.h"
 #include "SCHED_UE/sched_UE.h"
 #include "LTE_SystemInformationBlockType2.h"
-//#include "RadioResourceConfigCommonSIB.h"
 #include "LTE_RadioResourceConfigDedicated.h"
 #if (LTE_RRC_VERSION >= MAKE_VERSION(13, 0, 0))
     #include "LTE_PRACH-ConfigSIB-v1310.h"
@@ -61,42 +63,30 @@
 extern void mac_init_cell_params(int Mod_idP, int CC_idP);
 extern void phy_reset_ue(module_id_t Mod_id, uint8_t CC_id, uint8_t eNB_index);
 
-extern uint8_t  nfapi_mode;
 
 
 /* sec 5.9, 36.321: MAC Reset Procedure */
 void ue_mac_reset(module_id_t module_idP, uint8_t eNB_index)
 {
-
     //Resetting Bj
     UE_mac_inst[module_idP].scheduling_info.Bj[0] = 0;
     UE_mac_inst[module_idP].scheduling_info.Bj[1] = 0;
     UE_mac_inst[module_idP].scheduling_info.Bj[2] = 0;
-
     //Stopping all timers
-
     //timeAlignmentTimer expires
-
     // PHY changes for UE MAC reset
     phy_reset_ue(module_idP, 0, eNB_index);
-
     // notify RRC to relase PUCCH/SRS
     // cancel all pending SRs
     UE_mac_inst[module_idP].scheduling_info.SR_pending = 0;
     UE_mac_inst[module_idP].scheduling_info.SR_COUNTER = 0;
-
     //Set BSR Trigger Bmp and remove timer flags
     UE_mac_inst[module_idP].BSR_reporting_active = BSR_TRIGGER_NONE;
-
     // stop ongoing RACH procedure
-
     // discard explicitly signaled ra_PreambleIndex and ra_RACH_MaskIndex, if any
-    UE_mac_inst[module_idP].RA_prach_resources.ra_PreambleIndex = 0;	// check!
+    UE_mac_inst[module_idP].RA_prach_resources.ra_PreambleIndex = 0;  // check!
     UE_mac_inst[module_idP].RA_prach_resources.ra_RACH_MaskIndex = 0;
-
-
-    ue_init_mac(module_idP);	//This will hopefully do the rest of the MAC reset procedure
-
+    ue_init_mac(module_idP);  //This will hopefully do the rest of the MAC reset procedure
 }
 
 int32_t **rxdata;
@@ -143,14 +133,18 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
     , const uint32_t *const sourceL2Id
     , const uint32_t *const destinationL2Id
 #endif
+#if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
+    ,
+    uint8_t FeMBMS_Flag,
+    struct LTE_NonMBSFN_SubframeConfig_r14 *nonMBSFN_SubframeConfig,
+    LTE_MBSFN_AreaInfoList_r9_t *mbsfn_AreaInfoList_fembms
+#endif
                      )
 {
 
     int i;
-
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME
     (VCD_SIGNAL_DUMPER_FUNCTIONS_RRC_MAC_CONFIG, VCD_FUNCTION_IN);
-
     LOG_I(MAC, "[CONFIG][UE %d] Configuring MAC/PHY from eNB %d\n",
           Mod_idP, eNB_index);
 
@@ -158,7 +152,6 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
     {
         UE_mac_inst[Mod_idP].tdd_Config = tdd_Config;
     }
-
 
     if(tdd_Config && SIwindowsize && SIperiod)
     {
@@ -175,6 +168,7 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
                            ul_Bandwidth, additionalSpectrumEmission,
                            mbsfn_SubframeConfigList);
     }
+
     // SRB2_lchan_config->choice.explicitValue.ul_SpecificParameters->logicalChannelGroup
     if(logicalChannelConfig != NULL)
     {
@@ -183,12 +177,13 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
               Mod_idP, eNB_index);
         UE_mac_inst[Mod_idP].logicalChannelConfig[logicalChannelIdentity] =
             logicalChannelConfig;
-        UE_mac_inst[Mod_idP].scheduling_info.Bj[logicalChannelIdentity] = 0;	// initilize the bucket for this lcid
-
+        UE_mac_inst[Mod_idP].scheduling_info.Bj[logicalChannelIdentity] = 0;  // initilize the bucket for this lcid
         AssertFatal(logicalChannelConfig->ul_SpecificParameters != NULL,
                     "[UE %d] LCID %ld NULL ul_SpecificParameters\n",
                     Mod_idP, logicalChannelIdentity);
-        UE_mac_inst[Mod_idP].scheduling_info.bucket_size[logicalChannelIdentity] = logicalChannelConfig->ul_SpecificParameters->prioritisedBitRate * logicalChannelConfig->ul_SpecificParameters->bucketSizeDuration;	// set the max bucket size
+        UE_mac_inst[Mod_idP].scheduling_info.bucket_size[logicalChannelIdentity] = logicalChannelConfig->ul_SpecificParameters->prioritisedBitRate *
+                logicalChannelConfig->ul_SpecificParameters->bucketSizeDuration; // set the max bucket size
+
         if(logicalChannelConfig->ul_SpecificParameters->
                 logicalChannelGroup != NULL)
         {
@@ -207,6 +202,7 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
             UE_mac_inst[Mod_idP].scheduling_info.
             LCGID[logicalChannelIdentity] = MAX_NUM_LCGID;
         }
+
         UE_mac_inst[Mod_idP].
         scheduling_info.LCID_buffer_remain[logicalChannelIdentity] = 0;
     }
@@ -221,7 +217,6 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
 
         if(mac_MainConfig->ul_SCH_Config)
         {
-
             if(mac_MainConfig->ul_SCH_Config->periodicBSR_Timer)
             {
                 UE_mac_inst[Mod_idP].scheduling_info.periodicBSR_Timer =
@@ -251,7 +246,8 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
                     (uint16_t)
                     LTE_MAC_MainConfig__ul_SCH_Config__maxHARQ_Tx_n5;
             }
-            if(nfapi_mode != 3)
+
+            if(NFAPI_MODE !=  NFAPI_UE_STUB_PNF)
                 phy_config_harq_ue(Mod_idP, 0, eNB_index,
                                    UE_mac_inst[Mod_idP].
                                    scheduling_info.maxHARQ_Tx);
@@ -274,6 +270,7 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
 #endif
             }
         }
+
 #if (LTE_RRC_VERSION >= MAKE_VERSION(10, 0, 0))
 
         if(mac_MainConfig->ext1
@@ -304,6 +301,7 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
                 UE_mac_inst[Mod_idP].scheduling_info.
                 extendedBSR_Sizes_r10 = (uint16_t) 0;
             }
+
             if(mac_MainConfig->ext2->mac_MainConfig_v1020->
                     extendedPHR_r10)
             {
@@ -325,19 +323,17 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
             UE_mac_inst[Mod_idP].scheduling_info.extendedPHR_r10 =
                 (uint16_t) 0;
         }
+
 #endif
         UE_mac_inst[Mod_idP].scheduling_info.periodicBSR_SF =
             MAC_UE_BSR_TIMER_NOT_RUNNING;
         UE_mac_inst[Mod_idP].scheduling_info.retxBSR_SF =
             MAC_UE_BSR_TIMER_NOT_RUNNING;
-
         UE_mac_inst[Mod_idP].BSR_reporting_active = BSR_TRIGGER_NONE;
-
         LOG_D(MAC, "[UE %d]: periodic BSR %d (SF), retx BSR %d (SF)\n",
               Mod_idP,
               UE_mac_inst[Mod_idP].scheduling_info.periodicBSR_SF,
               UE_mac_inst[Mod_idP].scheduling_info.retxBSR_SF);
-
         UE_mac_inst[Mod_idP].scheduling_info.drx_config =
             mac_MainConfig->drx_Config;
         UE_mac_inst[Mod_idP].scheduling_info.phr_config =
@@ -388,29 +384,31 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
               UE_mac_inst[Mod_idP].scheduling_info.PathlossChange_db);
     }
 
-
     if(physicalConfigDedicated != NULL)
     {
-        if(nfapi_mode != 3)
+        if(NFAPI_MODE !=  NFAPI_UE_STUB_PNF)
             phy_config_dedicated_ue(Mod_idP, 0, eNB_index,
                                     physicalConfigDedicated);
-        UE_mac_inst[Mod_idP].physicalConfigDedicated = physicalConfigDedicated;	// for SR proc
+
+        UE_mac_inst[Mod_idP].physicalConfigDedicated = physicalConfigDedicated; // for SR proc
     }
+
 #if (LTE_RRC_VERSION >= MAKE_VERSION(10, 0, 0))
 
     if(sCellToAddMod_r10 != NULL)
     {
-
-
         phy_config_dedicated_scell_ue(Mod_idP, eNB_index,
                                       sCellToAddMod_r10, 1);
-        UE_mac_inst[Mod_idP].physicalConfigDedicatedSCell_r10 = sCellToAddMod_r10->radioResourceConfigDedicatedSCell_r10->physicalConfigDedicatedSCell_r10;	// using SCell index 0
+        UE_mac_inst[Mod_idP].physicalConfigDedicatedSCell_r10 = sCellToAddMod_r10->radioResourceConfigDedicatedSCell_r10->physicalConfigDedicatedSCell_r10; // using SCell index 0
     }
+
 #endif
 
     if(measObj != NULL)
     {
-        if(measObj[0] != NULL)
+        if(measObj[0] != NULL &&
+                measObj[0]->measObject.present == LTE_MeasObjectToAddMod__measObject_PR_measObjectEUTRA &&
+                measObj[0]->measObject.choice.measObjectEUTRA.cellsToAddModList != NULL)
         {
             UE_mac_inst[Mod_idP].n_adj_cells =
                 measObj[0]->measObject.choice.
@@ -434,10 +432,8 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
         }
     }
 
-
     if(mobilityControlInfo != NULL)
     {
-
         LOG_D(MAC, "[UE%d] MAC Reset procedure triggered by RRC eNB %d \n",
               Mod_idP, eNB_index);
         ue_mac_reset(Mod_idP, eNB_index);
@@ -473,6 +469,7 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
                    radioResourceConfigCommon.pdsch_ConfigCommon,
                    sizeof(LTE_PDSCH_ConfigCommon_t));
         }
+
         // not a pointer: mobilityControlInfo->radioResourceConfigCommon.pusch_ConfigCommon
         memcpy((void *) &UE_mac_inst[Mod_idP].
                radioResourceConfigCommon->pusch_ConfigCommon,
@@ -519,6 +516,7 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
                    radioResourceConfigCommon.uplinkPowerControlCommon,
                    sizeof(LTE_UplinkPowerControlCommon_t));
         }
+
         //configure antennaInfoCommon somewhere here..
         if(mobilityControlInfo->radioResourceConfigCommon.p_Max)
         {
@@ -541,6 +539,7 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
                    radioResourceConfigCommon.ul_CyclicPrefixLength,
                    sizeof(LTE_UL_CyclicPrefixLength_t));
         }
+
         // store the previous rnti in case of failure, and set thenew rnti
         UE_mac_inst[Mod_idP].crnti_before_ho = UE_mac_inst[Mod_idP].crnti;
         UE_mac_inst[Mod_idP].crnti =
@@ -563,7 +562,6 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
                               0);
     }
 
-
     if(mbsfn_SubframeConfigList != NULL)
     {
         LOG_I(MAC,
@@ -583,6 +581,7 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
             //    UE_mac_inst[Mod_idP].mbsfn_SubframeConfig[i]->subframeAllocation.choice.oneFrame.buf[0]);
         }
     }
+
 #if (LTE_RRC_VERSION >= MAKE_VERSION(10, 0, 0))
 
     if(mbsfn_AreaInfoList != NULL)
@@ -609,9 +608,7 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
 
     if(pmch_InfoList != NULL)
     {
-
         //    LOG_I(MAC,"DUY: lcid when entering rrc_mac config_req is %02d\n",(pmch_InfoList->list.array[0]->mbms_SessionInfoList_r9.list.array[0]->logicalChannelIdentity_r9));
-
         LOG_I(MAC, "[UE %d] Configuring PMCH_config from MCCH MESSAGE \n",
               Mod_idP);
 
@@ -627,7 +624,18 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
 
         UE_mac_inst[Mod_idP].mcch_status = 1;
     }
+
 #endif
+
+#if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
+    if(nonMBSFN_SubframeConfig != NULL)
+    {
+        LOG_I(MAC, "[UE %d] Configuring LTE_NonMBSFN \n",
+              Mod_idP);
+        phy_config_sib1_fembms_ue(Mod_idP, CC_idP, 0, nonMBSFN_SubframeConfig);
+    }
+#endif
+
 #ifdef CBA
 
     if(cba_rnti)
@@ -642,11 +650,13 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
                             cba_rnti, num_active_cba_groups - 1,
                             num_active_cba_groups);
     }
+
 #endif
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME
     (VCD_SIGNAL_DUMPER_FUNCTIONS_RRC_MAC_CONFIG, VCD_FUNCTION_OUT);
     //for D2D
 #if (LTE_RRC_VERSION >= MAKE_VERSION(10, 0, 0))
+
     switch(config_action)
     {
         case CONFIG_ACTION_ADD:
@@ -655,37 +665,44 @@ rrc_mac_config_req_ue(module_id_t Mod_idP,
                 UE_mac_inst[Mod_idP].sourceL2Id = *sourceL2Id;
                 LOG_I(MAC, "[UE %d] Configure source L2Id 0x%08x \n", Mod_idP, *sourceL2Id);
             }
+
             if(destinationL2Id)
             {
                 LOG_I(MAC, "[UE %d] Configure destination L2Id 0x%08x\n", Mod_idP, *destinationL2Id);
                 int j = 0;
                 int i = 0;
+
                 for(i = 0; i < MAX_NUM_DEST; i++)
                 {
                     if((UE_mac_inst[Mod_idP].destinationList[i] == 0) && (j == 0))
                     {
                         j = i + 1;
                     }
+
                     if(UE_mac_inst[Mod_idP].destinationList[i] == *destinationL2Id)
                     {
                         break;    //destination already exists!
                     }
                 }
+
                 if((i == MAX_NUM_DEST) && (j > 0))
                 {
                     UE_mac_inst[Mod_idP].destinationList[j - 1] = *destinationL2Id;
                 }
+
                 UE_mac_inst[Mod_idP].numCommFlows++;
             }
+
             break;
+
         case CONFIG_ACTION_REMOVE:
             //TODO
             break;
+
         default:
             break;
     }
 
 #endif
-
     return (0);
 }

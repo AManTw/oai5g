@@ -1,23 +1,23 @@
 /*
-    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
-    contributor license agreements.  See the NOTICE file distributed with
-    this work for additional information regarding copyright ownership.
-    The OpenAirInterface Software Alliance licenses this file to You under
-    the OAI Public License, Version 1.1  (the "License"); you may not use this file
-    except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.openairinterface.org/?page_id=698
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-    -------------------------------------------------------------------------------
-    For more information about the OpenAirInterface (OAI) Software Alliance:
-        contact@openairinterface.org
-*/
+ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The OpenAirInterface Software Alliance licenses this file to You under
+ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+ * except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.openairinterface.org/?page_id=698
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *-------------------------------------------------------------------------------
+ * For more information about the OpenAirInterface (OAI) Software Alliance:
+ *      contact@openairinterface.org
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,9 +66,9 @@
     EPS_NETWORK_FEATURE_SUPPORT_MAXIMUM_LENGTH + \
     ADDITIONAL_UPDATE_RESULT_MAXIMUM_LENGTH )
 
-/*  If an optional value is present and should be encoded, the corresponding
-    Bit mask should be set to 1.
-*/
+/* If an optional value is present and should be encoded, the corresponding
+ * Bit mask should be set to 1.
+ */
 # define ATTACH_ACCEPT_GUTI_PRESENT                         (1<<0)
 # define ATTACH_ACCEPT_LOCATION_AREA_IDENTIFICATION_PRESENT (1<<1)
 # define ATTACH_ACCEPT_MS_IDENTITY_PRESENT                  (1<<2)
@@ -80,49 +80,47 @@
 # define ATTACH_ACCEPT_EPS_NETWORK_FEATURE_SUPPORT_PRESENT  (1<<8)
 # define ATTACH_ACCEPT_ADDITIONAL_UPDATE_RESULT_PRESENT     (1<<9)
 
-typedef enum attach_accept_iei_tag
-{
-    ATTACH_ACCEPT_GUTI_IEI                          = 0x50, /* 0x50 = 80 */
-    ATTACH_ACCEPT_LOCATION_AREA_IDENTIFICATION_IEI  = 0x13, /* 0x13 = 19 */
-    ATTACH_ACCEPT_MS_IDENTITY_IEI                   = 0x23, /* 0x23 = 35 */
-    ATTACH_ACCEPT_EMM_CAUSE_IEI                     = 0x53, /* 0x53 = 83 */
-    ATTACH_ACCEPT_T3402_VALUE_IEI                   = 0x17, /* 0x17 = 23 */
-    ATTACH_ACCEPT_T3423_VALUE_IEI                   = 0x59, /* 0x59 = 89 */
-    ATTACH_ACCEPT_EQUIVALENT_PLMNS_IEI              = 0x4A, /* 0x4A = 74 */
-    ATTACH_ACCEPT_EMERGENCY_NUMBER_LIST_IEI         = 0x34, /* 0x34 = 52 */
-    ATTACH_ACCEPT_EPS_NETWORK_FEATURE_SUPPORT_IEI   = 0x64, /* 0x64 = 100 */
-    ATTACH_ACCEPT_ADDITIONAL_UPDATE_RESULT_IEI      = 0xF0, /* 0xF0 = 240 */
+typedef enum attach_accept_iei_tag {
+  ATTACH_ACCEPT_GUTI_IEI                          = 0x50, /* 0x50 = 80 */
+  ATTACH_ACCEPT_LOCATION_AREA_IDENTIFICATION_IEI  = 0x13, /* 0x13 = 19 */
+  ATTACH_ACCEPT_MS_IDENTITY_IEI                   = 0x23, /* 0x23 = 35 */
+  ATTACH_ACCEPT_EMM_CAUSE_IEI                     = 0x53, /* 0x53 = 83 */
+  ATTACH_ACCEPT_T3402_VALUE_IEI                   = 0x17, /* 0x17 = 23 */
+  ATTACH_ACCEPT_T3423_VALUE_IEI                   = 0x59, /* 0x59 = 89 */
+  ATTACH_ACCEPT_EQUIVALENT_PLMNS_IEI              = 0x4A, /* 0x4A = 74 */
+  ATTACH_ACCEPT_EMERGENCY_NUMBER_LIST_IEI         = 0x34, /* 0x34 = 52 */
+  ATTACH_ACCEPT_EPS_NETWORK_FEATURE_SUPPORT_IEI   = 0x64, /* 0x64 = 100 */
+  ATTACH_ACCEPT_ADDITIONAL_UPDATE_RESULT_IEI      = 0xF0, /* 0xF0 = 240 */
 } attach_accept_iei;
 
 /*
-    Message name: Attach accept
-    Description: This message is sent by the network to the UE to indicate that the corresponding attach request has been accepted. See table 8.2.1.1.
-    Significance: dual
-    Direction: network to UE
-*/
+ * Message name: Attach accept
+ * Description: This message is sent by the network to the UE to indicate that the corresponding attach request has been accepted. See table 8.2.1.1.
+ * Significance: dual
+ * Direction: network to UE
+ */
 
-typedef struct attach_accept_msg_tag
-{
-    /* Mandatory fields */
-    ProtocolDiscriminator       protocoldiscriminator: 4;
-    SecurityHeaderType          securityheadertype: 4;
-    MessageType                 messagetype;
-    EpsAttachResult             epsattachresult;
-    GprsTimer                   t3412value;
-    TrackingAreaIdentityList    tailist;
-    EsmMessageContainer         esmmessagecontainer;
-    /* Optional fields */
-    uint32_t                    presencemask;
-    EpsMobileIdentity           guti;
-    LocationAreaIdentification  locationareaidentification;
-    MobileIdentity              msidentity;
-    EmmCause                    emmcause;
-    GprsTimer                   t3402value;
-    GprsTimer                   t3423value;
-    PlmnList                    equivalentplmns;
-    EmergencyNumberList         emergencynumberlist;
-    EpsNetworkFeatureSupport    epsnetworkfeaturesupport;
-    AdditionalUpdateResult      additionalupdateresult;
+typedef struct attach_accept_msg_tag {
+  /* Mandatory fields */
+  ProtocolDiscriminator       protocoldiscriminator:4;
+  SecurityHeaderType          securityheadertype:4;
+  MessageType                 messagetype;
+  EpsAttachResult             epsattachresult;
+  GprsTimer                   t3412value;
+  TrackingAreaIdentityList    tailist;
+  EsmMessageContainer         esmmessagecontainer;
+  /* Optional fields */
+  uint32_t                    presencemask;
+  EpsMobileIdentity           guti;
+  LocationAreaIdentification  locationareaidentification;
+  MobileIdentity              msidentity;
+  EmmCause                    emmcause;
+  GprsTimer                   t3402value;
+  GprsTimer                   t3423value;
+  PlmnList                    equivalentplmns;
+  EmergencyNumberList         emergencynumberlist;
+  EpsNetworkFeatureSupport    epsnetworkfeaturesupport;
+  AdditionalUpdateResult      additionalupdateresult;
 } attach_accept_msg;
 
 int decode_attach_accept(attach_accept_msg *attachaccept, uint8_t *buffer, uint32_t len);

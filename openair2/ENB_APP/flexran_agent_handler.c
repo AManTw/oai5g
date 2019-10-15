@@ -56,7 +56,10 @@ flexran_agent_message_decoded_callback agent_messages_callback[][3] =
     {0, 0, 0}, /*PROTOCOL__FLEXRAN_MESSAGE__MSG_UE_STATE_CHANGE_MSG*/
     {flexran_agent_control_delegation, 0, 0}, /*PROTOCOL__FLEXRAN_MESSAGE__MSG_CONTROL_DELEGATION_MSG*/
     {flexran_agent_reconfiguration, 0, 0}, /*PROTOCOL__FLEXRAN_MESSAGE__MSG_AGENT_RECONFIGURATION_MSG*/
-    {flexran_agent_rrc_measurement, 0, 0}, /*PROTOCOL__FLEXRAN_MESSAGE__MSG_RRC_TRIGGERING_MSG*/
+    {flexran_agent_rrc_reconfiguration, 0, 0}, /*PROTOCOL__FLEXRAN_MESSAGE__MSG_RRC_TRIGGERING_MSG*/
+    {0, 0, 0}, /*PROTOCOL__FLEXRAN_MESSAGE__MSG_UL_MAC_CONFIG_MSG*/
+    {0, 0, 0}, /*PROTOCOL__FLEXRAN_MESSAGE__MSG_DISCONNECT_MSG*/
+    {flexran_agent_rrc_trigger_handover, 0, 0}, /*PROTOCOL__FLEXRAN_MESSAGE__MSG_HO_COMMAND_MSG*/
 };
 
 flexran_agent_message_destruction_callback message_destruction_callback[] =
@@ -65,7 +68,7 @@ flexran_agent_message_destruction_callback message_destruction_callback[] =
     flexran_agent_destroy_echo_request,
     flexran_agent_destroy_echo_reply,
     flexran_agent_destroy_stats_request,
-    flexran_agent_mac_destroy_stats_reply,
+    flexran_agent_destroy_stats_reply,
     flexran_agent_mac_destroy_sf_trigger,
     flexran_agent_mac_destroy_sr_info,
     flexran_agent_destroy_enb_config_request,
@@ -93,7 +96,8 @@ Protocol__FlexranMessage *flexran_agent_handle_message(mid_t mod_id,
         uint32_t size)
 {
 
-    Protocol__FlexranMessage *decoded_message, *reply_message;
+    Protocol__FlexranMessage *decoded_message = NULL;
+    Protocol__FlexranMessage *reply_message = NULL;
     err_code_t err_code;
     DevAssert(data != NULL);
 
@@ -121,7 +125,7 @@ Protocol__FlexranMessage *flexran_agent_handle_message(mid_t mod_id,
     {
         goto error;
     }
-    else if(err_code == 1)      //If err_code > 1, we do not want to dispose the message yet
+    else if(err_code == 0)      //If err_code > 1, we do not want to dispose the message yet
     {
         protocol__flexran_message__free_unpacked(decoded_message, NULL);
     }
@@ -225,13 +229,12 @@ int flexran_agent_handle_stats(mid_t mod_id, const void *params, Protocol__Flexr
     // TODO: Must resolve conflicts among stats requests
 
     int i;
-    err_code_t err_code;
+    err_code_t err_code = 0;
     xid_t xid;
     uint32_t usec_interval, sec_interval;
 
     //TODO: We do not deal with multiple CCs at the moment and eNB id is 0
     int enb_id = mod_id;
-    int UE_id;
 
     //eNB_MAC_INST *eNB = &eNB_mac_inst[enb_id];
     //UE_list_t *eNB_UE_list=  &eNB->UE_list;
@@ -267,23 +270,54 @@ int flexran_agent_handle_stats(mid_t mod_id, const void *params, Protocol__Flexr
                 //Create a list of all eNB RNTIs and cells
 
                 //Set the number of UEs and create list with their RNTIs stats configs
-                report_config.nr_ue = flexran_get_num_ues(mod_id); //eNB_UE_list->num_UEs
-                report_config.ue_report_type = (ue_report_type_t *) malloc(sizeof(ue_report_type_t) * report_config.nr_ue);
+                report_config.nr_ue = 0;
+                if(flexran_agent_get_rrc_xface(mod_id))
+                {
+                    report_config.nr_ue = flexran_get_rrc_num_ues(mod_id);
+                }
+                else if(flexran_agent_get_mac_xface(mod_id))
+                {
+                    report_config.nr_ue = flexran_get_mac_num_ues(mod_id);
+                }
+
+                if(flexran_agent_get_rrc_xface(mod_id) && flexran_agent_get_mac_xface(mod_id)
+                        && flexran_get_rrc_num_ues(mod_id) != flexran_get_mac_num_ues(mod_id))
+                {
+                    const int nrrc = flexran_get_rrc_num_ues(mod_id);
+                    const int nmac = flexran_get_mac_num_ues(mod_id);
+                    report_config.nr_ue = nrrc < nmac ? nrrc : nmac;
+                    LOG_E(FLEXRAN_AGENT, "%s(): different numbers of UEs in RRC (%d) and MAC (%d), reporting for %d UEs\n",
+                          __func__, nrrc, nmac, report_config.nr_ue);
+                }
+                report_config.ue_report_type = malloc(sizeof(ue_report_type_t) * report_config.nr_ue);
                 if(report_config.ue_report_type == NULL)
                 {
                     // TODO: Add appropriate error code
                     err_code = -100;
                     goto error;
                 }
-                for(i = 0; i < report_config.nr_ue; i++)
+                if(flexran_agent_get_rrc_xface(mod_id))
                 {
-                    UE_id = flexran_get_ue_id(mod_id, i);
-                    report_config.ue_report_type[i].ue_rnti = flexran_get_ue_crnti(enb_id, UE_id); //eNB_UE_list->eNB_UE_stats[UE_PCCID(enb_id,i)][i].crnti;
-                    report_config.ue_report_type[i].ue_report_flags = ue_flags;
+                    rnti_t rntis[report_config.nr_ue];
+                    flexran_get_rrc_rnti_list(mod_id, rntis, report_config.nr_ue);
+                    for(i = 0; i < report_config.nr_ue; i++)
+                    {
+                        report_config.ue_report_type[i].ue_rnti = rntis[i];
+                        report_config.ue_report_type[i].ue_report_flags = ue_flags;
+                    }
+                }
+                if(flexran_agent_get_mac_xface(mod_id) && !flexran_agent_get_rrc_xface(mod_id))
+                {
+                    for(i = 0; i < report_config.nr_ue; i++)
+                    {
+                        const int UE_id = flexran_get_mac_ue_id(mod_id, i);
+                        report_config.ue_report_type[i].ue_rnti = flexran_get_mac_ue_crnti(enb_id, UE_id);
+                        report_config.ue_report_type[i].ue_report_flags = ue_flags;
+                    }
                 }
                 //Set the number of CCs and create a list with the cell stats configs
                 report_config.nr_cc = MAX_NUM_CCs;
-                report_config.cc_report_type = (cc_report_type_t *) malloc(sizeof(cc_report_type_t) * report_config.nr_cc);
+                report_config.cc_report_type = malloc(sizeof(cc_report_type_t) * report_config.nr_cc);
                 if(report_config.cc_report_type == NULL)
                 {
                     // TODO: Add appropriate error code
@@ -300,7 +334,7 @@ int flexran_agent_handle_stats(mid_t mod_id, const void *params, Protocol__Flexr
                 if(comp_req->report_frequency == PROTOCOL__FLEX_STATS_REPORT_FREQ__FLSRF_PERIODICAL)
                 {
                     /* Create a one off flexran message as an argument for the periodical task */
-                    Protocol__FlexranMessage *timer_msg;
+                    Protocol__FlexranMessage *timer_msg = NULL;
                     stats_request_config_t request_config;
                     request_config.report_type = PROTOCOL__FLEX_STATS_TYPE__FLST_COMPLETE_STATS;
                     request_config.report_frequency = PROTOCOL__FLEX_STATS_REPORT_FREQ__FLSRF_ONCE;
@@ -309,7 +343,7 @@ int flexran_agent_handle_stats(mid_t mod_id, const void *params, Protocol__Flexr
                     if(report_config.nr_ue == 0)
                     {
                         report_config.nr_ue = 1;
-                        report_config.ue_report_type = (ue_report_type_t *) malloc(sizeof(ue_report_type_t));
+                        report_config.ue_report_type = malloc(sizeof(ue_report_type_t));
                         if(report_config.ue_report_type == NULL)
                         {
                             // TODO: Add appropriate error code
@@ -320,11 +354,14 @@ int flexran_agent_handle_stats(mid_t mod_id, const void *params, Protocol__Flexr
                         report_config.ue_report_type[0].ue_report_flags = ue_flags;
                     }
                     request_config.config = &report_config;
-                    flexran_agent_stats_request(enb_id, xid, &request_config, &timer_msg);
+                    if(flexran_agent_stats_request(enb_id, xid, &request_config, &timer_msg) == -1)
+                    {
+                        err_code = -100;
+                        goto error;
+                    }
                     /* Create a timer */
                     long timer_id = 0;
-                    flexran_agent_timer_args_t *timer_args;
-                    timer_args = malloc(sizeof(flexran_agent_timer_args_t));
+                    flexran_agent_timer_args_t *timer_args = malloc(sizeof(flexran_agent_timer_args_t));
                     memset(timer_args, 0, sizeof(flexran_agent_timer_args_t));
                     timer_args->mod_id = enb_id;
                     timer_args->msg = timer_msg;
@@ -337,7 +374,9 @@ int flexran_agent_handle_stats(mid_t mod_id, const void *params, Protocol__Flexr
                         sec_interval = usec_interval / (1000 * 1000);
                         usec_interval = usec_interval % (1000 * 1000);
                     }
-                    flexran_agent_create_timer(sec_interval, usec_interval, FLEXRAN_AGENT_DEFAULT, enb_id, FLEXRAN_AGENT_TIMER_TYPE_PERIODIC, xid, flexran_agent_handle_timed_task, (void *) timer_args, &timer_id);
+                    flexran_agent_create_timer(sec_interval, usec_interval, FLEXRAN_AGENT_DEFAULT,
+                                               enb_id, FLEXRAN_AGENT_TIMER_TYPE_PERIODIC, xid,
+                                               flexran_agent_handle_timed_task, (void *) timer_args, &timer_id);
                 }
                 else if(comp_req->report_frequency == PROTOCOL__FLEX_STATS_REPORT_FREQ__FLSRF_CONTINUOUS)
                 {
@@ -352,7 +391,7 @@ int flexran_agent_handle_stats(mid_t mod_id, const void *params, Protocol__Flexr
                     if(report_config.nr_ue == 0)
                     {
                         report_config.nr_ue = 1;
-                        report_config.ue_report_type = (ue_report_type_t *) malloc(sizeof(ue_report_type_t));
+                        report_config.ue_report_type = malloc(sizeof(ue_report_type_t));
                         if(report_config.ue_report_type == NULL)
                         {
                             // TODO: Add appropriate error code
@@ -373,7 +412,7 @@ int flexran_agent_handle_stats(mid_t mod_id, const void *params, Protocol__Flexr
             report_config.nr_ue = 0;
             report_config.ue_report_type = NULL;
             report_config.nr_cc = cell_req->n_cell;
-            report_config.cc_report_type = (cc_report_type_t *) malloc(sizeof(cc_report_type_t) * report_config.nr_cc);
+            report_config.cc_report_type = malloc(sizeof(cc_report_type_t) * report_config.nr_cc);
             if(report_config.cc_report_type == NULL)
             {
                 // TODO: Add appropriate error code
@@ -393,7 +432,7 @@ int flexran_agent_handle_stats(mid_t mod_id, const void *params, Protocol__Flexr
             report_config.nr_cc = 0;
             report_config.cc_report_type = NULL;
             report_config.nr_ue = ue_req->n_rnti;
-            report_config.ue_report_type = (ue_report_type_t *) malloc(sizeof(ue_report_type_t) * report_config.nr_ue);
+            report_config.ue_report_type = malloc(sizeof(ue_report_type_t) * report_config.nr_ue);
             if(report_config.ue_report_type == NULL)
             {
                 // TODO: Add appropriate error code
@@ -402,7 +441,7 @@ int flexran_agent_handle_stats(mid_t mod_id, const void *params, Protocol__Flexr
             }
             for(i = 0; i < report_config.nr_ue; i++)
             {
-                UE_id = flexran_get_ue_id(mod_id, i);
+                const int UE_id = flexran_get_mac_ue_id(mod_id, i);
                 report_config.ue_report_type[i].ue_rnti = ue_req->rnti[UE_id];
                 report_config.ue_report_type[i].ue_report_flags = ue_req->flags;
             }
@@ -419,13 +458,19 @@ int flexran_agent_handle_stats(mid_t mod_id, const void *params, Protocol__Flexr
         goto error;
     }
 
-    free(report_config.ue_report_type);
-    free(report_config.cc_report_type);
+    if(report_config.ue_report_type)
+    {
+        free(report_config.ue_report_type);
+    }
+    if(report_config.cc_report_type)
+    {
+        free(report_config.cc_report_type);
+    }
 
     return 0;
 
 error :
-    LOG_E(FLEXRAN_AGENT, "errno %d occured\n", err_code);
+    LOG_E(FLEXRAN_AGENT, "%s(): errno %d occured\n", __func__, err_code);
     return err_code;
 }
 
@@ -437,16 +482,16 @@ int flexran_agent_stats_reply(mid_t enb_id, xid_t xid, const report_config_t *re
 {
 
     Protocol__FlexHeader *header = NULL;
-    err_code_t err_code;
-    int i;
+    Protocol__FlexUeStatsReport **ue_report = NULL;
+    Protocol__FlexCellStatsReport **cell_report = NULL;
+    Protocol__FlexStatsReply *stats_reply_msg = NULL;
+    err_code_t err_code = PROTOCOL__FLEXRAN_ERR__UNEXPECTED;
+    int i, j;
 
     if(flexran_create_header(xid, PROTOCOL__FLEX_TYPE__FLPT_STATS_REPLY, &header) != 0)
     {
         goto error;
     }
-
-
-    Protocol__FlexStatsReply *stats_reply_msg;
 
     stats_reply_msg = malloc(sizeof(Protocol__FlexStatsReply));
 
@@ -463,10 +508,8 @@ int flexran_agent_stats_reply(mid_t enb_id, xid_t xid, const report_config_t *re
 
     // UE report
 
-    Protocol__FlexUeStatsReport **ue_report;
-
-
     ue_report = malloc(sizeof(Protocol__FlexUeStatsReport *) * report_config->nr_ue);
+
     if(ue_report == NULL)
     {
         goto error;
@@ -476,18 +519,18 @@ int flexran_agent_stats_reply(mid_t enb_id, xid_t xid, const report_config_t *re
     {
 
         ue_report[i] = malloc(sizeof(Protocol__FlexUeStatsReport));
+        if(ue_report[i] == NULL)
+        {
+            goto error;
+        }
         protocol__flex_ue_stats_report__init(ue_report[i]);
         ue_report[i]->rnti = report_config->ue_report_type[i].ue_rnti;
         ue_report[i]->has_rnti = 1;
-        ue_report[i]->flags = report_config->ue_report_type[i].ue_report_flags;
-        ue_report[i]->has_flags = 1;
+        ue_report[i]->has_flags = 1; /* actual flags are filled in the CMs below */
 
     }
 
     // cell rpoert
-
-    Protocol__FlexCellStatsReport **cell_report;
-
 
     cell_report = malloc(sizeof(Protocol__FlexCellStatsReport *) * report_config->nr_cc);
     if(cell_report == NULL)
@@ -507,43 +550,41 @@ int flexran_agent_stats_reply(mid_t enb_id, xid_t xid, const report_config_t *re
         protocol__flex_cell_stats_report__init(cell_report[i]);
         cell_report[i]->carrier_index = report_config->cc_report_type[i].cc_id;
         cell_report[i]->has_carrier_index = 1;
-        cell_report[i]->flags = report_config->cc_report_type[i].cc_report_flags;
-        cell_report[i]->has_flags = 1;
+        cell_report[i]->has_flags = 1; /* actual flags are filled in the CMs below */
 
     }
 
-    /*
-        MAC reply split
-    */
-
-
-    if(flexran_agent_mac_stats_reply(enb_id, report_config,  ue_report, cell_report) < 0)
+    /* MAC reply split */
+    if(flexran_agent_get_mac_xface(enb_id)
+            && flexran_agent_mac_stats_reply(enb_id, report_config,  ue_report, cell_report) < 0)
     {
         err_code = PROTOCOL__FLEXRAN_ERR__MSG_BUILD;
         goto error;
     }
 
-    /*
-        RRC reply split
-    */
-
-    if(flexran_agent_rrc_stats_reply(enb_id, report_config,  ue_report, cell_report) < 0)
+    /* RRC reply split */
+    if(flexran_agent_get_rrc_xface(enb_id)
+            && flexran_agent_rrc_stats_reply(enb_id, report_config,  ue_report, cell_report) < 0)
     {
         err_code = PROTOCOL__FLEXRAN_ERR__MSG_BUILD;
         goto error;
     }
 
-
-    /*
-        PDCP reply split
-    */
-
-    if(flexran_agent_pdcp_stats_reply(enb_id, report_config,  ue_report, cell_report) < 0)
+    /* PDCP reply split */
+    if(flexran_agent_get_pdcp_xface(enb_id)
+            && flexran_agent_pdcp_stats_reply(enb_id, report_config,  ue_report, cell_report) < 0)
     {
         err_code = PROTOCOL__FLEXRAN_ERR__MSG_BUILD;
         goto error;
     }
 
+    /* GTP reply split, currently performed through RRC module */
+    if(flexran_agent_get_rrc_xface(enb_id)
+            && flexran_agent_rrc_gtp_stats_reply(enb_id, report_config, ue_report, cell_report) < 0)
+    {
+        err_code = PROTOCOL__FLEXRAN_ERR__MSG_BUILD;
+        goto error;
+    }
 
     stats_reply_msg->cell_report = cell_report;
     stats_reply_msg->ue_report = ue_report;
@@ -562,8 +603,46 @@ int flexran_agent_stats_reply(mid_t enb_id, xid_t xid, const report_config_t *re
 
 error :
     LOG_E(FLEXRAN_AGENT, "errno %d occured\n", err_code);
-    return err_code;
 
+    if(header != NULL)
+    {
+        free(header);
+        header = NULL;
+    }
+
+    if(stats_reply_msg != NULL)
+    {
+        free(stats_reply_msg);
+        stats_reply_msg = NULL;
+    }
+
+    if(ue_report != NULL)
+    {
+        for(j = 0; j < report_config->nr_ue; j++)
+        {
+            if(ue_report[j] != NULL)
+            {
+                free(ue_report[j]);
+            }
+        }
+        free(ue_report);
+        ue_report = NULL;
+    }
+
+    if(cell_report != NULL)
+    {
+        for(j = 0; j < report_config->nr_cc; j++)
+        {
+            if(cell_report[j] != NULL)
+            {
+                free(cell_report[j]);
+            }
+        }
+        free(cell_report);
+        cell_report = NULL;
+    }
+
+    return err_code;
 }
 
 /*
@@ -727,68 +806,31 @@ error:
     return -1;
 }
 
-/*
-    Top Level Update
-*/
-
-void flexran_agent_send_update_stats(mid_t mod_id)
+int flexran_agent_destroy_stats_reply(Protocol__FlexranMessage *msg)
 {
-
-    Protocol__FlexranMessage *current_report = NULL;
-    void *data;
-    int size;
-    err_code_t err_code;
-    int priority = 0;
-
-    if(pthread_mutex_lock(stats_context[mod_id].mutex))
+    if(msg->msg_case != PROTOCOL__FLEXRAN_MESSAGE__MSG_STATS_REPLY_MSG)
     {
-        goto error;
+        LOG_E(FLEXRAN_AGENT, "%s(): message is not a msg_stats_reply\n", __func__);
+        return -1;
     }
 
-    if(stats_context[mod_id].cont_update == 1)
+    flexran_agent_mac_destroy_stats_reply(msg->stats_reply_msg);
+    flexran_agent_rrc_destroy_stats_reply(msg->stats_reply_msg);
+    flexran_agent_pdcp_destroy_stats_reply(msg->stats_reply_msg);
+    for(int i = 0; i < msg->stats_reply_msg->n_cell_report; ++i)
     {
-
-        /*Create a fresh report with the required flags*/
-        err_code = flexran_agent_handle_stats(mod_id, (void *) stats_context[mod_id].stats_req, &current_report);
-        if(err_code < 0)
-        {
-            goto error;
-        }
+        free(msg->stats_reply_msg->cell_report[i]);
     }
-    /* /\*TODO:Check if a previous reports exists and if yes, generate a report */
-    /*  *that is the diff between the old and the new report, */
-    /*  *respecting the thresholds. Otherwise send the new report*\/ */
-    /* if (stats_context[mod_id].prev_stats_reply != NULL) { */
-
-    /*   msg = flexran_agent_generate_diff_mac_stats_report(current_report, stats_context[mod_id].prev_stats_reply); */
-
-    /*   /\*Destroy the old stats*\/ */
-    /*    flexran_agent_destroy_flexran_message(stats_context[mod_id].prev_stats_reply); */
-    /* } */
-    /* /\*Use the current report for future comparissons*\/ */
-    /* stats_context[mod_id].prev_stats_reply = current_report; */
-
-
-    if(pthread_mutex_unlock(stats_context[mod_id].mutex))
+    for(int i = 0; i < msg->stats_reply_msg->n_ue_report; ++i)
     {
-        goto error;
+        free(msg->stats_reply_msg->ue_report[i]);
     }
-
-    if(current_report != NULL)
-    {
-        data = flexran_agent_pack_message(current_report, &size);
-        /*Send any stats updates using the MAC channel of the eNB*/
-        if(flexran_agent_msg_send(mod_id, FLEXRAN_AGENT_MAC, data, size, priority))
-        {
-            err_code = PROTOCOL__FLEXRAN_ERR__MSG_ENQUEUING;
-            goto error;
-        }
-
-        LOG_D(FLEXRAN_AGENT, "sent message with size %d\n", size);
-        return;
-    }
-error:
-    LOG_D(FLEXRAN_AGENT, "Could not send sf trigger message\n");
+    free(msg->stats_reply_msg->cell_report);
+    free(msg->stats_reply_msg->ue_report);
+    free(msg->stats_reply_msg->header);
+    free(msg->stats_reply_msg);
+    free(msg);
+    return 0;
 }
 
 err_code_t flexran_agent_disable_cont_stats_update(mid_t mod_id)
@@ -829,14 +871,18 @@ err_code_t flexran_agent_enable_cont_stats_update(mid_t mod_id,
         goto error;
     }
 
-    Protocol__FlexranMessage *req_msg;
+    Protocol__FlexranMessage *req_msg = NULL;
 
     flexran_agent_stats_request(mod_id, xid, stats_req, &req_msg);
-    stats_context[mod_id].stats_req = req_msg;
-    stats_context[mod_id].prev_stats_reply = NULL;
 
-    stats_context[mod_id].cont_update = 1;
-    stats_context[mod_id].xid = xid;
+    if(req_msg != NULL)
+    {
+        stats_context[mod_id].stats_req = req_msg;
+        stats_context[mod_id].prev_stats_reply = NULL;
+
+        stats_context[mod_id].cont_update = 1;
+        stats_context[mod_id].xid = xid;
+    }
 
     if(pthread_mutex_unlock(stats_context[mod_id].mutex))
     {
@@ -864,7 +910,7 @@ err_code_t flexran_agent_init_cont_stats_update(mid_t mod_id)
     {
         goto error;
     }
-    if(pthread_mutex_init(stats_context[mod_id].mutex, NULL))
+    if(pthread_mutex_init(stats_context[mod_id].mutex, NULL) != 0)
     {
         goto error;
     }
@@ -884,6 +930,5 @@ err_code_t flexran_agent_destroy_cont_stats_update(mid_t mod_id)
     flexran_agent_destroy_flexran_message(stats_context[mod_id].prev_stats_reply);
     free(stats_context[mod_id].mutex);
 
-    // mac_agent_registered[mod_id] = 0;
     return 1;
 }

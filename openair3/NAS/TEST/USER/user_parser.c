@@ -1,41 +1,41 @@
 /*
-    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
-    contributor license agreements.  See the NOTICE file distributed with
-    this work for additional information regarding copyright ownership.
-    The OpenAirInterface Software Alliance licenses this file to You under
-    the OAI Public License, Version 1.1  (the "License"); you may not use this file
-    except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.openairinterface.org/?page_id=698
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-    -------------------------------------------------------------------------------
-    For more information about the OpenAirInterface (OAI) Software Alliance:
-        contact@openairinterface.org
-*/
+ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The OpenAirInterface Software Alliance licenses this file to You under
+ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+ * except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.openairinterface.org/?page_id=698
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *-------------------------------------------------------------------------------
+ * For more information about the OpenAirInterface (OAI) Software Alliance:
+ *      contact@openairinterface.org
+ */
 
 /*****************************************************************************
       Eurecom OpenAirInterface 3
       Copyright(c) 2012 Eurecom
 
-    Source    user_parser.c
+Source    user_parser.c
 
-    Version   0.1
+Version   0.1
 
-    Date    2012/10/09
+Date    2012/10/09
 
-    Product   User Simulator
+Product   User Simulator
 
-    Subsystem Command line parser
+Subsystem Command line parser
 
-    Author    Frederic Maurel
+Author    Frederic Maurel
 
-    Description Command line parser of the User Simulator process
+Description Command line parser of the User Simulator process
 
 *****************************************************************************/
 
@@ -52,36 +52,34 @@
 /****************************************************************************/
 
 /*
-    Identifiers of the User Simulator command line options
-*/
-enum
-{
-    USER_PARSER_HOST,   /* Remote hostname    */
-    USER_PARSER_PORT,   /* Remote port number   */
-    USER_PARSER_DEVPATH,  /* Device pathname    */
-    USER_PARSER_DEVATTR,  /* Device attribute parameters  */
-    USER_PARSER_NB_OPTIONS
+ * Identifiers of the User Simulator command line options
+ */
+enum {
+  USER_PARSER_HOST,   /* Remote hostname    */
+  USER_PARSER_PORT,   /* Remote port number   */
+  USER_PARSER_DEVPATH,  /* Device pathname    */
+  USER_PARSER_DEVATTR,  /* Device attribute parameters  */
+  USER_PARSER_NB_OPTIONS
 };
 
-/*  ----------------------------------------------------------------
-    Definition of the internal User Simulator command line structure
-    ----------------------------------------------------------------
-    The command line is defined with a name (default is "UserProcess"
-    but it will be replaced by the command name actually used at
-    runtime), a number of options and the list of options.
-    An option is defined with a name, an argument following the name,
-    the usage displayed by the usage function and a default value.
-*/
-static parser_command_line_t userParserCommandLine =
-{
-    "UserProcess",      /* Command name     */
-    USER_PARSER_NB_OPTIONS,   /* Number of options    */
-    {         /* Command line options   */
-        {"-host", "<host>", "\tRemote hostname\t\t", USER_PARSER_DEFAULT_REMOTE_HOSTNAME},
-        {"-port", "<port>", "\tRemote port number\t", USER_PARSER_DEFAULT_REMOTE_PORT_NUMBER},
-        {"-dev", "<devpath>", "Device pathname\t\t", "NULL"},
-        {"-params", "<params>", "Device attribute parameters", "NULL"},
-    }
+/* ----------------------------------------------------------------
+ * Definition of the internal User Simulator command line structure
+ * ----------------------------------------------------------------
+ *  The command line is defined with a name (default is "UserProcess"
+ *  but it will be replaced by the command name actually used at
+ *  runtime), a number of options and the list of options.
+ *  An option is defined with a name, an argument following the name,
+ *  the usage displayed by the usage function and a default value.
+ */
+static parser_command_line_t userParserCommandLine = {
+  "UserProcess",      /* Command name     */
+  USER_PARSER_NB_OPTIONS,   /* Number of options    */
+  {         /* Command line options   */
+    {"-host", "<host>", "\tRemote hostname\t\t", USER_PARSER_DEFAULT_REMOTE_HOSTNAME},
+    {"-port", "<port>", "\tRemote port number\t", USER_PARSER_DEFAULT_REMOTE_PORT_NUMBER},
+    {"-dev", "<devpath>", "Device pathname\t\t", "NULL"},
+    {"-params", "<params>", "Device attribute parameters", "NULL"},
+  }
 };
 
 /****************************************************************************/
@@ -104,7 +102,7 @@ static parser_command_line_t userParserCommandLine =
  ***************************************************************************/
 void user_parser_print_usage(void)
 {
-    parser_print_usage(&userParserCommandLine);
+  parser_print_usage(&userParserCommandLine);
 }
 
 /****************************************************************************
@@ -122,9 +120,9 @@ void user_parser_print_usage(void)
  **      Others:  None                                       **
  **                                                                        **
  ***************************************************************************/
-int user_parser_get_options(int argc, const char **argv)
+int user_parser_get_options(int argc, const char** argv)
 {
-    return parser_get_options(argc, argv, &userParserCommandLine);
+  return parser_get_options(argc, argv, &userParserCommandLine);
 }
 
 /****************************************************************************
@@ -143,7 +141,7 @@ int user_parser_get_options(int argc, const char **argv)
  ***************************************************************************/
 int user_parser_get_nb_options(void)
 {
-    return userParserCommandLine.nb_options;
+  return userParserCommandLine.nb_options;
 }
 
 /****************************************************************************
@@ -159,9 +157,9 @@ int user_parser_get_nb_options(void)
  **      Others:  None                                       **
  **                                                                        **
  ***************************************************************************/
-const char *user_parser_get_host(void)
+const char* user_parser_get_host(void)
 {
-    return userParserCommandLine.options[USER_PARSER_HOST].pvalue;
+  return userParserCommandLine.options[USER_PARSER_HOST].pvalue;
 }
 
 /****************************************************************************
@@ -177,9 +175,9 @@ const char *user_parser_get_host(void)
  **      Others:  None                                       **
  **                                                                        **
  ***************************************************************************/
-const char *user_parser_get_port(void)
+const char* user_parser_get_port(void)
 {
-    return userParserCommandLine.options[USER_PARSER_PORT].pvalue;
+  return userParserCommandLine.options[USER_PARSER_PORT].pvalue;
 }
 
 /****************************************************************************
@@ -195,9 +193,9 @@ const char *user_parser_get_port(void)
  **      Others:  None                                       **
  **                                                                        **
  ***************************************************************************/
-const char *user_parser_get_devpath(void)
+const char* user_parser_get_devpath(void)
 {
-    return userParserCommandLine.options[USER_PARSER_DEVPATH].pvalue;
+  return userParserCommandLine.options[USER_PARSER_DEVPATH].pvalue;
 }
 
 /****************************************************************************
@@ -213,9 +211,9 @@ const char *user_parser_get_devpath(void)
  **      Others:  None                                       **
  **                                                                        **
  ***************************************************************************/
-const char *user_parser_get_devattr(void)
+const char* user_parser_get_devattr(void)
 {
-    return userParserCommandLine.options[USER_PARSER_DEVATTR].pvalue;
+  return userParserCommandLine.options[USER_PARSER_DEVATTR].pvalue;
 }
 
 /****************************************************************************/

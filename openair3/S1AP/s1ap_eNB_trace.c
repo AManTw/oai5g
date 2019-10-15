@@ -1,23 +1,23 @@
 /*
-    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
-    contributor license agreements.  See the NOTICE file distributed with
-    this work for additional information regarding copyright ownership.
-    The OpenAirInterface Software Alliance licenses this file to You under
-    the OAI Public License, Version 1.1  (the "License"); you may not use this file
-    except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.openairinterface.org/?page_id=698
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-    -------------------------------------------------------------------------------
-    For more information about the OpenAirInterface (OAI) Software Alliance:
-        contact@openairinterface.org
-*/
+ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The OpenAirInterface Software Alliance licenses this file to You under
+ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+ * except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.openairinterface.org/?page_id=698
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *-------------------------------------------------------------------------------
+ * For more information about the OpenAirInterface (OAI) Software Alliance:
+ *      contact@openairinterface.org
+ */
 
 #include <stdint.h>
 
@@ -92,8 +92,7 @@ void s1ap_eNB_generate_trace_failure(struct s1ap_eNB_ue_context_s *ue_desc_p,
     memcpy(&ie->value.choice.Cause, cause_p, sizeof(S1AP_Cause_t));
     ASN_SEQUENCE_ADD(&out->protocolIEs.list, ie);
 
-    if(s1ap_eNB_encode_pdu(&pdu, &buffer, &length) < 0)
-    {
+    if (s1ap_eNB_encode_pdu(&pdu, &buffer, &length) < 0) {
         return;
     }
 
@@ -108,7 +107,7 @@ int s1ap_eNB_handle_trace_start(uint32_t         assoc_id,
 {
     S1AP_TraceStart_t            *container;
     S1AP_TraceStartIEs_t         *ie;
-    struct s1ap_eNB_ue_context_s *ue_desc_p;
+    struct s1ap_eNB_ue_context_s *ue_desc_p = NULL;
     struct s1ap_eNB_mme_data_s   *mme_ref_p;
 
     DevAssert(pdu != NULL);
@@ -119,20 +118,21 @@ int s1ap_eNB_handle_trace_start(uint32_t         assoc_id,
                                S1AP_ProtocolIE_ID_id_eNB_UE_S1AP_ID, TRUE);
     mme_ref_p = s1ap_eNB_get_MME(NULL, assoc_id, 0);
     DevAssert(mme_ref_p != NULL);
-
-    if((ue_desc_p = s1ap_eNB_get_ue_context(mme_ref_p->s1ap_eNB_instance,
-                                            ie->value.choice.ENB_UE_S1AP_ID)) == NULL)
-    {
-        /*  Could not find context associated with this eNB_ue_s1ap_id -> generate
-            trace failure indication.
-        */
+  if (ie != NULL) {
+    ue_desc_p = s1ap_eNB_get_ue_context(mme_ref_p->s1ap_eNB_instance,
+                                        ie->value.choice.ENB_UE_S1AP_ID);
+  }
+    if (ue_desc_p == NULL) {
+        /* Could not find context associated with this eNB_ue_s1ap_id -> generate
+         * trace failure indication.
+         */
         S1AP_E_UTRAN_Trace_ID_t trace_id;
         S1AP_Cause_t cause;
         memset(&trace_id, 0, sizeof(S1AP_E_UTRAN_Trace_ID_t));
         memset(&cause, 0, sizeof(S1AP_Cause_t));
         cause.present = S1AP_Cause_PR_radioNetwork;
         cause.choice.radioNetwork = S1AP_CauseRadioNetwork_unknown_pair_ue_s1ap_id;
-        s1ap_eNB_generate_trace_failure(ue_desc_p, &trace_id, &cause);
+        s1ap_eNB_generate_trace_failure(NULL, &trace_id, &cause);
     }
 
     return 0;

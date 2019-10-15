@@ -1,38 +1,38 @@
 /*
-    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
-    contributor license agreements.  See the NOTICE file distributed with
-    this work for additional information regarding copyright ownership.
-    The OpenAirInterface Software Alliance licenses this file to You under
-    the OAI Public License, Version 1.1  (the "License"); you may not use this file
-    except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.openairinterface.org/?page_id=698
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-    -------------------------------------------------------------------------------
-    For more information about the OpenAirInterface (OAI) Software Alliance:
-        contact@openairinterface.org
-*/
+ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The OpenAirInterface Software Alliance licenses this file to You under
+ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+ * except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.openairinterface.org/?page_id=698
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *-------------------------------------------------------------------------------
+ * For more information about the OpenAirInterface (OAI) Software Alliance:
+ *      contact@openairinterface.org
+ */
 
 /*****************************************************************************
-    Source    esm_cause.h
+Source    esm_cause.h
 
-    Version   0.1
+Version   0.1
 
-    Date    2013/02/06
+Date    2013/02/06
 
-    Product   NAS stack
+Product   NAS stack
 
-    Subsystem EPS Session Management
+Subsystem EPS Session Management
 
-    Author    Frederic Maurel
+Author    Frederic Maurel
 
-    Description Defines error cause code returned upon receiving unknown,
+Description Defines error cause code returned upon receiving unknown,
     unforeseen, and erroneous EPS session management protocol
     data.
 
@@ -45,14 +45,14 @@
 /****************************************************************************/
 
 /*
-    Cause code used to notify that the EPS session management procedure
-    has been successfully processed
-*/
+ * Cause code used to notify that the EPS session management procedure
+ * has been successfully processed
+ */
 #define ESM_CAUSE_SUCCESS     (-1)
 
 /*
-    Causes related to nature of request (TS 24.301 - Annex B1)
-*/
+ * Causes related to nature of request (TS 24.301 - Annex B1)
+ */
 #define ESM_CAUSE_OPERATOR_DETERMINED_BARRING     8
 #define ESM_CAUSE_INSUFFICIENT_RESOURCES      26
 #define ESM_CAUSE_UNKNOWN_ACCESS_POINT_NAME     27
@@ -88,8 +88,8 @@
 #define ESM_CAUSE_APN_RESTRICTION_VALUE_NOT_COMPATIBLE    112
 
 /*
-    Protocol errors (e.g., unknown message) class (TS 24.301 - Annex B2)
-*/
+ * Protocol errors (e.g., unknown message) class (TS 24.301 - Annex B2)
+ */
 #define ESM_CAUSE_SEMANTICALLY_INCORRECT      95
 #define ESM_CAUSE_INVALID_MANDATORY_INFO      96
 #define ESM_CAUSE_MESSAGE_TYPE_NOT_IMPLEMENTED      97
@@ -100,12 +100,12 @@
 #define ESM_CAUSE_PROTOCOL_ERROR        111
 
 /*
-    TS 24.301 - Table 9.9.4.4.1
-    Any other value received by the UE shall be treated as cause code #34,
-    "service option temporarily out of order".
-    Any other value received by the network shall be treated as cause code #111
-    "protocol error, unspecified".
-*/
+ * TS 24.301 - Table 9.9.4.4.1
+ * Any other value received by the UE shall be treated as cause code #34,
+ * "service option temporarily out of order".
+ * Any other value received by the network shall be treated as cause code #111
+ * "protocol error, unspecified".
+ */
 
 /****************************************************************************/
 /************************  G L O B A L    T Y P E S  ************************/

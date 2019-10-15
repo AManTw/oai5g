@@ -1,38 +1,38 @@
 /*
-    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
-    contributor license agreements.  See the NOTICE file distributed with
-    this work for additional information regarding copyright ownership.
-    The OpenAirInterface Software Alliance licenses this file to You under
-    the OAI Public License, Version 1.1  (the "License"); you may not use this file
-    except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.openairinterface.org/?page_id=698
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-    -------------------------------------------------------------------------------
-    For more information about the OpenAirInterface (OAI) Software Alliance:
-        contact@openairinterface.org
-*/
+ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The OpenAirInterface Software Alliance licenses this file to You under
+ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+ * except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.openairinterface.org/?page_id=698
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *-------------------------------------------------------------------------------
+ * For more information about the OpenAirInterface (OAI) Software Alliance:
+ *      contact@openairinterface.org
+ */
 
 /*****************************************************************************
-    Source      EmmDeregisteredNoImsi.c
+Source      EmmDeregisteredNoImsi.c
 
-    Version     0.1
+Version     0.1
 
-    Date        2012/10/03
+Date        2012/10/03
 
-    Product     NAS stack
+Product     NAS stack
 
-    Subsystem   EPS Mobility Management
+Subsystem   EPS Mobility Management
 
-    Author      Frederic Maurel
+Author      Frederic Maurel
 
-    Description Implements the EPS Mobility Management procedures executed
+Description Implements the EPS Mobility Management procedures executed
         when the EMM-SAP is in EMM-DEREGISTERED.NO-IMSI state.
 
         In EMM-DEREGISTERED.NO-IMSI state, the UE is switched on
@@ -80,13 +80,13 @@
  ***************************************************************************/
 int EmmDeregisteredNoImsi(nas_user_t *user, const emm_reg_t *evt)
 {
-    LOG_FUNC_IN;
+  LOG_FUNC_IN;
 
-    assert(emm_fsm_get_status(user) == EMM_DEREGISTERED_NO_IMSI);
+  assert(emm_fsm_get_status(user) == EMM_DEREGISTERED_NO_IMSI);
 
-    LOG_TRACE(ERROR, "EMM-FSM   - USIM is not present or not valid");
+  LOG_TRACE(ERROR, "EMM-FSM   - USIM is not present or not valid");
 
-    LOG_FUNC_RETURN(RETURNerror);
+  LOG_FUNC_RETURN (RETURNerror);
 }
 
 /****************************************************************************/

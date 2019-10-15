@@ -31,6 +31,13 @@
 
 #include <netinet/in.h>
 
+/*! \fn void void nas_getparams(void)(void)
+    \brief This function get parameters used to configure network interface when running in noS1 mode
+    \note
+    @ingroup  ?????
+*/
+void nas_getparams(void);
+
 /*! \fn int  NAS_config(char*, char*, char*, char*)
     \brief This function initializes the nasmesh interface
     \param[in] interfaceName, the name of the interface, e.g. nasmesh0 or nasmesh1
@@ -54,7 +61,7 @@ int NAS_config(char *interfaceName, char *ipAddress, char *networkMask, char *br
     \note
     @ingroup  ?????
 */
-int nas_config(int interface_id, int thirdOctet, int fourthOctet);
+int nas_config(int interface_id, int thirdOctet, int fourthOctet, char *ifsuffix);
 
 /*! \fn int  blocking_NAS_config(char*, char*, char*, char*)
     \brief This function initializes the nasmesh interface, in a blocking way,

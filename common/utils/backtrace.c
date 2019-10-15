@@ -38,14 +38,15 @@ void display_backtrace(void)
     char **strings;
     size_t i;
     char *test = getenv("NO_BACKTRACE");
+
     if(test != 0)
     {
         *((int *)0) = 0;
     }
+
     size = backtrace(array, 10);
     strings = backtrace_symbols(array, size);
-
-    printf("Obtained %zd stack frames.\n", size);
+    printf("Obtained %u stack frames.\n", (unsigned int)size);
 
     for(i = 0; i < size; i++)
     {

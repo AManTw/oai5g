@@ -47,16 +47,11 @@ static void *link_manager_sender_thread(void *_manager)
 
     while(manager->run)
     {
-        while(message_get(manager->send_queue, &data, &size, &priority) == 0)
+        while((size = message_get(manager->send_queue, &data, &priority)) > 0)
         {
-            link_send_packet(manager->socket_link, data, size);
+            link_send_packet(manager->socket_link, data, size, manager->peer_addr, manager->peer_port);
             free(data);
         }
-        //    if (message_get(manager->send_queue, &data, &size, &priority))
-        //  goto error;
-        //if (link_send_packet(manager->socket_link, data, size))
-        //  goto error;
-        //free(data);
     }
 
     LOG_D(MAC, "link manager sender thread quits\n");
@@ -135,11 +130,6 @@ link_manager_t *create_link_manager(
     pthread_attr_setschedpolicy(&attr, SCHED_RR);
     //#endif
 
-    if(pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED))
-    {
-        goto error;
-    }
-
     if(pthread_create(&t, &attr, link_manager_sender_thread, ret))
     {
         goto error;
@@ -170,9 +160,11 @@ error:
 
 void destroy_link_manager(link_manager_t *manager)
 {
-    LOG_D(MAC, "destroying link manager\n");
     manager->run = 0;
-    /* todo: force threads to stop (using a dummy message?) */
+    message_get_unlock(manager->send_queue);
+    pthread_join(manager->sender, NULL);
+    /* cancel aborts the read performed in the receiver, then cancels the thread */
+    pthread_cancel(manager->receiver);
 }
 
 #ifdef SERVER_TEST
@@ -220,7 +212,7 @@ int main(void)
         goto error;
     }
 
-    if(message_get(receive_queue, &data, &size, &priority))
+    if((size = message_get(receive_queue, &data, &priority)) <= 0)
     {
         goto error;
     }
@@ -279,7 +271,7 @@ int main(void)
         goto error;
     }
 
-    if(message_get(receive_queue, &data, &size, &priority))
+    if((size = message_get(receive_queue, &data, &priority)) <= 0)
     {
         goto error;
     }

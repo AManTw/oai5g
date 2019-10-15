@@ -43,7 +43,6 @@ unsigned int s0[MAX_NUM_COMPS], s1[MAX_NUM_COMPS], s2[MAX_NUM_COMPS], b[MAX_NUM_
 
 inline unsigned int taus(unsigned int comp)
 {
-
     b[comp] = (((s0[comp] << 13) ^ s0[comp]) >> 19);
     s0[comp] = (((s0[comp] & 0xFFFFFFFE) << 12)^  b[comp]);
     b[comp] = (((s1[comp] << 2) ^ s1[comp]) >> 25);
@@ -56,12 +55,10 @@ inline unsigned int taus(unsigned int comp)
 
 void set_taus_seed(unsigned int seed_type)
 {
-
     unsigned int i; // i index of component
 
     for(i = MIN_NUM_COMPS; i < MAX_NUM_COMPS  ; i ++)
     {
-
         switch(seed_type)
         {
             case 0: // use rand func
@@ -73,7 +70,7 @@ void set_taus_seed(unsigned int seed_type)
                 s0[i] = ((unsigned int)rand());
                 s1[i] = ((unsigned int)rand());
                 s2[i] = ((unsigned int)rand());
-                printf("Initial seeds use rand: s0[%d] = 0x%x, s1[%d] = 0x%x, s2[%d] = 0x%x\n", i, s0[i], i, s1[i], i, s2[i]);
+                printf("Initial seeds use rand: s0[%u] = 0x%x, s1[%u] = 0x%x, s2[%u] = 0x%x\n", i, s0[i], i, s1[i], i, s2[i]);
                 break;
 
             case 1: // use rand with seed
@@ -85,13 +82,11 @@ void set_taus_seed(unsigned int seed_type)
                 s0[i] = ((unsigned int)rand());
                 s1[i] = ((unsigned int)rand());
                 s2[i] = ((unsigned int)rand());
-                printf("Initial seeds use rand with seed : s0[%d] = 0x%x, s1[%d] = 0x%x, s2[%d] = 0x%x\n", i, s0[i], i, s1[i], i, s2[i]);
-
+                printf("Initial seeds use rand with seed : s0[%u] = 0x%x, s1[%u] = 0x%x, s2[%u] = 0x%x\n", i, s0[i], i, s1[i], i, s2[i]);
                 break;
 
             default:
                 break;
-
         }
     }
 }
@@ -111,7 +106,6 @@ int get_rand(unsigned int comp)
 
 unsigned int dtaus(unsigned int comp, unsigned int a, unsigned b)
 {
-
     return (int)(((double)taus(comp) / (double)0xffffffff) * (double)(b - a) + (double)a);
 }
 /*

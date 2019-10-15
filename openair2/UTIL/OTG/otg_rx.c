@@ -56,7 +56,6 @@ extern unsigned char NB_UE_INST;
 // Check if the packet is well received or not and extract data
 int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffer_tx, const unsigned int size)
 {
-
     int              bytes_read      = 0;
     otg_hdr_info_t *otg_hdr_info_rx;
     otg_hdr_t       *otg_hdr_rx;
@@ -71,27 +70,23 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
     {
         otg_hdr_info_rx = (otg_hdr_info_t *)(&buffer_tx[bytes_read]);
         bytes_read += sizeof(otg_hdr_info_t);
-
-        LOG_D(OTG, "otg_rx_pkt functions: destination %d, size %d, otg_hdr_info_rx->flag %.4x, otg_hdr_info_rx->size %d \n",
+        LOG_D(OTG, "otg_rx_pkt functions: destination %d, size %u, otg_hdr_info_rx->flag %.4x, otg_hdr_info_rx->size %u \n",
               dst_instanceP,
               size,
               otg_hdr_info_rx->flag,
               otg_hdr_info_rx->size);
-
 
         if(((otg_hdr_info_rx->flag == 0xffff) ||
                 (otg_hdr_info_rx->flag == 0xbbbb) ||
                 (otg_hdr_info_rx->flag == 0x1000)) &&
                 (otg_hdr_info_rx->size == size))    //data traffic
         {
-
             LOG_I(OTG, "MAX_RX_INFO %d %d \n", NB_eNB_INST,  NB_UE_INST);
-
             /*  is_size_ok= 0;
                 if (( otg_hdr_info_rx->size ) == size ) {*/
             is_size_ok = 1;
             otg_hdr_rx = (otg_hdr_t *)(&buffer_tx[bytes_read]);
-            LOG_I(OTG, "[SRC %d][DST %d] [FLOW_idx %d][APP TYPE %d] RX INFO pkt at time %d: flag 0x %x, seq number %d, tx time %d, size (hdr %d, pdcp %d) \n",
+            LOG_I(OTG, "[SRC %u][DST %u] [FLOW_idx %u][APP TYPE %u] RX INFO pkt at time %d: flag 0x %x, seq number %u, tx time %u, size (hdr %u, pdcp %u) \n",
                   otg_hdr_rx->src_instance,
                   otg_hdr_rx->dst_instance,
                   otg_hdr_rx->flow_id,
@@ -101,9 +96,7 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
                   otg_hdr_rx->seq_num,
                   otg_hdr_rx->time,
                   otg_hdr_info_rx->size, size);
-
             bytes_read += sizeof(otg_hdr_t);
-
             src_instance = otg_hdr_rx->src_instance;
             dst_instance = otg_hdr_rx->dst_instance;
 
@@ -118,7 +111,7 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
 
             if(otg_hdr_rx->traffic_type > MAX_NUM_APPLICATION)
             {
-                LOG_W(OTG, "RX packet: application type out of range %d for the pair of (src %d, dst %d) \n",
+                LOG_W(OTG, "RX packet: application type out of range %u for the pair of (src %u, dst %u) \n",
                       otg_hdr_rx->traffic_type, src_instance, dst_instance);
                 otg_hdr_rx->traffic_type = 0;
             }
@@ -145,7 +138,7 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
                 //  rx_check_loss(src_instance, dst_instance, otg_hdr_info_rx->flag, otg_hdr_rx->seq_num, &seq_num_rx, &nb_loss_pkts);
                 //  otg_multicast_info->loss_rate[src_instance][dst_instance][otg_hdr_rx->traffic_type]=nb_loss_pkts;
                 //otg_multicast_info->rx_sn[src_instance][dst_instance][otg_hdr_rx->traffic_type]=seq_num_rx;
-                LOG_I(OTG, "received a multicast packet with size %d sn %d ran owd %d loss rate %d\n",
+                LOG_I(OTG, "received a multicast packet with size %u sn %u ran owd %u loss rate %u\n",
                       otg_hdr_info_rx->size, seq_num_rx, ctime - otg_hdr_rx->time, nb_loss_pkts);
                 //return 0;
             }  /** background traffic **/
@@ -163,10 +156,8 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
                 }
             }
 
-
-            LOG_D(OTG, "[%d][%d] AGGREGATION LEVEL (RX) %d \n", src_instance, dst_instance, otg_hdr_rx->aggregation_level);
+            LOG_D(OTG, "[%u][%u] AGGREGATION LEVEL (RX) %u \n", src_instance, dst_instance, otg_hdr_rx->aggregation_level);
             otg_info->aggregation_level[src_instance][dst_instance] = otg_hdr_rx->aggregation_level;
-
             /* Loss and out of sequence data management */
             lost_packet = rx_check_loss(
                               src_instance,
@@ -176,12 +167,10 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
                               &seq_num_rx,
                               &nb_loss_pkts);
 
-
             if(otg_info->owd_const[src_instance][dst_instance][otg_hdr_rx->flow_id] == 0)
             {
                 owd_const_gen(src_instance, dst_instance, otg_hdr_rx->flow_id, otg_hdr_rx->traffic_type);
             }
-
 
             /******/
             /*
@@ -205,7 +194,7 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
             }
             else
             {
-                LOG_I(OTG, "received packet has tx time %d greater than the current time %d\n", otg_hdr_rx->time, ctime);
+                LOG_I(OTG, "received packet has tx time %u greater than the current time %d\n", otg_hdr_rx->time, ctime);
                 otg_info->radio_access_delay[src_instance][dst_instance] = 0;
                 otg_multicast_info->radio_access_delay[src_instance][dst_instance] = 0;
             }
@@ -216,8 +205,7 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
             otg_info->rx_pkt_owd_e2e[src_instance][dst_instance] =
                 otg_info->owd_const[src_instance][dst_instance][otg_hdr_rx->flow_id] + otg_info->radio_access_delay[src_instance][dst_instance];
             otg_multicast_info->rx_pkt_owd[src_instance][dst_instance] = otg_multicast_info->radio_access_delay[src_instance][dst_instance];
-
-            LOG_D(OTG, "[src %d][dst %d] ctime %d tx time %d: OWD %lf E2E OWD %lf \n",
+            LOG_D(OTG, "[src %u][dst %u] ctime %d tx time %u: OWD %lf E2E OWD %lf \n",
                   src_instance,
                   dst_instance,
                   ctime,
@@ -240,7 +228,7 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
                     otg_info->rx_pkt_jitter[src_instance][dst_instance] =
                         abs(otg_info->rx_pkt_owd_history[src_instance][dst_instance][0] - otg_info->rx_pkt_owd_history[src_instance][dst_instance][1]);
 
-                LOG_D(OTG, "The packet jitter for the pair (src %d, dst %d)) at %d is %lf (current %lf, previous %lf) \n",
+                LOG_D(OTG, "The packet jitter for the pair (src %u, dst %u)) at %d is %lf (current %lf, previous %lf) \n",
                       src_instance, dst_instance, ctime, otg_info->rx_pkt_jitter[src_instance][dst_instance],
                       otg_info->rx_pkt_owd_history[src_instance][dst_instance][0], otg_info->rx_pkt_owd_history[src_instance][dst_instance][1]);
                 // e2e
@@ -255,27 +243,25 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
                     otg_info->rx_pkt_jitter_e2e[src_instance][dst_instance] =
                         abs(otg_info->rx_pkt_owd_history_e2e[src_instance][dst_instance][0] - otg_info->rx_pkt_owd_history_e2e[src_instance][dst_instance][1]);
 
-                LOG_D(OTG, "The packet jitter for the pair (src %d, dst %d)) at %d is %lf (current %lf, previous %lf) \n",
+                LOG_D(OTG, "The packet jitter for the pair (src %u, dst %u)) at %d is %lf (current %lf, previous %lf) \n",
                       src_instance,
                       dst_instance,
                       ctime,
                       otg_info->rx_pkt_jitter_e2e[src_instance][dst_instance],
                       otg_info->rx_pkt_owd_history_e2e[src_instance][dst_instance][0],
                       otg_info->rx_pkt_owd_history_e2e[src_instance][dst_instance][1]);
-
             }
 
             if(otg_hdr_info_rx->flag == 0x1000)
             {
-                LOG_I(OTG, "[SRC%d -> DST %d] Received a multicast packet at time %d with size %d, seq num %d, ran owd %d number loss packet %d\n",
+                LOG_I(OTG, "[SRC%u -> DST %u] Received a multicast packet at time %d with size %u, seq num %u, ran owd %u number loss packet %u\n",
                       src_instance,
                       dst_instance,
                       ctime, otg_hdr_info_rx->size,
                       otg_hdr_rx->seq_num,
                       ctime - otg_hdr_rx->time,
                       nb_loss_pkts);
-
-                LOG_I(OTG, "INFO LATENCY :: [SRC %d][DST %d] radio access %.2f (tx time %d, ctime %d), OWD:%d (ms):\n",
+                LOG_I(OTG, "INFO LATENCY :: [SRC %u][DST %u] radio access %.2f (tx time %u, ctime %d), OWD:%d (ms):\n",
                       src_instance,
                       dst_instance,
                       otg_multicast_info->radio_access_delay[src_instance][dst_instance],
@@ -318,8 +304,7 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
             }
             else
             {
-
-                LOG_I(OTG, "[SRC %d][DST %d] Stats :: radio access latency %.2f (tx time %d, ctime %d) jitter %.2f, Estimated E2E OWD:%.2f (ms):\n",
+                LOG_I(OTG, "[SRC %u][DST %u] Stats :: radio access latency %.2f (tx time %u, ctime %d) jitter %.2f, Estimated E2E OWD:%.2f (ms):\n",
                       src_instance,
                       dst_instance,
                       otg_info->radio_access_delay[src_instance][dst_instance],
@@ -329,7 +314,6 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
 
                 if(otg_hdr_info_rx->flag == 0xffff)
                 {
-
                     if(otg_info->rx_owd_max[src_instance][dst_instance][otg_hdr_rx->traffic_type] == 0)
                     {
                         otg_info->rx_owd_max[src_instance][dst_instance][otg_hdr_rx->traffic_type] = otg_info->rx_pkt_owd[src_instance][dst_instance];
@@ -371,7 +355,6 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
                         otg_info->rx_jitter_avg_e2e[src_instance][dst_instance][otg_hdr_rx->traffic_type] +=  otg_info->rx_pkt_jitter_e2e[src_instance][dst_instance];
                         otg_info->rx_jitter_sample[src_instance][dst_instance][otg_hdr_rx->traffic_type] += 1;
                     }
-
                 }
 
                 if(g_otg->curve == 1)
@@ -399,15 +382,12 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
                 {
                     otg_info->rx_total_bytes_ul += otg_hdr_info_rx->size;
                 }
-
             }
 
             //LOG_I(OTG,"RX INFO :: RTT MIN(one way) ms: %.2f, RTT MAX(one way) ms: %.2f \n", otg_info->rx_owd_min[src][dst], otg_info->rx_owd_max[src][dst]);
-
             /* xforms part: add metrics  */
-
             //printf("payload_size %d, header_size %d \n", otg_hdr_rx->pkts_size, otg_hdr_rx->hdr_type);
-            LOG_I(OTG, "[RX] OTG packet, PACKET SIZE [SRC %d][DST %d]: Flag (0x%x), Traffic %d, time(%d), Seq num (%d), Total size (%d)\n",
+            LOG_I(OTG, "[RX] OTG packet, PACKET SIZE [SRC %u][DST %u]: Flag (0x%x), Traffic %u, time(%d), Seq num (%u), Total size (%u)\n",
                   src_instance,
                   dst_instance,
                   otg_hdr_info_rx->flag,
@@ -415,7 +395,6 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
                   ctime,
                   otg_hdr_rx->seq_num, size);
             /*LOG_I(OTG,"details::RX [SRC %d][DST %d]: Flag (0x%x), time(%d), Seq num (%d), Total size (%d), header(%d), payload (%d) \n",  src, dst, otg_hdr_info_rx->flag, ctime, otg_hdr_rx->seq_num, size, strlen(packet_rx->header), strlen(packet_rx->payload));*/
-
 
             if(otg_hdr_info_rx->flag == 0xffff)
             {
@@ -455,7 +434,6 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
                                    otg_hdr_rx->time,
                                    ((otg_hdr_info_rx->size * 1000 * 8) / (otg_info->rx_pkt_owd[src_instance][dst_instance] * 1024)),
                                    OTG_GP); /* compute the throughput in Kbit/s  */
-
             }
             else if(otg_hdr_info_rx->flag == 0x1000)
             {
@@ -520,7 +498,7 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
             if(is_size_ok == 0)
             {
                 otg_hdr_rx = (otg_hdr_t *)(&buffer_tx[bytes_read]);
-                LOG_W(OTG, "[SRC %d][DST %d] RX pkt: seq number %d size mis-matche (hdr %d, pdcp %d) \n",
+                LOG_W(OTG, "[SRC %u][DST %u] RX pkt: seq number %u size mis-matche (hdr %u, pdcp %u) \n",
                       src_instance, dst_instance, otg_hdr_rx->seq_num, otg_hdr_info_rx->size, size);
                 otg_info->nb_loss_pkts_otg[src_instance][dst_instance]++;
             }
@@ -529,11 +507,10 @@ int otg_rx_pkt(const int dst_instanceP, const int ctime, const char *const buffe
         }
         else
         {
-            LOG_W(OTG, "RX: Not an OTG pkt, forward to upper layer (flag %x, size %d, pdcp_size %d) FIX ME \n",
+            LOG_W(OTG, "RX: Not an OTG pkt, forward to upper layer (flag %x, size %u, pdcp_size %u) FIX ME \n",
                   otg_hdr_info_rx->flag, otg_hdr_info_rx->size, size);
             return(1); //to be fixed on the real case to one
         }
-
     }
 
     return(0);
@@ -550,7 +527,6 @@ int rx_check_loss(
     unsigned int *const seq_num_rx,
     unsigned int *const nb_loss_pkts)
 {
-
     /* Loss and out of sequence data management, we have 3 case : */
     /* (1) Receieved packet corresponds to the expected one, in terms of the sequence number*/
     int lost_packet = 0;
@@ -648,7 +624,6 @@ float owd_const_IP_backbone(void)
 {
     /*return uniform_dist(MIN_NETWORK_ACCESS_DELAY,MAX_NETWORK_ACCESS_DELAY);*/
     return ((double)MIN_NETWORK_ACCESS_DELAY + (double)MAX_NETWORK_ACCESS_DELAY) / 2;
-
 }
 
 float owd_const_application(void)

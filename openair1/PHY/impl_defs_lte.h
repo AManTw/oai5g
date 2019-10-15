@@ -69,4 +69,21 @@ typedef struct
     int32_t **tdd_calib_coeffs;
 } RU_COMMON;
 
+typedef struct
+{
+    /// \brief Received frequency-domain signal after extraction.
+    /// - first index: ? [0..7] (hard coded) FIXME! accessed via \c nb_antennas_rx
+    /// - second index: ? [0..168*N_RB_DL[
+    int32_t **rxdataF_ext;
+    /// \brief Hold the channel estimates in time domain based on DRS.
+    /// - first index: rx antenna id [0..nb_antennas_rx[
+    /// - second index: ? [0..4*ofdm_symbol_size[
+    int32_t **drs_ch_estimates_time;
+    /// \brief Hold the channel estimates in frequency domain based on DRS.
+    /// - first index: rx antenna id [0..nb_antennas_rx[
+    /// - second index: ? [0..12*N_RB_UL*frame_parms->symbols_per_tti[
+    int32_t **drs_ch_estimates;
+} RU_CALIBRATION;
+
+
 #endif

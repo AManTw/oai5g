@@ -63,21 +63,9 @@
 #include "LTE_UE-Capability-NB-r13.h" //equivalent of UE-EUTRA-Capability.h
 //-------------------
 
-#if defined(ENABLE_ITTI)
-    #include "intertask_interface.h"
-#endif
+# include "intertask_interface.h"
+# include "commonDef.h"
 
-/*  TODO: be sure this include is correct.
-    It solves a problem of compilation of the RRH GW,
-    issue #186.
-*/
-#if !defined(ENABLE_ITTI)
-    #include "as_message.h"
-#endif
-
-#if defined(ENABLE_USE_MME)
-    #include "commonDef.h"
-#endif
 
 #if ENABLE_RAL
     #include "collection/hashtable/obj_hashtable.h"
@@ -263,17 +251,17 @@ typedef struct eNB_RRC_UE_NB_IoT_s
 
         SRB_configList --> is used for the actual list of SRBs that is managed/that should be send over the RRC message
         SRB_configList2--> refers to all the SRBs configured for that specific transaction identifier
-      					this because in a single transaction one or more SRBs could be established
-      					and you want to keep memory on what happen for every transaction
+                this because in a single transaction one or more SRBs could be established
+                and you want to keep memory on what happen for every transaction
         Transaction ID (xid): is used to associate the proper RRC....Complete message received by the UE to the corresponding
-      					   message previously sent by the eNB (e.g. RRCConnectionSetup -- RRCConnectionSetupComplete)
-      					   this because it could happen that more messages are transmitted at the same time
+                   message previously sent by the eNB (e.g. RRCConnectionSetup -- RRCConnectionSetupComplete)
+                   this because it could happen that more messages are transmitted at the same time
     */
     LTE_SRB_ToAddModList_NB_r13_t            *SRB_configList;//for SRB1 and SRB1bis
     LTE_SRB_ToAddModList_NB_r13_t            *SRB_configList2[RRC_TRANSACTION_IDENTIFIER_NUMBER];
     LTE_DRB_ToAddModList_NB_r13_t            *DRB_configList; //for all the DRBs
     LTE_DRB_ToAddModList_NB_r13_t            *DRB_configList2[RRC_TRANSACTION_IDENTIFIER_NUMBER]; //for the configured DRBs of a xid
-    uint8_t                            		DRB_active[2];//in LTE was 8 --> at most 2 for NB-IoT
+    uint8_t                               DRB_active[2];//in LTE was 8 --> at most 2 for NB-IoT
 
     struct LTE_PhysicalConfigDedicated_NB_r13    *physicalConfigDedicated_NB_IoT;
     LTE_MAC_MainConfig_NB_r13_t           *mac_MainConfig_NB_IoT;
@@ -286,10 +274,8 @@ typedef struct eNB_RRC_UE_NB_IoT_s
     SRB_INFO_TABLE_ENTRY_NB_IoT               Srb1;
     SRB_INFO_TABLE_ENTRY_NB_IoT               Srb1bis;
 
-#if defined(ENABLE_SECURITY)
     /* KeNB as derived from KASME received from EPC */
     uint8_t kenb[32];
-#endif
 
     /* Used integrity/ciphering algorithms--> maintained the same for NB-IoT */
     e_LTE_CipheringAlgorithm_r12     ciphering_algorithm; //Specs. TS 36.331 V14.1.0 pag 432 Change position of chipering enumerative w.r.t previous version
@@ -367,13 +353,13 @@ typedef struct
 {
 
     // buffer that contains the encoded messages
-    uint8_t							*MIB_NB_IoT;
-    uint8_t							sizeof_MIB_NB_IoT;
+    uint8_t             *MIB_NB_IoT;
+    uint8_t             sizeof_MIB_NB_IoT;
 
     uint8_t                           *SIB1_NB_IoT;
     uint8_t                           sizeof_SIB1_NB_IoT;
-    uint8_t                         	*SIB23_NB_IoT;
-    uint8_t                        	sizeof_SIB23_NB_IoT;
+    uint8_t                           *SIB23_NB_IoT;
+    uint8_t                         sizeof_SIB23_NB_IoT;
 
 
     //not actually implemented in OAI
@@ -396,9 +382,9 @@ typedef struct
 
     //implicit parameters needed
     int                               Ncp; //cyclic prefix for DL
-    int								Ncp_UL; //cyclic prefix for UL
+    int               Ncp_UL; //cyclic prefix for UL
     int                               p_eNB; //number of tx antenna port
-    int								p_rx_eNB; //number of receiving antenna ports
+    int               p_rx_eNB; //number of receiving antenna ports
     uint32_t                          dl_CarrierFreq; //detected by the UE
     uint32_t                          ul_CarrierFreq; //detected by the UE
     uint16_t                          physCellId; //not stored in the MIB-NB but is getting through NPSS/NSSS
@@ -408,12 +394,12 @@ typedef struct
     LTE_BCCH_DL_SCH_Message_NB_t             siblock1_NB_IoT; //SIB1-NB
     LTE_BCCH_DL_SCH_Message_NB_t             systemInformation_NB_IoT; //SI
 
-    LTE_SystemInformationBlockType1_NB_t     		*sib1_NB_IoT;
-    LTE_SystemInformationBlockType2_NB_r13_t   	*sib2_NB_IoT;
-    LTE_SystemInformationBlockType3_NB_r13_t   	*sib3_NB_IoT;
+    LTE_SystemInformationBlockType1_NB_t        *sib1_NB_IoT;
+    LTE_SystemInformationBlockType2_NB_r13_t    *sib2_NB_IoT;
+    LTE_SystemInformationBlockType3_NB_r13_t    *sib3_NB_IoT;
     //not implemented yet
-    LTE_SystemInformationBlockType4_NB_r13_t    	*sib4_NB_IoT;
-    LTE_SystemInformationBlockType5_NB_r13_t     	*sib5_NB_IoT;
+    LTE_SystemInformationBlockType4_NB_r13_t      *sib4_NB_IoT;
+    LTE_SystemInformationBlockType5_NB_r13_t      *sib5_NB_IoT;
     LTE_SystemInformationBlockType14_NB_r13_t     *sib14_NB_IoT;
     LTE_SystemInformationBlockType16_NB_r13_t     *sib16_NB_IoT;
 
@@ -429,9 +415,9 @@ typedef struct
         SystemInformationBlockType20_NB_r14_t     *sib20;
         SystemInformationBlockType22_NB_r14_t     *sib22;
 
-        uint8_t							SCPTM_flag;
-        uint8_t							sizeof_SC_MCHH_MESS[];
-        SC_MCCH_Message_NB_t				scptm;*/
+        uint8_t             SCPTM_flag;
+        uint8_t             sizeof_SC_MCHH_MESS[];
+        SC_MCCH_Message_NB_t        scptm;*/
 
 
 } rrc_eNB_carrier_data_NB_IoT_t;
@@ -494,11 +480,9 @@ typedef struct UE_RRC_INST_NB_IoT_s
 {
     Rrc_State_NB_IoT_t     RrcState;
     Rrc_Sub_State_NB_IoT_t RrcSubState;
-# if defined(ENABLE_USE_MME)
     plmn_t          plmnID;
     Byte_t          rat;
     as_nas_info_t   initialNasMsg;
-# endif
     OAI_UECapability_NB_IoT_t *UECap;
     uint8_t *UECapability;
     uint8_t UECapability_size;

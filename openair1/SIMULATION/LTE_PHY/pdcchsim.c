@@ -56,13 +56,11 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
     uint32_t BCCH_alloc_pdu[2];
     uint32_t DLSCH_alloc_pdu[2];
     uint32_t UL_alloc_pdu[2];
-
     int ind;
     int dci_length_bytes = 0, dci_length = 0;
     int BCCH_pdu_size_bits = 0, BCCH_pdu_size_bytes = 0;
     int UL_pdu_size_bits = 0, UL_pdu_size_bytes = 0;
     int mcs = 3;
-
     DCI_pdu.Num_dci = 0;
 
     if(lte_frame_parms->frame_type == TDD)
@@ -80,7 +78,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1_1_5MHz_TDD_t *)&DLSCH_alloc_pdu[0])->rv                = 0;
                 ((DCI1_1_5MHz_TDD_t *)&DLSCH_alloc_pdu[0])->TPC               = 0;
                 ((DCI1_1_5MHz_TDD_t *)&DLSCH_alloc_pdu[0])->dai               = 0;
-
                 ((DCI1A_1_5MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->type           = 1;
                 ((DCI1A_1_5MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->vrb_type       = 0;
                 ((DCI1A_1_5MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->rballoc     = computeRIV(lte_frame_parms->N_RB_DL, 0, 4);
@@ -91,7 +88,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1A_1_5MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->TPC            = 1;
                 BCCH_pdu_size_bits  = sizeof_DCI1A_1_5MHz_TDD_1_6_t;
                 BCCH_pdu_size_bytes = sizeof(DCI1A_1_5MHz_TDD_1_6_t);
-
                 ((DCI0_1_5MHz_TDD_1_6_t *)&UL_alloc_pdu[0])->type              = 0;
                 ((DCI0_1_5MHz_TDD_1_6_t *)&UL_alloc_pdu[0])->hopping           = 0;
                 ((DCI0_1_5MHz_TDD_1_6_t *)&UL_alloc_pdu[0])->rballoc        = DLSCH_RB_ALLOC;
@@ -116,7 +112,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1_5MHz_TDD_t *)&DLSCH_alloc_pdu[0])->rv                  = 0;
                 ((DCI1_5MHz_TDD_t *)&DLSCH_alloc_pdu[0])->TPC                 = 0;
                 ((DCI1_5MHz_TDD_t *)&DLSCH_alloc_pdu[0])->dai                 = 0;
-
                 ((DCI1A_5MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->type            = 1;
                 ((DCI1A_5MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->vrb_type        = 0;
                 ((DCI1A_5MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->rballoc      = computeRIV(lte_frame_parms->N_RB_DL, 18, 4);
@@ -127,7 +122,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1A_5MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->TPC             = 1;
                 BCCH_pdu_size_bits  = sizeof_DCI1A_5MHz_TDD_1_6_t;
                 BCCH_pdu_size_bytes = sizeof(DCI1A_5MHz_TDD_1_6_t);
-
                 ((DCI0_5MHz_TDD_1_6_t *)&UL_alloc_pdu[0])->type              = 0;
                 ((DCI0_5MHz_TDD_1_6_t *)&UL_alloc_pdu[0])->hopping           = 0;
                 ((DCI0_5MHz_TDD_1_6_t *)&UL_alloc_pdu[0])->rballoc        = DLSCH_RB_ALLOC;
@@ -152,7 +146,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1_10MHz_TDD_t *)&DLSCH_alloc_pdu[0])->rv               = 0;
                 ((DCI1_10MHz_TDD_t *)&DLSCH_alloc_pdu[0])->TPC              = 0;
                 ((DCI1_10MHz_TDD_t *)&DLSCH_alloc_pdu[0])->dai              = 0;
-
                 ((DCI1A_10MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->type          = 1;
                 ((DCI1A_10MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->vrb_type      = 0;
                 ((DCI1A_10MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->rballoc    = computeRIV(lte_frame_parms->N_RB_DL, 30, 4);
@@ -163,7 +156,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1A_10MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->TPC           = 1;
                 BCCH_pdu_size_bits  = sizeof_DCI1A_10MHz_TDD_1_6_t;
                 BCCH_pdu_size_bytes = sizeof(DCI1A_10MHz_TDD_1_6_t);
-
                 ((DCI0_10MHz_TDD_1_6_t *)&UL_alloc_pdu[0])->type              = 0;
                 ((DCI0_10MHz_TDD_1_6_t *)&UL_alloc_pdu[0])->hopping           = 0;
                 ((DCI0_10MHz_TDD_1_6_t *)&UL_alloc_pdu[0])->rballoc        = DLSCH_RB_ALLOC;
@@ -188,7 +180,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1_20MHz_TDD_t *)&DLSCH_alloc_pdu[0])->rv                 = 0;
                 ((DCI1_20MHz_TDD_t *)&DLSCH_alloc_pdu[0])->TPC                = 0;
                 ((DCI1_20MHz_TDD_t *)&DLSCH_alloc_pdu[0])->dai                = 0;
-
                 ((DCI1A_20MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->type            = 1;
                 ((DCI1A_20MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->vrb_type        = 0;
                 ((DCI1A_20MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->rballoc      = computeRIV(lte_frame_parms->N_RB_DL, 70, 4);
@@ -199,7 +190,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1A_20MHz_TDD_1_6_t *)&BCCH_alloc_pdu[0])->TPC             = 1;
                 BCCH_pdu_size_bits  = sizeof_DCI1A_20MHz_TDD_1_6_t;
                 BCCH_pdu_size_bytes = sizeof(DCI1A_20MHz_TDD_1_6_t);
-
                 ((DCI0_20MHz_TDD_1_6_t *)&UL_alloc_pdu[0])->type              = 0;
                 ((DCI0_20MHz_TDD_1_6_t *)&UL_alloc_pdu[0])->hopping           = 0;
                 ((DCI0_20MHz_TDD_1_6_t *)&UL_alloc_pdu[0])->rballoc        = DLSCH_RB_ALLOC;
@@ -228,7 +218,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1_1_5MHz_FDD_t *)&DLSCH_alloc_pdu[0])->ndi           = 1;
                 ((DCI1_1_5MHz_FDD_t *)&DLSCH_alloc_pdu[0])->rv            = 0;
                 ((DCI1_1_5MHz_FDD_t *)&DLSCH_alloc_pdu[0])->TPC           = 0;
-
                 ((DCI1A_1_5MHz_FDD_t *)&BCCH_alloc_pdu[0])->type           = 1;
                 ((DCI1A_1_5MHz_FDD_t *)&BCCH_alloc_pdu[0])->vrb_type       = 0;
                 ((DCI1A_1_5MHz_FDD_t *)&BCCH_alloc_pdu[0])->rballoc     = computeRIV(lte_frame_parms->N_RB_DL, 0, 4);
@@ -239,7 +228,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1A_1_5MHz_FDD_t *)&BCCH_alloc_pdu[0])->TPC            = 1;
                 BCCH_pdu_size_bits  = sizeof_DCI1A_1_5MHz_FDD_t;
                 BCCH_pdu_size_bytes = sizeof(DCI1A_1_5MHz_FDD_t);
-
                 ((DCI0_1_5MHz_FDD_t *)&UL_alloc_pdu[0])->type              = 0;
                 ((DCI0_1_5MHz_FDD_t *)&UL_alloc_pdu[0])->hopping           = 0;
                 ((DCI0_1_5MHz_FDD_t *)&UL_alloc_pdu[0])->rballoc        = DLSCH_RB_ALLOC;
@@ -262,7 +250,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1_5MHz_FDD_t *)&DLSCH_alloc_pdu[0])->ndi           = 1;
                 ((DCI1_5MHz_FDD_t *)&DLSCH_alloc_pdu[0])->rv            = 0;
                 ((DCI1_5MHz_FDD_t *)&DLSCH_alloc_pdu[0])->TPC           = 0;
-
                 ((DCI1A_5MHz_FDD_t *)&BCCH_alloc_pdu[0])->type           = 1;
                 ((DCI1A_5MHz_FDD_t *)&BCCH_alloc_pdu[0])->vrb_type       = 0;
                 ((DCI1A_5MHz_FDD_t *)&BCCH_alloc_pdu[0])->rballoc     = computeRIV(lte_frame_parms->N_RB_DL, 18, 4);
@@ -273,7 +260,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1A_5MHz_FDD_t *)&BCCH_alloc_pdu[0])->TPC            = 1;
                 BCCH_pdu_size_bits  = sizeof_DCI1A_5MHz_FDD_t;
                 BCCH_pdu_size_bytes = sizeof(DCI1A_5MHz_FDD_t);
-
                 ((DCI0_5MHz_FDD_t *)&UL_alloc_pdu[0])->type              = 0;
                 ((DCI0_5MHz_FDD_t *)&UL_alloc_pdu[0])->hopping           = 0;
                 ((DCI0_5MHz_FDD_t *)&UL_alloc_pdu[0])->rballoc        = DLSCH_RB_ALLOC;
@@ -296,7 +282,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1_10MHz_FDD_t *)&DLSCH_alloc_pdu[0])->ndi           = 1;
                 ((DCI1_10MHz_FDD_t *)&DLSCH_alloc_pdu[0])->rv            = 0;
                 ((DCI1_10MHz_FDD_t *)&DLSCH_alloc_pdu[0])->TPC           = 0;
-
                 ((DCI1A_10MHz_FDD_t *)&BCCH_alloc_pdu[0])->type           = 1;
                 ((DCI1A_10MHz_FDD_t *)&BCCH_alloc_pdu[0])->vrb_type       = 0;
                 ((DCI1A_10MHz_FDD_t *)&BCCH_alloc_pdu[0])->rballoc     = computeRIV(lte_frame_parms->N_RB_DL, 30, 4);
@@ -307,7 +292,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1A_10MHz_FDD_t *)&BCCH_alloc_pdu[0])->TPC            = 1;
                 BCCH_pdu_size_bits  = sizeof_DCI1A_10MHz_FDD_t;
                 BCCH_pdu_size_bytes = sizeof(DCI1A_10MHz_FDD_t);
-
                 ((DCI0_10MHz_FDD_t *)&UL_alloc_pdu[0])->type              = 0;
                 ((DCI0_10MHz_FDD_t *)&UL_alloc_pdu[0])->hopping           = 0;
                 ((DCI0_10MHz_FDD_t *)&UL_alloc_pdu[0])->rballoc        = DLSCH_RB_ALLOC;
@@ -330,7 +314,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1_20MHz_FDD_t *)&DLSCH_alloc_pdu[0])->ndi           = 1;
                 ((DCI1_20MHz_FDD_t *)&DLSCH_alloc_pdu[0])->rv            = 0;
                 ((DCI1_20MHz_FDD_t *)&DLSCH_alloc_pdu[0])->TPC           = 0;
-
                 ((DCI1A_20MHz_FDD_t *)&BCCH_alloc_pdu[0])->type           = 1;
                 ((DCI1A_20MHz_FDD_t *)&BCCH_alloc_pdu[0])->vrb_type       = 0;
                 ((DCI1A_20MHz_FDD_t *)&BCCH_alloc_pdu[0])->rballoc     = computeRIV(lte_frame_parms->N_RB_DL, 70, 4);
@@ -341,7 +324,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
                 ((DCI1A_20MHz_FDD_t *)&BCCH_alloc_pdu[0])->TPC            = 1;
                 BCCH_pdu_size_bits  = sizeof_DCI1A_20MHz_FDD_t;
                 BCCH_pdu_size_bytes = sizeof(DCI1A_20MHz_FDD_t);
-
                 ((DCI0_20MHz_FDD_t *)&UL_alloc_pdu[0])->type              = 0;
                 ((DCI0_20MHz_FDD_t *)&UL_alloc_pdu[0])->hopping           = 0;
                 ((DCI0_20MHz_FDD_t *)&UL_alloc_pdu[0])->rballoc        = DLSCH_RB_ALLOC;
@@ -371,7 +353,6 @@ DCI_PDU *get_dci(LTE_DL_FRAME_PARMS *lte_frame_parms, uint8_t log2L, uint8_t log
             DCI_pdu.Num_dci++;
             printf("Added common dci (%d) for rnti %x\n", ind, SI_RNTI);
         }
-
 
         if(format_selector[ind] == format1)
         {
@@ -405,12 +386,9 @@ extern int QPSK[4], QPSK2[4];
 
 int main(int argc, char **argv)
 {
-
     char c;
-
     int i, l, aa;
     double sigma2, sigma2_dB = 0, SNR, snr0 = -2.0, snr1;
-
     int **txdata;
     double s_re[2][30720 * 2], s_im[2][30720 * 2], r_re[2][30720 * 2], r_im[2][30720 * 2];
     double iqim = 0.0;
@@ -422,7 +400,6 @@ int main(int argc, char **argv)
 #endif
     int trial, n_errors_common = 0, n_errors_ul = 0, n_errors_dl = 0, n_errors_cfi = 0, n_errors_hi = 0;
     unsigned char eNb_id = 0;
-
     uint8_t awgn_flag = 0;
     int n_frames = 1;
     channel_desc_t *eNB2UE;
@@ -436,25 +413,18 @@ int main(int argc, char **argv)
     DCI_format_t format_selector[MAX_NUM_DCI];
     uint8_t num_dci = 0;
     uint8_t numCCE, common_active = 0, ul_active = 0, dl_active = 0;
-
     uint32_t n_trials_common = 0, n_trials_ul = 0, n_trials_dl = 0, false_detection_cnt = 0;
     uint8_t common_rx, ul_rx, dl_rx;
     uint8_t tdd_config = 3;
-
     FILE *input_fd = NULL;
     char input_val_str[50], input_val_str2[50];
     uint16_t n_rnti = 0x1234;
     uint8_t osf = 1, N_RB_DL = 25;
-
     SCM_t channel_model = Rayleigh1_anticorr;
-
     DCI_ALLOC_t dci_alloc_rx[8];
-
     int ret;
-
     uint8_t harq_pid;
     uint8_t phich_ACK;
-
     uint8_t num_phich_interf = 0;
     lte_frame_type_t frame_type = TDD;
     //  int re_offset;
@@ -463,13 +433,9 @@ int main(int argc, char **argv)
     int k;
     uint32_t perfect_ce = 0;
     int CCE_table[800];
-
     number_of_cards = 1;
-
     cpuf = get_cpu_freq_GHz();
-
     logInit();
-
 
     while((c = getopt(argc, argv, "hapFg:R:c:n:s:x:y:z:L:M:N:I:f:i:S:P:Y")) != -1)
     {
@@ -624,23 +590,28 @@ int main(int argc, char **argv)
 
             case 'N':
                 format_selector[num_dci] = (DCI_format_t) atoi(optarg);
+
                 if((format_selector[num_dci] < format0) || (format_selector[num_dci] > format1A))
                 {
                     printf("only formats 0, 1, and 1A supported for the moment\n");
                     exit(-1);
                 }
+
                 if(format_selector[num_dci] == format0)
                 {
                     ul_active = 1;
                 }
+
                 if(format_selector[num_dci] == format1A)
                 {
                     common_active = 1;
                 }
+
                 if(format_selector[num_dci] == format1)
                 {
                     dl_active = 1;
                 }
+
                 num_dci++;
                 break;
 
@@ -739,15 +710,12 @@ int main(int argc, char **argv)
                    0,
                    osf,
                    perfect_ce);
-
 #ifdef XFORMS
     fl_initialize(&argc, argv, NULL, 0, 0);
     form_ue = create_lte_phy_scope_ue();
     sprintf(title, "LTE PHY SCOPE UE");
     fl_show_form(form_ue->lte_phy_scope_ue, FL_PLACE_HOTSPOT, FL_FULLBORDER, title);
 #endif
-
-
     mac_xface->computeRIV = computeRIV;
     mac_xface->frame_parms = &eNB->frame_parms;
     //  init_transport_channels(transmission_mode);
@@ -762,20 +730,14 @@ int main(int argc, char **argv)
     }
 
     printf("SNR0 %f, SNR1 %f\n", snr0, snr1);
-
     frame_parms = &eNB->frame_parms;
     printf("Getting %d dcis\n", num_dci);
-
     get_dci(frame_parms, log2L, log2Lcommon, format_selector, num_dci, n_rnti);
-
     txdata = eNB->common_vars.txdata[eNb_id];
-
     nsymb = (eNB->frame_parms.Ncp == 0) ? 14 : 12;
-
     printf("Subframe %d, FFT Size %d, Extended Prefix %d, Samples per subframe %d, Symbols per subframe %d\n",
            subframe, NUMBER_OF_OFDM_CARRIERS,
            eNB->frame_parms.Ncp, eNB->frame_parms.samples_per_tti, nsymb);
-
     eNB2UE = new_channel_desc_scm(eNB->frame_parms.nb_antennas_tx,
                                   UE->frame_parms.nb_antennas_rx,
                                   channel_model,
@@ -784,13 +746,9 @@ int main(int argc, char **argv)
                                   0,
                                   0,
                                   0);
-
     L1_rxtx_proc_t *proc_rxtx = (subframe == 0) ? &eNB->proc.L1_proc : &eNB->proc.L1_proc_tx;
-
     eNB->ulsch[0] = new_eNB_ulsch(MAX_TURBO_ITERATIONS, N_RB_DL, 0);
     UE->ulsch[0]   = new_ue_ulsch(N_RB_DL, 0);
-
-
     proc_rxtx->frame_tx    = 0;
     proc_rxtx->subframe_tx = subframe;
 
@@ -804,7 +762,7 @@ int main(int argc, char **argv)
 
         while(!feof(input_fd))
         {
-            ret = fscanf(input_fd, "%s %s", input_val_str, input_val_str2); //&input_val1,&input_val2);
+            ret = fscanf(input_fd, "%49s %49s", input_val_str, input_val_str2); //&input_val1,&input_val2);
 
             if(ret != 2)
             {
@@ -839,7 +797,6 @@ int main(int argc, char **argv)
         tx_lev_dB = (unsigned int) dB_fixed(tx_lev);
     }
 
-
     UE->UE_mode[0] = PUSCH;
 
     //  nCCE_max = get_nCCE(3,&eNB->frame_parms,get_mi(&eNB->frame_parms,0));
@@ -848,8 +805,6 @@ int main(int argc, char **argv)
     //printf("num_phich interferers %d\n",num_phich_interf);
     for(SNR = snr0; SNR < snr1; SNR += 0.2)
     {
-
-
         n_errors_common = 0;
         n_errors_ul     = 0;
         n_errors_dl     = 0;
@@ -861,14 +816,11 @@ int main(int argc, char **argv)
 
         for(trial = 0; trial < n_frames; trial++)
         {
-
             //    printf("DCI (SF %d): txdataF %p (0 %p)\n",subframe,&eNB->common_vars.txdataF[eNb_id][aa][512*14*subframe],&eNB->common_vars.txdataF[eNb_id][aa][0]);
             for(aa = 0; aa < eNB->frame_parms.nb_antennas_tx; aa++)
             {
                 memset(&eNB->common_vars.txdataF[eNb_id][aa][0], 0, FRAME_LENGTH_COMPLEX_SAMPLES_NO_PREFIX * sizeof(int32_t));
-
             }
-
 
             generate_pilots_slot(eNB,
                                  eNB->common_vars.txdataF[eNb_id],
@@ -881,12 +833,12 @@ int main(int argc, char **argv)
                                  (subframe * 2) + 1,
                                  0);
 
-
             if(input_fd == NULL)
             {
                 numCCE = 0;
                 n_trials_common++;
                 common_active = 1;
+
                 if(eNB->frame_parms.N_RB_DL >= 50)
                 {
                     if(ul_active == 1)
@@ -894,6 +846,7 @@ int main(int argc, char **argv)
                         n_trials_ul++;
                     }
                 }
+
                 if(eNB->frame_parms.N_RB_DL >= 25)
                 {
                     if(dl_active == 1)
@@ -901,6 +854,7 @@ int main(int argc, char **argv)
                         n_trials_dl++;
                     }
                 }
+
                 num_pdcch_symbols = get_num_pdcch_symbols(DCI_pdu.Num_dci,
                                     DCI_pdu.dci_alloc, frame_parms, subframe);
                 numCCE = get_nCCE(num_pdcch_symbols, &eNB->frame_parms, get_mi(&eNB->frame_parms, subframe));
@@ -979,17 +933,14 @@ int main(int argc, char **argv)
                     }
 
                     harq_pid = phich_subframe_to_harq_pid(&eNB->frame_parms, proc_rxtx->frame_tx, subframe);
-
                     phich_ACK = taus() & 1;
                     eNB->ulsch[0]->harq_processes[harq_pid]->phich_active = 1;
                     eNB->ulsch[0]->harq_processes[harq_pid]->first_rb     = 0;
                     eNB->ulsch[0]->harq_processes[harq_pid]->n_DMRS       = 0;
                     eNB->ulsch[0]->harq_processes[harq_pid]->phich_ACK    = phich_ACK;
                     eNB->ulsch[0]->harq_processes[harq_pid]->dci_alloc    = 1;
-
                     UE->ulsch[0]->harq_processes[harq_pid]->first_rb       = 0;
                     UE->ulsch[0]->harq_processes[harq_pid]->n_DMRS         = 0;
-
                     generate_phich_top(eNB, proc_rxtx, AMP, 0);
 
                     // generate 3 interfering PHICH
@@ -1005,16 +956,15 @@ int main(int argc, char **argv)
                         eNB->ulsch[0]->harq_processes[harq_pid]->n_DMRS = 1;
                         generate_phich_top(eNB, proc_rxtx, 1024, 0);
                     }
+
                     if(num_phich_interf > 2)
                     {
                         eNB->ulsch[0]->harq_processes[harq_pid]->first_rb = 12;
                         eNB->ulsch[0]->harq_processes[harq_pid]->n_DMRS = 1;
                         generate_phich_top(eNB, proc_rxtx, 1024, 0);
-
                     }
 
                     eNB->ulsch[0]->harq_processes[harq_pid]->first_rb = 0;
-
                 }
 
                 //  LOG_M("pilotsF.m","rsF",txdataF[0],lte_eNB->frame_parms.ofdm_symbol_size,1,1);
@@ -1030,7 +980,6 @@ int main(int argc, char **argv)
                 }
 
                 tx_lev = 0;
-
 
                 for(aa = 0; aa < eNB->frame_parms.nb_antenna_ports_eNB; aa++)
                 {
@@ -1084,8 +1033,6 @@ int main(int argc, char **argv)
                 }
             }
 
-
-
             if(awgn_flag == 0)
             {
                 multipath_channel(eNB2UE, s_re, s_im, r_re, r_im,
@@ -1093,7 +1040,6 @@ int main(int argc, char **argv)
             }
 
             //LOG_M("channel0.m","chan0",ch[0],channel_length,1,8);
-
             // scale by path_loss = NOW - P_noise
             //sigma2       = pow(10,sigma2_dB/10);
             //N0W          = -95.87;
@@ -1112,7 +1058,6 @@ int main(int argc, char **argv)
             {
                 for(aa = 0; aa < UE->frame_parms.nb_antennas_rx; aa++)
                 {
-
                     ((short *) UE->common_vars.rxdata[aa])[(2 * subframe * UE->frame_parms.samples_per_tti) + 2 * i] = (short)(.667 * (r_re[aa][i] + sqrt(sigma2 / 2) * gaussdouble(0.0, 1.0)));
                     ((short *) UE->common_vars.rxdata[aa])[(2 * subframe * UE->frame_parms.samples_per_tti) + 2 * i + 1] = (short)(.667 * (r_im[aa][i] + (iqim * r_re[aa][i]) + sqrt(sigma2 / 2) * gaussdouble(
                                 0.0, 1.0)));
@@ -1128,10 +1073,8 @@ int main(int argc, char **argv)
             // UE receiver
             for(l = 0; l < eNB->frame_parms.symbols_per_tti; l++)
             {
-
                 //  subframe_offset = (l/eNB->frame_parms.symbols_per_tti)*eNB->frame_parms.samples_per_tti;
                 //      printf("subframe_offset = %d\n",subframe_offset);
-
                 slot_fep(UE,
                          l % (eNB->frame_parms.symbols_per_tti / 2),
                          (2 * subframe) + (l / (eNB->frame_parms.symbols_per_tti / 2)),
@@ -1183,12 +1126,9 @@ int main(int argc, char **argv)
 
                 if(l == ((eNB->frame_parms.Ncp == 0) ? 4 : 3))
                 {
-
                     //      LOG_M("H00.m","h00",&(UE->common_vars.dl_ch_estimates[0][0][0]),((frame_parms->Ncp==0)?7:6)*(eNB->frame_parms.ofdm_symbol_size),1,1);
-
                     // do PDCCH procedures here
                     UE->pdcch_vars[0][0]->crnti = n_rnti;
-
                     //    printf("Doing RX : num_pdcch_symbols at TX %d\n",num_pdcch_symbols);
                     rx_pdcch(UE,
                              trial,
@@ -1213,7 +1153,6 @@ int main(int argc, char **argv)
                     dci_cnt = dci_decoding_procedure(UE,
                                                      dci_alloc_rx, 1,
                                                      0, subframe);
-
                     common_rx = 0;
                     ul_rx = 0;
                     dl_rx = 0;
@@ -1303,7 +1242,6 @@ int main(int argc, char **argv)
                         break;
                     }
                 }
-
             } // symbol loop
 
             if(n_errors_cfi > 100)
@@ -1321,26 +1259,26 @@ int main(int argc, char **argv)
                          UE,
                          eNb_id, 0, subframe);
 #endif
-
         } //trials
 
         if(common_active)
         {
             printf("SNR %f : n_errors_common = %d/%d (%e)\n", SNR, n_errors_common, n_trials_common, (double)n_errors_common / n_trials_common);
         }
+
         if(ul_active == 1)
         {
             printf("SNR %f : n_errors_ul = %d/%d (%e)\n", SNR, n_errors_ul, n_trials_ul, (double)n_errors_ul / n_trials_ul);
         }
+
         if(dl_active == 1)
         {
             printf("SNR %f : n_errors_dl = %d/%d (%e)\n", SNR, n_errors_dl, n_trials_dl, (double)n_errors_dl / n_trials_dl);
         }
+
         printf("SNR %f : n_errors_cfi = %d/%d (%e)\n", SNR, n_errors_cfi, trial, (double)n_errors_cfi / trial);
         printf("SNR %f : n_errors_hi = %d/%d (%e)\n", SNR, n_errors_hi, trial, (double)n_errors_hi / trial);
-
     } // SNR
-
 
     if(n_frames == 1)
     {
@@ -1374,8 +1312,12 @@ int main(int argc, char **argv)
 
     lte_sync_time_free();
 
-    return(n_errors_ul);
+    if(input_fd != NULL)
+    {
+        fclose(input_fd);
+    }
 
+    return(n_errors_ul);
 }
 
 

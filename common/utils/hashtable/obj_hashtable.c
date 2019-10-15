@@ -108,6 +108,7 @@ hashtable_rc_t obj_hashtable_destroy(obj_hash_table_t *hashtblP)
     for(n = 0; n < hashtblP->size; ++n)
     {
         node = hashtblP->nodes[n];
+
         while(node)
         {
             oldnode = node;
@@ -117,6 +118,7 @@ hashtable_rc_t obj_hashtable_destroy(obj_hash_table_t *hashtblP)
             free(oldnode);
         }
     }
+
     free(hashtblP->nodes);
     free(hashtblP);
     return HASH_TABLE_OK;
@@ -132,8 +134,10 @@ hashtable_rc_t obj_hashtable_is_key_exists(obj_hash_table_t *hashtblP, void *key
     {
         return HASH_TABLE_BAD_PARAMETER_HASHTABLE;
     }
+
     hash = hashtblP->hashfunc(keyP, key_sizeP) % hashtblP->size;
     node = hashtblP->nodes[hash];
+
     while(node)
     {
         if(node->key == keyP)
@@ -147,8 +151,10 @@ hashtable_rc_t obj_hashtable_is_key_exists(obj_hash_table_t *hashtblP, void *key
                 return HASH_TABLE_OK;
             }
         }
+
         node = node->next;
     }
+
     return HASH_TABLE_KEY_NOT_EXISTS;
 }
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -165,8 +171,10 @@ hashtable_rc_t obj_hashtable_insert(obj_hash_table_t *hashtblP, void *keyP, int 
     {
         return HASH_TABLE_BAD_PARAMETER_HASHTABLE;
     }
+
     hash = hashtblP->hashfunc(keyP, key_sizeP) % hashtblP->size;
     node = hashtblP->nodes[hash];
+
     while(node)
     {
         if(node->key == keyP)
@@ -175,18 +183,23 @@ hashtable_rc_t obj_hashtable_insert(obj_hash_table_t *hashtblP, void *keyP, int 
             {
                 hashtblP->freedatafunc(node->data);
             }
+
             node->data = dataP;
             // waste of memory here (keyP is lost) we should free it now
             return HASH_TABLE_INSERT_OVERWRITTEN_DATA;
         }
+
         node = node->next;
     }
+
     if(!(node = malloc(sizeof(obj_hash_node_t))))
     {
         return -1;
     }
+
     node->key = keyP;
     node->data = dataP;
+
     if(hashtblP->nodes[hash])
     {
         node->next = hashtblP->nodes[hash];
@@ -195,6 +208,7 @@ hashtable_rc_t obj_hashtable_insert(obj_hash_table_t *hashtblP, void *keyP, int 
     {
         node->next = NULL;
     }
+
     hashtblP->nodes[hash] = node;
     return HASH_TABLE_OK;
 }
@@ -215,6 +229,7 @@ hashtable_rc_t obj_hashtable_remove(obj_hash_table_t *hashtblP, const void *keyP
 
     hash = hashtblP->hashfunc(keyP, key_sizeP) % hashtblP->size;
     node = hashtblP->nodes[hash];
+
     while(node)
     {
         if((node->key == keyP) || ((node->key_size == key_sizeP) && (memcmp(node->key, keyP, key_sizeP) == 0)))
@@ -227,14 +242,17 @@ hashtable_rc_t obj_hashtable_remove(obj_hash_table_t *hashtblP, const void *keyP
             {
                 hashtblP->nodes[hash] = node->next;
             }
+
             hashtblP->freekeyfunc(node->key);
             hashtblP->freedatafunc(node->data);
             free(node);
             return HASH_TABLE_OK;
         }
+
         prevnode = node;
         node = node->next;
     }
+
     return HASH_TABLE_KEY_NOT_EXISTS;
 }
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -252,8 +270,10 @@ hashtable_rc_t obj_hashtable_get(obj_hash_table_t *hashtblP, const void *keyP, i
         *dataP = NULL;
         return HASH_TABLE_BAD_PARAMETER_HASHTABLE;
     }
+
     hash = hashtblP->hashfunc(keyP, key_sizeP) % hashtblP->size;
     node = hashtblP->nodes[hash];
+
     while(node)
     {
         if(node->key == keyP)
@@ -269,8 +289,10 @@ hashtable_rc_t obj_hashtable_get(obj_hash_table_t *hashtblP, const void *keyP, i
                 return HASH_TABLE_OK;
             }
         }
+
         node = node->next;
     }
+
     *dataP = NULL;
     return HASH_TABLE_KEY_NOT_EXISTS;
 }
@@ -278,14 +300,15 @@ hashtable_rc_t obj_hashtable_get(obj_hash_table_t *hashtblP, const void *keyP, i
 /*
     Function to return all keys of an object hash table
 */
+
 hashtable_rc_t obj_hashtable_get_keys(obj_hash_table_t *hashtblP, void **keysP, unsigned int *sizeP)
 {
     size_t                 n     = 0;
     obj_hash_node_t       *node  = NULL;
     obj_hash_node_t       *next  = NULL;
-
     *sizeP = 0;
     keysP = calloc(hashtblP->num_elements, sizeof(void *));
+
     if(keysP)
     {
         for(n = 0; n < hashtblP->size; ++n)
@@ -296,8 +319,11 @@ hashtable_rc_t obj_hashtable_get_keys(obj_hash_table_t *hashtblP, void **keysP, 
                 next = node->next;
             }
         }
+
+        // cppcheck-suppress memleak
         return HASH_TABLE_OK;
     }
+
     return HASH_TABLE_SYSTEM_ERROR;
 }
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -343,7 +369,6 @@ hashtable_rc_t obj_hashtable_resize(obj_hash_table_t *hashtblP, hash_size_t size
     free(hashtblP->nodes);
     hashtblP->size = newtbl.size;
     hashtblP->nodes = newtbl.nodes;
-
     return HASH_TABLE_OK;
 }
 

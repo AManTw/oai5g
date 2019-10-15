@@ -55,9 +55,7 @@ rrc_init_global_param(
 )
 //-----------------------------------------------------------------------------
 {
-
     rrc_rlc_register_rrc(rrc_data_ind, NULL);  //register with rlc
-
     DCCH_LCHAN_DESC.transport_block_size = 4;
     DCCH_LCHAN_DESC.max_transport_blocks = 16;
     DCCH_LCHAN_DESC.Delay_class = 1;
@@ -67,13 +65,11 @@ rrc_init_global_param(
     DTCH_UL_LCHAN_DESC.transport_block_size = 52;
     DTCH_UL_LCHAN_DESC.max_transport_blocks = 20;
     DTCH_UL_LCHAN_DESC.Delay_class = 1;
-
     Rlc_info_um.rlc_mode = RLC_MODE_UM;
     Rlc_info_um.rlc.rlc_um_info.timer_reordering = 5;
     Rlc_info_um.rlc.rlc_um_info.sn_field_length = 10;
     Rlc_info_um.rlc.rlc_um_info.is_mXch = 0;
     //Rlc_info_um.rlc.rlc_um_info.sdu_discard_mode=16;
-
     Rlc_info_am_config.rlc_mode = RLC_MODE_AM;
     Rlc_info_am_config.rlc.rlc_am_info.max_retx_threshold = 50;
     Rlc_info_am_config.rlc.rlc_am_info.poll_pdu = 8;
@@ -81,7 +77,6 @@ rrc_init_global_param(
     Rlc_info_am_config.rlc.rlc_am_info.t_poll_retransmit = 15;
     Rlc_info_am_config.rlc.rlc_am_info.t_reordering = 50;
     Rlc_info_am_config.rlc.rlc_am_info.t_status_prohibit = 10;
-
     return 0;
 }
 
@@ -94,7 +89,6 @@ rrc_config_buffer(
 )
 //-----------------------------------------------------------------------------
 {
-
     Srb_info->Rx_buffer.payload_size = 0;
     Srb_info->Tx_buffer.payload_size = 0;
 }
@@ -308,6 +302,7 @@ int freq_to_arfcn10(int band, unsigned long freq)
         {
             break;
         }
+
     if(i == N)
     {
         return -1;

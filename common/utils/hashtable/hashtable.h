@@ -61,7 +61,7 @@ typedef struct hash_table_s
 char           *hashtable_rc_code2string(hashtable_rc_t rcP);
 void            hash_free_int_func(void *memoryP);
 hash_table_t   *hashtable_create(const hash_size_t   size, hash_size_t (*hashfunc)(const hash_key_t), void (*freefunc)(void *));
-hashtable_rc_t  hashtable_destroy(hash_table_t *const hashtbl);
+hashtable_rc_t  hashtable_destroy(hash_table_t **hashtbl);
 hashtable_rc_t  hashtable_is_key_exists(const hash_table_t *const hashtbl, const uint64_t key);
 hashtable_rc_t  hashtable_apply_funct_on_elements(hash_table_t *const hashtblP, void funct(hash_key_t keyP, void *dataP, void *parameterP), void *parameterP);
 hashtable_rc_t  hashtable_dump_content(const hash_table_t *const hashtblP, char *const buffer_pP, int *const remaining_bytes_in_buffer_pP);

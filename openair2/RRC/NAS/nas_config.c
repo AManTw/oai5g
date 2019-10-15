@@ -44,14 +44,31 @@
 
 #include "nas_config.h"
 #include "common/utils/LOG/log.h"
-
+#include "targets/RT/USER/lte-softmodem.h"
+#include "common/config/config_userapi.h"
 
 //default values according to the examples,
 
-char *baseNetAddress = "10.0" ;
-char *netMask = "255.255.255.0" ;
-char *broadcastAddr = "10.0.255.255" ;
-
+char *baseNetAddress ;
+char *netMask ;
+char *broadcastAddr ;
+#define NASHLP_NETPREFIX "<NAS network prefix, two first bytes of network addresses>\n"
+#define NASHLP_NETMASK   "<NAS network mask>\n"
+#define NASHLP_BROADCASTADDR   "<NAS network broadcast address>\n"
+void nas_getparams(void)
+{
+    paramdef_t nasoptions[] =
+    {
+        /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+        /*                                            configuration parameters for netlink, includes network parameters when running in noS1 mode                             */
+        /*   optname                     helpstr                paramflags           XXXptr                               defXXXval               type                 numelt */
+        /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+        {"NetworkPrefix",    NASHLP_NETPREFIX,         0,              strptr:&baseNetAddress,        defstrval: "10.0",            TYPE_STRING,  0 },
+        {"NetworkMask",      NASHLP_NETMASK,         0,              strptr:&netMask,               defstrval: "255.255.255.0",   TYPE_STRING,  0 },
+        {"BroadcastAddr",    NASHLP_BROADCASTADDR,         0,              strptr:&broadcastAddr,         defstrval: "10.0.255.255",    TYPE_STRING,  0 },
+    };
+    config_get(nasoptions, sizeof(nasoptions) / sizeof(paramdef_t), "nas.noS1");
+}
 
 void setBaseNetAddress(char *baseAddr)
 {
@@ -97,20 +114,16 @@ int set_gateway(char *interfaceName, char *gateway)
     }
 
     memset(&rt, 0, sizeof(rt));
-
     addr.sin_family = AF_INET;
     /*set Destination addr*/
     inet_aton("0.0.0.0", &addr.sin_addr);
     memcpy(&rt.rt_dst, &addr, sizeof(struct sockaddr_in));
-
     /*set gateway addr*/
     inet_aton(gateway, &addr.sin_addr);
     memcpy(&rt.rt_gateway, &addr, sizeof(struct sockaddr_in));
-
     /*set genmask addr*/
     inet_aton("0.0.0.0", &addr.sin_addr);
     memcpy(&rt.rt_genmask, &addr, sizeof(struct sockaddr_in));
-
     rt.rt_dev = interfaceName;
     //rt.rt_flags = RTF_UP|RTF_GATEWAY|RTF_DEFAULT;
     /*  SR: rt_flags on 16 bits but RTF_DEFAULT = 0x00010000
@@ -134,11 +147,9 @@ int set_gateway(char *interfaceName, char *gateway)
             LOG_I(OIP, "set_gateway OK!\n");
             return 0;
         }
-
     }
 
     close(sock_fd);
-
     LOG_D(OIP, "Set Gateway OK!\n");
     return 0;
 }
@@ -160,10 +171,8 @@ int setInterfaceParameter(char *interfaceName, char *settingAddress, int operati
 
     memset(&ifr, 0, sizeof(ifr));
     strncpy(ifr.ifr_name, interfaceName, sizeof(ifr.ifr_name) - 1);
-
     memset(&addr, 0, sizeof(struct sockaddr_in));
     addr.sin_family = AF_INET;
-
     inet_aton(settingAddress, &addr.sin_addr);
     memcpy(&ifr.ifr_ifru.ifru_addr, &addr, sizeof(struct sockaddr_in));
 
@@ -176,8 +185,6 @@ int setInterfaceParameter(char *interfaceName, char *settingAddress, int operati
     }
 
     close(sock_fd);
-
-    //    printf("Set OK!\n");
     return 0;
 }
 
@@ -246,26 +253,26 @@ int NAS_config(char *interfaceName, char *ipAddress, char *networkMask, char *br
 
     //  if(!returnValue)
     //  returnValue=set_gateway(interfaceName, broadcastAddress);
-
-    bringInterfaceUp(interfaceName, 1);
+    if(!returnValue)
+    {
+        returnValue = bringInterfaceUp(interfaceName, 1);
+    }
 
     return returnValue;
 }
 
 // non blocking full configuration of the interface (address, and the two lest octets of the address)
-int nas_config(int interface_id, int thirdOctet, int fourthOctet)
+int nas_config(int interface_id, int thirdOctet, int fourthOctet, char *ifname)
 {
     //char buf[5];
     char ipAddress[20];
     char broadcastAddress[20];
-    char interfaceName[8];
+    char interfaceName[20];
     int returnValue;
-    sprintf(ipAddress, "10.0.%d.%d", thirdOctet, fourthOctet);
-
-    sprintf(broadcastAddress, "10.0.%d.255", thirdOctet);
-
-    sprintf(interfaceName, "oai%d", interface_id);
-
+    sprintf(ipAddress, "%s.%d.%d", baseNetAddress, thirdOctet, fourthOctet);
+    sprintf(broadcastAddress, "%s.%d.255", baseNetAddress, thirdOctet);
+    sprintf(interfaceName, "%s%s%d", (UE_NAS_USE_TUN || ENB_NAS_USE_TUN) ? "oaitun_" : ifname,
+            UE_NAS_USE_TUN ? "ue" : (ENB_NAS_USE_TUN ? "enb" : ""), interface_id);
     bringInterfaceUp(interfaceName, 0);
     // sets the machine address
     returnValue = setInterfaceParameter(interfaceName, ipAddress, SIOCSIFADDR);
@@ -282,19 +289,26 @@ int nas_config(int interface_id, int thirdOctet, int fourthOctet)
         returnValue = setInterfaceParameter(interfaceName, broadcastAddress, SIOCSIFBRDADDR);
     }
 
-    bringInterfaceUp(interfaceName, 1);
+    if(!returnValue)
+    {
+        bringInterfaceUp(interfaceName, 1);
+    }
+
+    if(!returnValue)
+        LOG_I(OIP, "Interface %s successfuly configured, ip address %s, mask %s broadcast address %s\n",
+              interfaceName, ipAddress, netMask, broadcastAddress);
+    else
+        LOG_E(OIP, "Interface %s couldn't be configured (ip address %s, mask %s broadcast address %s)\n",
+              interfaceName, ipAddress, netMask, broadcastAddress);
 
     return returnValue;
-
 }
 
 // Blocking full configuration of the interface (address, net mask, and broadcast mask)
 int blocking_NAS_config(char *interfaceName, char *ipAddress, char *networkMask, char *broadcastAddress)
 {
-
     char command[200];
     command[0] = '\0';
-
     strcat(command, "ifconfig ");
     strncat(command, interfaceName, sizeof(command) - strlen(command) - 1);
     strncat(command, " ", sizeof(command) - strlen(command) - 1);
@@ -303,10 +317,8 @@ int blocking_NAS_config(char *interfaceName, char *ipAddress, char *networkMask,
     strncat(command, networkMask, sizeof(command) - strlen(command) - 1);
     strncat(command, " broadcast ", sizeof(command) - strlen(command) - 1);
     strncat(command, broadcastAddress, sizeof(command) - strlen(command) - 1);
-
     // ifconfig nasmesh0 10.0.1.1 networkMask 255.255.255.0 broadcast 10.0.1.255
     int i = system(command);
-
     return i;
 }
 
@@ -324,7 +336,6 @@ void helpOptions(char **argv)
     printf("    IP Address: 10.0.1.1\n");
     printf("    Net mask: 255.255.255.0\n");
     printf("    Broadcast address: [Beginning of the IP address].255\n");
-
     exit(1);
 }
 
@@ -354,7 +365,6 @@ int main(int argc, char **argv)
     char ipAddress[100];
     char networkMask[100];
     char broadcastAddress[100];
-
     strcpy(interfaceName, "oai0");
     strcpy(ipAddress, "10.0.1.1");
     strcpy(networkMask, "255.255.255.0");
@@ -410,7 +420,6 @@ int main(int argc, char **argv)
     //test
     //     setBaseNetAddress("11.11");
     //     nas_config(interfaceName, 33, 44);
-
 }
 
 #endif

@@ -54,9 +54,7 @@ DCI1E_5MHz_2A_M10PRB_TDD_t  DLSCH_alloc_pdu2_1E[2];
 #define CCCH_RB_ALLOC computeRIV(eNB->frame_parms.N_RB_UL,0,2)
 int main(int argc, char **argv)
 {
-
     char c;
-
     int i, l, l2, aa, aarx, k;
     double sigma2, sigma2_dB = 0, SNR, snr0 = -2.0, snr1 = 0.0;
     uint8_t snr1set = 0;
@@ -70,40 +68,26 @@ int main(int argc, char **argv)
     char fname[40];//, vname[40];
     uint8_t transmission_mode = 1, n_tx = 1, n_rx = 2;
     uint16_t Nid_cell = 0;
-
     FILE *fd;
-
     int eNB_id = 0;
     unsigned char mcs = 0, awgn_flag = 0, round;
-
     int n_frames = 1;
     channel_desc_t *eNB2UE;
     uint32_t nsymb, tx_lev, tx_lev_dB;
     uint8_t extended_prefix_flag = 1;
     LTE_DL_FRAME_PARMS *frame_parms;
     int hold_channel = 0;
-
-
     uint16_t NB_RB = 25;
-
     int tdd_config = 3;
-
     SCM_t channel_model = MBSFN;
-
-
     unsigned char *input_buffer;
     unsigned short input_buffer_length;
     unsigned int ret;
-
     unsigned int trials, errs[4] = {0, 0, 0, 0}; //,round_trials[4]={0,0,0,0};
-
     uint8_t N_RB_DL = 25, osf = 1;
     uint32_t perfect_ce = 0;
-
     lte_frame_type_t frame_type = FDD;
-
     uint32_t Nsoft = 1827072;
-
     /*
         #ifdef XFORMS
         FD_lte_phy_scope_ue *form_ue;
@@ -115,9 +99,7 @@ int main(int argc, char **argv)
         fl_show_form (form_ue->lte_phy_scope_ue, FL_PLACE_HOTSPOT, FL_FULLBORDER, title);
         #endif
     */
-
     cpuf = get_cpu_freq_GHz();
-
     logInit();
     number_of_cards = 1;
 
@@ -223,8 +205,6 @@ int main(int argc, char **argv)
         }
     }
 
-
-
     if(awgn_flag == 1)
     {
         channel_model = AWGN;
@@ -236,7 +216,6 @@ int main(int argc, char **argv)
             ((frame_type == FDD) && ((subframe == 4) || (subframe == 9))) || // FDD SFn 4,9;
             ((frame_type == TDD) && ((subframe < 3) || (subframe == 6))))    // TDD SFn 1,2,6;
     {
-
         printf("Illegal subframe %d for eMBMS transmission (frame_type %d)\n", subframe, frame_type);
         exit(-1);
     }
@@ -272,7 +251,6 @@ int main(int argc, char **argv)
     }
 
     printf("SNR0 %f, SNR1 %f\n", snr0, snr1);
-
     frame_parms = &eNB->frame_parms;
 
     if(awgn_flag == 0)
@@ -290,7 +268,6 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-
     if(awgn_flag == 0)
         fprintf(fd, "SNR_%d_%d=[];errs_mch_%d_%d=[];mch_trials_%d_%d=[];\n",
                 mcs, N_RB_DL,
@@ -303,14 +280,10 @@ int main(int argc, char **argv)
                 mcs, N_RB_DL);
 
     fflush(fd);
-
     txdata = eNB->common_vars.txdata[0];
-
     nsymb = 12;
-
     printf("FFT Size %d, Extended Prefix %d, Samples per subframe %d, Symbols per subframe %d, AWGN %d\n", NUMBER_OF_OFDM_CARRIERS,
            frame_parms->Ncp, frame_parms->samples_per_tti, nsymb, awgn_flag);
-
     eNB2UE = new_channel_desc_scm(eNB->frame_parms.nb_antennas_tx,
                                   UE->frame_parms.nb_antennas_rx,
                                   channel_model,
@@ -319,7 +292,6 @@ int main(int argc, char **argv)
                                   0,
                                   0,
                                   0);
-
     // Create transport channel structures for 2 transport blocks (MIMO)
     eNB->dlsch_MCH = new_eNB_dlsch(1, 8, Nsoft, N_RB_DL, 0, &eNB->frame_parms);
 
@@ -330,7 +302,6 @@ int main(int argc, char **argv)
     }
 
     UE->dlsch_MCH[0]  = new_ue_dlsch(1, 8, Nsoft, MAX_TURBO_ITERATIONS_MBSFN, N_RB_DL, 0);
-
     eNB->frame_parms.num_MBSFN_config = 1;
     eNB->frame_parms.MBSFN_config[0].radioframeAllocationPeriod = 0;
     eNB->frame_parms.MBSFN_config[0].radioframeAllocationOffset = 0;
@@ -341,7 +312,6 @@ int main(int argc, char **argv)
     UE->frame_parms.MBSFN_config[0].radioframeAllocationOffset = 0;
     UE->frame_parms.MBSFN_config[0].fourFrames_flag = 0;
     UE->frame_parms.MBSFN_config[0].mbsfn_SubframeConfig = 0xff; // activate all possible subframes
-
     fill_eNB_dlsch_MCH(eNB, mcs, 1, 0);
     fill_UE_dlsch_MCH(UE, mcs, 1, 0, 0);
 
@@ -356,7 +326,6 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-
     input_buffer_length = eNB->dlsch_MCH->harq_processes[0]->TBS / 8;
     input_buffer = (unsigned char *)malloc(input_buffer_length + 4);
     memset(input_buffer, 0, input_buffer_length + 4);
@@ -366,7 +335,6 @@ int main(int argc, char **argv)
         input_buffer[i] = (unsigned char)(taus() & 0xff);
     }
 
-
     snr_step = input_snr_step;
 
     for(SNR = snr0; SNR < snr1; SNR += snr_step)
@@ -374,7 +342,6 @@ int main(int argc, char **argv)
         UE->proc.proc_rxtx[0].frame_tx = 0;
         eNB->proc.proc_rxtx[0].frame_tx = 0;
         eNB->proc.proc_rxtx[0].subframe_tx = subframe;
-
         errs[0] = 0;
         errs[1] = 0;
         errs[2] = 0;
@@ -391,14 +358,11 @@ int main(int argc, char **argv)
             //        printf("Trial %d\n",trials);
             fflush(stdout);
             round = 0;
-
             //if (trials%100==0)
             //eNB2UE[0]->first_run = 1;
             eNB2UE->first_run = 1;
             memset(&eNB->common_vars.txdataF[0][0][0], 0, FRAME_LENGTH_COMPLEX_SAMPLES_NO_PREFIX * sizeof(int32_t));
             generate_mch(eNB, &eNB->proc.proc_rxtx[0], input_buffer);
-
-
             PHY_ofdm_mod(eNB->common_vars.txdataF[0][0],        // input,
                          txdata[0],         // output
                          frame_parms->ofdm_symbol_size,
@@ -429,10 +393,8 @@ int main(int argc, char **argv)
             {
                 printf("tx_lev = %d (%d dB)\n", tx_lev, tx_lev_dB);
                 //    LOG_M("txsig0.m","txs0", &eNB->common_vars.txdata[0][0][subframe* eNB->frame_parms.samples_per_tti],
-
                 //     eNB->frame_parms.samples_per_tti,1,1);
             }
-
 
             for(i = 0; i < 2 * frame_parms->samples_per_tti; i++)
             {
@@ -446,7 +408,6 @@ int main(int argc, char **argv)
             //Multipath channel
             multipath_channel(eNB2UE, s_re, s_im, r_re, r_im,
                               2 * frame_parms->samples_per_tti, hold_channel);
-
             //AWGN
             sigma2_dB = 10 * log10((double)tx_lev) + 10 * log10((double)eNB->frame_parms.ofdm_symbol_size / (NB_RB * 12)) - SNR;
             sigma2 = pow(10, sigma2_dB / 10);
@@ -470,16 +431,17 @@ int main(int argc, char **argv)
 
             for(l = 2; l < 12; l++)
             {
-
                 slot_fep_mbsfn(UE,
                                l,
                                subframe % 10,
                                0,
                                0);
+
                 if(UE->perfect_ce == 1)
                 {
                     // fill in perfect channel estimates
                     freq_channel(eNB2UE, UE->frame_parms.N_RB_DL, 12 * UE->frame_parms.N_RB_DL + 1);
+
                     for(k = 0; k < NUMBER_OF_eNB_MAX; k++)
                     {
                         for(aa = 0; aa < frame_parms->nb_antennas_tx; aa++)
@@ -488,8 +450,10 @@ int main(int argc, char **argv)
                             {
                                 for(i = 0; i < frame_parms->N_RB_DL * 12; i++)
                                 {
-                                    ((int16_t *) UE->common_vars.common_vars_rx_data_per_thread[subframe & 0x1].dl_ch_estimates[k][(aa << 1) + aarx])[2 * i + (l * frame_parms->ofdm_symbol_size + LTE_CE_FILTER_LENGTH) * 2] = (int16_t)(eNB2UE->chF[aarx + (aa * frame_parms->nb_antennas_rx)][i].x * AMP);
-                                    ((int16_t *) UE->common_vars.common_vars_rx_data_per_thread[subframe & 0x1].dl_ch_estimates[k][(aa << 1) + aarx])[2 * i + 1 + (l * frame_parms->ofdm_symbol_size + LTE_CE_FILTER_LENGTH) * 2] = (int16_t)(eNB2UE->chF[aarx + (aa * frame_parms->nb_antennas_rx)][i].y * AMP);
+                                    ((int16_t *) UE->common_vars.common_vars_rx_data_per_thread[subframe & 0x1].dl_ch_estimates[k][(aa << 1) + aarx])[2 * i + (l * frame_parms->ofdm_symbol_size + LTE_CE_FILTER_LENGTH) * 2] = (int16_t)(eNB2UE->chF[aarx +
+                                            (aa * frame_parms->nb_antennas_rx)][i].x * AMP);
+                                    ((int16_t *) UE->common_vars.common_vars_rx_data_per_thread[subframe & 0x1].dl_ch_estimates[k][(aa << 1) + aarx])[2 * i + 1 + (l * frame_parms->ofdm_symbol_size + LTE_CE_FILTER_LENGTH) * 2] = (int16_t)(eNB2UE->chF[aarx +
+                                            (aa * frame_parms->nb_antennas_rx)][i].y * AMP);
                                 }
                             }
                         }
@@ -502,12 +466,14 @@ int main(int argc, char **argv)
                                 0,
                                 subframe % 10,
                                 l2);
+
                 if(l == 6)
                     for(l2 = 2; l2 < 7; l2++)
                         rx_pmch(UE,
                                 0,
                                 subframe % 10,
                                 l2);
+
                 if(l == 11)
                     for(l2 = 7; l2 < 12; l2++)
                         rx_pmch(UE,
@@ -523,11 +489,9 @@ int main(int argc, char **argv)
                     1, 2,
                     UE->proc.proc_rxtx[0].frame_tx, subframe, 0);
             UE->dlsch_MCH[0]->harq_processes[0]->Qm = get_Qm(UE->dlsch_MCH[0]->harq_processes[0]->mcs);
-
             dlsch_unscrambling(&UE->frame_parms, 1, UE->dlsch_MCH[0],
                                UE->dlsch_MCH[0]->harq_processes[0]->G,
                                UE->pdsch_vars_MCH[0]->llr[0], 0, subframe << 1);
-
             ret = dlsch_decoding(UE,
                                  UE->pdsch_vars_MCH[0]->llr[0],
                                  &UE->frame_parms,
@@ -539,7 +503,7 @@ int main(int argc, char **argv)
 
             if(n_frames == 1)
             {
-                printf("MCH decoding returns %d\n", ret);
+                printf("MCH decoding returns %u\n", ret);
             }
 
             if(ret == (1 + UE->dlsch_MCH[0]->max_turbo_iterations))
@@ -551,15 +515,15 @@ int main(int argc, char **argv)
             eNB->proc.proc_rxtx[0].frame_tx++;
         }
 
-        printf("errors %d/%d (Pe %e)\n", errs[round], trials, (double)errs[round] / trials);
+        printf("errors %u/%u (Pe %e)\n", errs[round], trials, (double)errs[round] / trials);
 
         if(awgn_flag == 0)
-            fprintf(fd, "SNR_%d_%d = [SNR_%d_%d %f]; errs_mch_%d_%d =[errs_mch_%d_%d  %d]; mch_trials_%d_%d =[mch_trials_%d_%d  %d];\n",
+            fprintf(fd, "SNR_%d_%d = [SNR_%d_%d %f]; errs_mch_%d_%d =[errs_mch_%d_%d  %u]; mch_trials_%d_%d =[mch_trials_%d_%d  %u];\n",
                     mcs, N_RB_DL, mcs, N_RB_DL, SNR,
                     mcs, N_RB_DL, mcs, N_RB_DL, errs[0],
                     mcs, N_RB_DL, mcs, N_RB_DL, trials);
         else
-            fprintf(fd, "SNR_awgn_%d = [SNR_awgn_%d %f]; errs_mch_awgn_%d =[errs_mch_awgn_%d  %d]; mch_trials_awgn_%d =[mch_trials_awgn_%d %d];\n",
+            fprintf(fd, "SNR_awgn_%d = [SNR_awgn_%d %f]; errs_mch_awgn_%d =[errs_mch_awgn_%d  %u]; mch_trials_awgn_%d =[mch_trials_awgn_%d %u];\n",
                     N_RB_DL, N_RB_DL, SNR,
                     N_RB_DL, N_RB_DL, errs[0],
                     N_RB_DL, N_RB_DL, trials);
@@ -572,7 +536,6 @@ int main(int argc, char **argv)
         }
     }
 
-
     if(n_frames == 1)
     {
         printf("Dumping PMCH files ( G %d)\n", UE->dlsch_MCH[0]->harq_processes[0]->G);
@@ -584,9 +547,7 @@ int main(int argc, char **argv)
     printf("Freeing dlsch structures\n");
     free_eNB_dlsch(eNB->dlsch_MCH);
     free_ue_dlsch(UE->dlsch_MCH[0]);
-
     fclose(fd);
-
     return(0);
 }
 

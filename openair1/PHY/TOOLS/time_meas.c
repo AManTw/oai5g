@@ -30,7 +30,6 @@ int opp_enabled = 0;
 
 double get_cpu_freq_GHz(void)
 {
-
     time_stats_t ts = {0};
     reset_meas(&ts);
     ts.trials++;
@@ -41,34 +40,45 @@ double get_cpu_freq_GHz(void)
     printf("CPU Freq is %f \n", cpu_freq_GHz);
     return cpu_freq_GHz;
 }
+int cpumeas(int action)
+{
+    switch(action)
+    {
+        case CPUMEAS_ENABLE:
+            opp_enabled = 1;
+            break;
 
+        case CPUMEAS_DISABLE:
+            opp_enabled = 0;
+            break;
+
+        case CPUMEAS_GETSTATE:
+        default:
+            break;
+    }
+
+    return opp_enabled;
+}
 void print_meas_now(time_stats_t *ts, const char *name, FILE *file_name)
 {
-
     if(opp_enabled)
     {
-
         //static double cpu_freq_GHz = 3.2;
 
         //if (cpu_freq_GHz == 0.0)
         //cpu_freq_GHz = get_cpu_freq_GHz(); // super slow
-
         if(ts->trials > 0)
         {
-
             //fprintf(file_name,"Name %25s: Processing %15.3f ms for SF %d, diff_now %15.3f \n", name,(ts->p_time/(cpu_freq_GHz*1000000.0)),subframe,ts->p_time);
             fprintf(file_name, "%15.3f us, diff_now %15.3f \n", (ts->p_time / (cpu_freq_GHz * 1000.0)), (double)ts->p_time);
-
         }
     }
 }
 
 void print_meas(time_stats_t *ts, const char *name, time_stats_t *total_exec_time, time_stats_t *sf_exec_time)
 {
-
     if(opp_enabled)
     {
-
         static int first_time = 0;
         static double cpu_freq_GHz = 0.0;
 
@@ -94,7 +104,6 @@ void print_meas(time_stats_t *ts, const char *name, time_stats_t *total_exec_tim
         if(ts->trials > 0)
         {
             //printf("%20s: total: %10.3f ms, average: %10.3f us (%10d trials)\n", name, ts->diff/cpu_freq_GHz/1000000.0, ts->diff/ts->trials/cpu_freq_GHz/1000.0, ts->trials);
-
             if((total_exec_time == NULL) || (sf_exec_time == NULL))
             {
                 fprintf(stderr, "%25s:  %15.3f us; %15d;\n",
@@ -114,12 +123,10 @@ void print_meas(time_stats_t *ts, const char *name, time_stats_t *total_exec_tim
             }
         }
     }
-
 }
 
 double get_time_meas_us(time_stats_t *ts)
 {
-
     static double cpu_freq_GHz = 0.0;
 
     if(cpu_freq_GHz == 0.0)

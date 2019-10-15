@@ -60,9 +60,7 @@ mod_sym_t dummy3[2048 * 14];
 
 int main(int argc, char **argv)
 {
-
     char c;
-
     int i, l, aa;
     double sigma2, sigma2_dB = 0, SNR, snr0 = -2.0, snr1;
     uint8_t snr1set = 0;
@@ -82,48 +80,32 @@ int main(int argc, char **argv)
     int trial, n_trials, ntrials = 1, n_errors, n_errors2, n_alamouti;
     uint8_t transmission_mode = 1, n_tx = 1, n_rx = 1;
     uint16_t Nid_cell = 0;
-
     int n_frames = 1;
     channel_desc_t *eNB2UE, *eNB2UE1, *eNB2UE2;
     uint32_t nsymb, tx_lev, tx_lev1, tx_lev2;
     uint8_t extended_prefix_flag = 0;
     LTE_DL_FRAME_PARMS *frame_parms;
-
     FILE *input_fd = NULL, *pbch_file_fd = NULL;
     char input_val_str[50], input_val_str2[50];
     //  double input_val1,input_val2;
     //  uint16_t amask=0;
     uint8_t frame_mod4, num_pdcch_symbols;
     uint16_t NB_RB = 25;
-
     SCM_t channel_model = AWGN; //Rayleigh1_anticorr;
-
     DCI_ALLOC_t dci_alloc[8];
     uint8_t abstraction_flag = 0; //,calibration_flag=0;
     int pbch_tx_ant;
     uint8_t N_RB_DL = 100, osf = 1;
-
     unsigned char frame_type = FDD;
     unsigned char pbch_phase = 0;
-
 #ifdef XFORMS
     FD_lte_phy_scope_ue *form_ue;
     char title[255];
 #endif
-
     logInit();
     number_of_cards = 1;
     openair_daq_vars.rx_rf_mode = 1;
 
-    /*
-        rxdataF    = (int **)malloc16(2*sizeof(int*));
-        rxdataF[0] = (int *)malloc16(FRAME_LENGTH_BYTES);
-        rxdataF[1] = (int *)malloc16(FRAME_LENGTH_BYTES);
-
-        rxdata    = (int **)malloc16(2*sizeof(int*));
-        rxdata[0] = (int *)malloc16(FRAME_LENGTH_BYTES);
-        rxdata[1] = (int *)malloc16(FRAME_LENGTH_BYTES);
-    */
     while((c = getopt(argc, argv, "f:hpf:g:n:s:S:t:x:y:z:N:F:GdP:")) != -1)
     {
         switch(c)
@@ -197,24 +179,10 @@ int main(int argc, char **argv)
                 msg("Setting SNR1 to %f\n", snr1);
                 break;
 
-            /*
-                case 't':
-                Td= atof(optarg);
-                break;
-            */
             case 'p':
                 extended_prefix_flag = 1;
                 break;
 
-            /*
-                case 'r':
-                ricean_factor = pow(10,-.1*atof(optarg));
-                if (ricean_factor>1) {
-                printf("Ricean factor must be between 0 and 1\n");
-                exit(-1);
-                }
-                break;
-            */
             case 'x':
                 transmission_mode = atoi(optarg);
 
@@ -264,10 +232,6 @@ int main(int argc, char **argv)
 
                 break;
 
-            //  case 'C':
-            //    calibration_flag=1;
-            //    msg("Running Abstraction calibration for Bias removal\n");
-            //    break;
             case 'N':
                 Nid_cell = atoi(optarg);
                 break;
@@ -331,7 +295,6 @@ int main(int argc, char **argv)
                    N_RB_DL,
                    osf,
                    0);
-
 #ifdef XFORMS
     fl_initialize(&argc, argv, NULL, 0, 0);
     form_ue = create_lte_phy_scope_ue();
@@ -352,16 +315,10 @@ int main(int argc, char **argv)
     }
 
     printf("SNR0 %f, SNR1 %f\n", snr0, snr1);
-
     frame_parms = &PHY_vars_eNB->lte_frame_parms;
-
-
-
     txdata = PHY_vars_eNB->lte_eNB_common_vars.txdata[0];
     txdata1 = PHY_vars_eNB1->lte_eNB_common_vars.txdata[0];
     txdata2 = PHY_vars_eNB2->lte_eNB_common_vars.txdata[0];
-
-
     s_re = malloc(2 * sizeof(double *));
     s_im = malloc(2 * sizeof(double *));
     s_re1 = malloc(2 * sizeof(double *));
@@ -374,16 +331,11 @@ int main(int argc, char **argv)
     r_im1 = malloc(2 * sizeof(double *));
     r_re2 = malloc(2 * sizeof(double *));
     r_im2 = malloc(2 * sizeof(double *));
-
     nsymb = (frame_parms->Ncp == 0) ? 14 : 12;
-
     printf("FFT Size %d, Extended Prefix %d, Samples per subframe %d, Symbols per subframe %d\n", NUMBER_OF_OFDM_CARRIERS,
            frame_parms->Ncp, frame_parms->samples_per_tti, nsymb);
-
     printf("PHY_vars_eNB1->lte_eNB_common_vars.txdataF[0][0] = %p\n",
            PHY_vars_eNB1->lte_eNB_common_vars.txdataF[0][0]);
-
-
     DLSCH_alloc_pdu2.rah              = 0;
     DLSCH_alloc_pdu2.rballoc          = DLSCH_RB_ALLOC;
     DLSCH_alloc_pdu2.TPC              = 0;
@@ -395,7 +347,6 @@ int main(int argc, char **argv)
     DLSCH_alloc_pdu2.rv1              = 0;
     // Forget second codeword
     DLSCH_alloc_pdu2.tpmi             = (transmission_mode == 6 ? 5 : 0) ; // precoding
-
     eNB2UE = new_channel_desc_scm(PHY_vars_eNB->lte_frame_parms.nb_antennas_tx,
                                   PHY_vars_UE->lte_frame_parms.nb_antennas_rx,
                                   channel_model,
@@ -405,7 +356,6 @@ int main(int argc, char **argv)
                                   0,
                                   0);
 
-
     if(eNB2UE == NULL)
     {
         msg("Problem generating channel model. Exiting.\n");
@@ -414,7 +364,6 @@ int main(int argc, char **argv)
 
     for(i = 0; i < 2; i++)
     {
-
         s_re[i] = malloc(FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
         bzero(s_re[i], FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
         s_im[i] = malloc(FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
@@ -427,7 +376,6 @@ int main(int argc, char **argv)
         bzero(s_re2[i], FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
         s_im2[i] = malloc(FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
         bzero(s_im2[i], FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
-
         r_re[i] = malloc(FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
         bzero(r_re[i], FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
         r_im[i] = malloc(FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
@@ -471,11 +419,9 @@ int main(int argc, char **argv)
                      (PHY_vars_eNB->lte_frame_parms.Ncp==0) ? 5 : 4,
                      10);
         */
-
     }
     else
     {
-
         generate_sss(PHY_vars_eNB->lte_eNB_common_vars.txdataF[0],
                      AMP,
                      &PHY_vars_eNB->lte_frame_parms,
@@ -496,10 +442,7 @@ int main(int argc, char **argv)
                      &PHY_vars_eNB->lte_frame_parms,
                      2,
                      12);
-
-
     }
-
 
     /*
         generate_pilots(PHY_vars_eNB,
@@ -517,7 +460,6 @@ int main(int argc, char **argv)
         PHY_vars_eNB->lte_eNB_common_vars.txdataF[0],
         0);
     */
-
     /*
         if (num_pdcch_symbols<3) {
         printf("Less than 3 pdcch symbols\n");
@@ -555,9 +497,6 @@ int main(int argc, char **argv)
     tx_lev1 = 0;
     tx_lev2 = 0;
 
-
-
-
     for(aa = 0; aa < PHY_vars_eNB->lte_frame_parms.nb_antennas_tx; aa++)
     {
         if(frame_parms->Ncp == 1)
@@ -579,7 +518,6 @@ int main(int argc, char **argv)
                                 OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES);
     }
 
-
     LOG_M("txsig0.m", "txs0", txdata[0], FRAME_LENGTH_COMPLEX_SAMPLES, 1, 1);
 
     if(frame_parms->nb_antennas_tx > 1)
@@ -598,21 +536,16 @@ int main(int argc, char **argv)
         }
     }
 
-
     for(SNR = snr0; SNR < snr1; SNR += .2)
     {
-
-
         n_errors = 0;
         n_errors2 = 0;
         n_alamouti = 0;
 
         for(trial = 0; trial < n_frames; trial++)
         {
-
             multipath_channel(eNB2UE, s_re, s_im, r_re, r_im,
                               2 * nsymb * OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES, 0);
-
             sigma2_dB = 10 * log10((double)tx_lev) + 10 * log10((double)PHY_vars_eNB->lte_frame_parms.ofdm_symbol_size / (double)(12 * NB_RB)) - SNR;
 
             if(n_frames == 1)
@@ -651,8 +584,6 @@ int main(int argc, char **argv)
                     printf("rx_level data symbol %f\n",
                            10 * log10(signal_energy(&PHY_vars_UE->lte_ue_common_vars.rxdata[0][frame_parms->samples_per_tti / 2], 4 * OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES)));
                 }
-
-
             } //noise trials
         } // trials
 
@@ -670,24 +601,70 @@ int main(int argc, char **argv)
 
     if(n_frames == 1)
     {
-
     }
-
 
     for(i = 0; i < 2; i++)
     {
         free(s_re[i]);
         free(s_im[i]);
+
+        if(s_im1)
+        {
+            free(s_im1[i]);
+        }
+
+        if(s_im2)
+        {
+            free(s_im2[i]);
+        }
+
         free(r_re[i]);
+
+        if(r_re1)
+        {
+            free(r_re1[i]);
+        }
+
+        if(r_re2)
+        {
+            free(r_re2[i]);
+        }
+
         free(r_im[i]);
+
+        if(s_re1)
+        {
+            free(s_re1[i]);
+        }
+
+        if(s_re2)
+        {
+            free(s_re2[i]);
+        }
+
+        if(r_im1)
+        {
+            free(r_im1[i]);
+        }
+
+        if(r_im2)
+        {
+            free(r_im2[i]);
+        }
     }
 
     free(s_re);
+    free(s_re1);
+    free(s_re2);
     free(s_im);
+    free(s_im1);
+    free(s_im2);
     free(r_re);
+    free(r_re1);
+    free(r_re2);
     free(r_im);
-
-
+    free(r_im1);
+    free(r_im2);
     lte_sync_time_free();
 
     if(write_output_file)
@@ -695,8 +672,17 @@ int main(int argc, char **argv)
         fclose(output_fd);
     }
 
-    return(n_errors);
+    if(input_fd)
+    {
+        fclose(input_fd);
+    }
 
+    if(pbch_file_fd)
+    {
+        fclose(pbch_file_fd);
+    }
+
+    return(n_errors);
 }
 
 

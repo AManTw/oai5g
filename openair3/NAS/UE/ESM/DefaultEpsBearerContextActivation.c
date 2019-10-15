@@ -1,38 +1,38 @@
 /*
-    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
-    contributor license agreements.  See the NOTICE file distributed with
-    this work for additional information regarding copyright ownership.
-    The OpenAirInterface Software Alliance licenses this file to You under
-    the OAI Public License, Version 1.1  (the "License"); you may not use this file
-    except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.openairinterface.org/?page_id=698
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-    -------------------------------------------------------------------------------
-    For more information about the OpenAirInterface (OAI) Software Alliance:
-        contact@openairinterface.org
-*/
+ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The OpenAirInterface Software Alliance licenses this file to You under
+ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+ * except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.openairinterface.org/?page_id=698
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *-------------------------------------------------------------------------------
+ * For more information about the OpenAirInterface (OAI) Software Alliance:
+ *      contact@openairinterface.org
+ */
 
 /*****************************************************************************
-    Source      DefaultEpsBearerContextActivation.c
+Source      DefaultEpsBearerContextActivation.c
 
-    Version     0.1
+Version     0.1
 
-    Date        2013/01/28
+Date        2013/01/28
 
-    Product     NAS stack
+Product     NAS stack
 
-    Subsystem   EPS Session Management
+Subsystem   EPS Session Management
 
-    Author      Frederic Maurel
+Author      Frederic Maurel
 
-    Description Defines the default EPS bearer context activation ESM
+Description Defines the default EPS bearer context activation ESM
         procedure executed by the Non-Access Stratum.
 
         The purpose of the default bearer context activation procedure
@@ -69,10 +69,10 @@
 
 
 /*
-    --------------------------------------------------------------------------
-      Default EPS bearer context activation procedure executed by the UE
-    --------------------------------------------------------------------------
-*/
+ * --------------------------------------------------------------------------
+ *    Default EPS bearer context activation procedure executed by the UE
+ * --------------------------------------------------------------------------
+ */
 /****************************************************************************
  **                                                                        **
  ** Name:    esm_proc_default_eps_bearer_context_request()             **
@@ -91,65 +91,57 @@
  **                                                                        **
  ***************************************************************************/
 int esm_proc_default_eps_bearer_context_request(nas_user_t *user, int pid, int ebi,
-        const esm_proc_qos_t *qos,
-        int *esm_cause)
+    const esm_proc_qos_t *qos,
+    int *esm_cause)
 {
-    LOG_FUNC_IN;
-    esm_data_t *esm_data = user->esm_data;
-    default_eps_bearer_context_data_t *default_eps_bearer_context_data = user->default_eps_bearer_context_data;
-    int rc = RETURNerror;
+  LOG_FUNC_IN;
+  esm_data_t *esm_data = user->esm_data;
+  default_eps_bearer_context_data_t *default_eps_bearer_context_data = user->default_eps_bearer_context_data;
+  int rc = RETURNerror;
 
-    LOG_TRACE(INFO, "ESM-PROC  - Default EPS bearer context activation "
-              "requested by the network (ebi=%d)", ebi);
+  LOG_TRACE(INFO, "ESM-PROC  - Default EPS bearer context activation "
+            "requested by the network (ebi=%d)", ebi);
 
-    /* Assign default EPS bearer context */
-    int new_ebi = esm_ebr_assign(user->esm_ebr_data, ebi, pid + 1, TRUE);
+  /* Assign default EPS bearer context */
+  int new_ebi = esm_ebr_assign(user->esm_ebr_data, ebi, pid+1, TRUE);
 
-    if(new_ebi == ESM_EBI_UNASSIGNED)
-    {
-        /*  3GPP TS 24.301, section 6.4.1.5, abnormal cases a and b
-            Default EPS bearer context activation request for an already
-            activated default or dedicated EPS bearer context
-        */
-        int old_pid, old_bid;
-        /*  Locally deactivate the existing EPS bearer context and proceed
-            with the requested default EPS bearer context activation */
-        rc = esm_proc_eps_bearer_context_deactivate(user, TRUE, ebi,
-                &old_pid, &old_bid);
+  if (new_ebi == ESM_EBI_UNASSIGNED) {
+    /* 3GPP TS 24.301, section 6.4.1.5, abnormal cases a and b
+     * Default EPS bearer context activation request for an already
+     * activated default or dedicated EPS bearer context
+     */
+    int old_pid, old_bid;
+    /* Locally deactivate the existing EPS bearer context and proceed
+     * with the requested default EPS bearer context activation */
+    rc = esm_proc_eps_bearer_context_deactivate(user, TRUE, ebi,
+         &old_pid, &old_bid);
 
-        if(rc != RETURNok)
-        {
-            /* Failed to release EPS bearer context */
-            *esm_cause = ESM_CAUSE_PROTOCOL_ERROR;
-        }
-        else
-        {
-            /* Assign new default EPS bearer context */
-            ebi = esm_ebr_assign(user->esm_ebr_data, ebi, pid + 1, TRUE);
-        }
+    if (rc != RETURNok) {
+      /* Failed to release EPS bearer context */
+      *esm_cause = ESM_CAUSE_PROTOCOL_ERROR;
+    } else {
+      /* Assign new default EPS bearer context */
+      ebi = esm_ebr_assign(user->esm_ebr_data, ebi, pid+1, TRUE);
     }
+  }
 
-    if(ebi != ESM_EBI_UNASSIGNED)
-    {
-        /* Create new default EPS bearer context */
-        ebi = esm_ebr_context_create(esm_data, user->ueid, pid, ebi, TRUE, qos, NULL);
+  if (ebi != ESM_EBI_UNASSIGNED) {
+    /* Create new default EPS bearer context */
+    ebi = esm_ebr_context_create(esm_data, user->ueid, pid, ebi, TRUE, qos, NULL);
 
-        if(ebi != ESM_EBI_UNASSIGNED)
-        {
-            /* Default EPS bearer contextx successfully created */
-            default_eps_bearer_context_data->ebi = ebi;
-            rc = RETURNok;
-        }
-        else
-        {
-            /* No resource available */
-            LOG_TRACE(WARNING, "ESM-PROC  - Failed to create new default EPS "
-                      "bearer context");
-            *esm_cause = ESM_CAUSE_INSUFFICIENT_RESOURCES;
-        }
+    if (ebi != ESM_EBI_UNASSIGNED) {
+      /* Default EPS bearer contextx successfully created */
+      default_eps_bearer_context_data->ebi = ebi;
+      rc = RETURNok;
+    } else {
+      /* No resource available */
+      LOG_TRACE(WARNING, "ESM-PROC  - Failed to create new default EPS "
+                "bearer context");
+      *esm_cause = ESM_CAUSE_INSUFFICIENT_RESOURCES;
     }
+  }
 
-    LOG_FUNC_RETURN(rc);
+  LOG_FUNC_RETURN (rc);
 }
 
 /****************************************************************************
@@ -184,47 +176,44 @@ int esm_proc_default_eps_bearer_context_request(nas_user_t *user, int pid, int e
  **                                                                        **
  ***************************************************************************/
 int esm_proc_default_eps_bearer_context_accept(nas_user_t *user, int is_standalone, int ebi,
-        OctetString *msg, int ue_triggered)
+    OctetString *msg, int ue_triggered)
 {
-    LOG_FUNC_IN;
+  LOG_FUNC_IN;
 
-    int rc = RETURNok;
-    esm_ebr_data_t *esm_ebr_data = user->esm_ebr_data;
-    user_api_id_t *user_api_id = user->user_api_id;
+  int rc = RETURNok;
+  esm_ebr_data_t *esm_ebr_data = user->esm_ebr_data;
+  user_api_id_t *user_api_id = user->user_api_id;
 
-    LOG_TRACE(INFO, "ESM-PROC  - Default EPS bearer context activation "
-              "accepted by the UE (ebi=%d)", ebi);
+  LOG_TRACE(INFO,"ESM-PROC  - Default EPS bearer context activation "
+            "accepted by the UE (ebi=%d)", ebi);
 
-    if(is_standalone)
-    {
-        emm_sap_t emm_sap;
-        emm_esm_data_t *emm_esm = &emm_sap.u.emm_esm.u.data;
-        /*
-            Notity EMM that ESM PDU has to be forwarded to lower layers
-        */
-        emm_sap.primitive = EMMESM_UNITDATA_REQ;
-        emm_sap.u.emm_esm.ueid = user->ueid;
-        emm_esm->msg.length = msg->length;
-        emm_esm->msg.value = msg->value;
-        rc = emm_sap_send(user, &emm_sap);
+  if (is_standalone) {
+    emm_sap_t emm_sap;
+    emm_esm_data_t *emm_esm = &emm_sap.u.emm_esm.u.data;
+    /*
+     * Notity EMM that ESM PDU has to be forwarded to lower layers
+     */
+    emm_sap.primitive = EMMESM_UNITDATA_REQ;
+    emm_sap.u.emm_esm.ueid = user->ueid;
+    emm_esm->msg.length = msg->length;
+    emm_esm->msg.value = msg->value;
+    rc = emm_sap_send(user, &emm_sap);
+  }
+
+  if (rc != RETURNerror) {
+    /* Set the EPS bearer context state to ACTIVE */
+    rc = esm_ebr_set_status(user_api_id, esm_ebr_data, ebi, ESM_EBR_ACTIVE, ue_triggered);
+
+    if (rc != RETURNok) {
+      /* The EPS bearer context was already in ACTIVE state */
+      LOG_TRACE(WARNING, "ESM-PROC  - EBI %d was already ACTIVE", ebi);
+      /* Accept network retransmission of already accepted activate
+       * default EPS bearer context request */
+      LOG_FUNC_RETURN (RETURNok);
     }
+  }
 
-    if(rc != RETURNerror)
-    {
-        /* Set the EPS bearer context state to ACTIVE */
-        rc = esm_ebr_set_status(user_api_id, esm_ebr_data, ebi, ESM_EBR_ACTIVE, ue_triggered);
-
-        if(rc != RETURNok)
-        {
-            /* The EPS bearer context was already in ACTIVE state */
-            LOG_TRACE(WARNING, "ESM-PROC  - EBI %d was already ACTIVE", ebi);
-            /*  Accept network retransmission of already accepted activate
-                default EPS bearer context request */
-            LOG_FUNC_RETURN(RETURNok);
-        }
-    }
-
-    LOG_FUNC_RETURN(rc);
+  LOG_FUNC_RETURN (rc);
 }
 
 /****************************************************************************
@@ -257,48 +246,42 @@ int esm_proc_default_eps_bearer_context_accept(nas_user_t *user, int is_standalo
  **                                                                        **
  ***************************************************************************/
 int esm_proc_default_eps_bearer_context_reject(nas_user_t *user, int is_standalone, int ebi,
-        OctetString *msg, int ue_triggered)
+    OctetString *msg, int ue_triggered)
 {
-    LOG_FUNC_IN;
+  LOG_FUNC_IN;
 
-    int rc = RETURNok;
+  int rc = RETURNok;
 
-    LOG_TRACE(WARNING, "ESM-PROC  - Default EPS bearer context activation "
-              "not accepted by the UE (ebi=%d)", ebi);
+  LOG_TRACE(WARNING, "ESM-PROC  - Default EPS bearer context activation "
+            "not accepted by the UE (ebi=%d)", ebi);
 
-    if(!esm_ebr_is_not_in_use(user->esm_ebr_data, ebi))
-    {
-        /* Release EPS bearer data currently in use */
-        rc = esm_ebr_release(user->esm_ebr_data, ebi);
-    }
+  if ( !esm_ebr_is_not_in_use(user->esm_ebr_data, ebi) ) {
+    /* Release EPS bearer data currently in use */
+    rc = esm_ebr_release(user->esm_ebr_data, ebi);
+  }
 
-    if(rc != RETURNok)
-    {
-        LOG_TRACE(WARNING, "ESM-PROC  - Failed to release EPS bearer data");
-    }
-    else if(is_standalone)
-    {
-        emm_sap_t emm_sap;
-        emm_esm_data_t *emm_esm = &emm_sap.u.emm_esm.u.data;
-        /*
-            Notity EMM that ESM PDU has to be forwarded to lower layers
-        */
-        emm_sap.primitive = EMMESM_UNITDATA_REQ;
-        emm_sap.u.emm_esm.ueid = user->ueid;
-        emm_esm->msg.length = msg->length;
-        emm_esm->msg.value = msg->value;
-        rc = emm_sap_send(user, &emm_sap);
-    }
-    else
-    {
-        /*  An error is returned to notify EMM that the default EPS bearer
-            activation procedure initiated as part of the initial attach
-            procedure has failed
-        */
-        rc = RETURNerror;
-    }
+  if (rc != RETURNok) {
+    LOG_TRACE(WARNING, "ESM-PROC  - Failed to release EPS bearer data");
+  } else if (is_standalone) {
+    emm_sap_t emm_sap;
+    emm_esm_data_t *emm_esm = &emm_sap.u.emm_esm.u.data;
+    /*
+     * Notity EMM that ESM PDU has to be forwarded to lower layers
+     */
+    emm_sap.primitive = EMMESM_UNITDATA_REQ;
+    emm_sap.u.emm_esm.ueid = user->ueid;
+    emm_esm->msg.length = msg->length;
+    emm_esm->msg.value = msg->value;
+    rc = emm_sap_send(user, &emm_sap);
+  } else {
+    /* An error is returned to notify EMM that the default EPS bearer
+     * activation procedure initiated as part of the initial attach
+     * procedure has failed
+     */
+    rc = RETURNerror;
+  }
 
-    LOG_FUNC_RETURN(rc);
+  LOG_FUNC_RETURN (rc);
 }
 
 /****************************************************************************
@@ -320,15 +303,15 @@ int esm_proc_default_eps_bearer_context_reject(nas_user_t *user, int is_standalo
  ***************************************************************************/
 int esm_proc_default_eps_bearer_context_complete(default_eps_bearer_context_data_t *default_eps_bearer_context_data)
 {
-    LOG_FUNC_IN;
+  LOG_FUNC_IN;
 
-    LOG_TRACE(INFO,
-              "ESM-PROC  - Default EPS bearer context activation complete");
+  LOG_TRACE(INFO,
+            "ESM-PROC  - Default EPS bearer context activation complete");
 
-    /* Reset default EPS bearer context internal data */
-    default_eps_bearer_context_data->ebi = ESM_EBI_UNASSIGNED;
+  /* Reset default EPS bearer context internal data */
+  default_eps_bearer_context_data->ebi = ESM_EBI_UNASSIGNED;
 
-    LOG_FUNC_RETURN(RETURNok);
+  LOG_FUNC_RETURN (RETURNok);
 }
 
 /****************************************************************************
@@ -351,23 +334,22 @@ int esm_proc_default_eps_bearer_context_complete(default_eps_bearer_context_data
  ***************************************************************************/
 int esm_proc_default_eps_bearer_context_failure(nas_user_t *user)
 {
-    LOG_FUNC_IN;
-    default_eps_bearer_context_data_t *default_eps_bearer_context_data = user->default_eps_bearer_context_data;
+  LOG_FUNC_IN;
+  default_eps_bearer_context_data_t *default_eps_bearer_context_data = user->default_eps_bearer_context_data;
 
-    int ebi = default_eps_bearer_context_data->ebi;
-    int pid, bid;
+  int ebi = default_eps_bearer_context_data->ebi;
+  int pid, bid;
 
-    LOG_TRACE(WARNING,
-              "ESM-PROC  - Default EPS bearer context activation failure");
+  LOG_TRACE(WARNING,
+            "ESM-PROC  - Default EPS bearer context activation failure");
 
-    /* Release the default EPS bearer context and enter state INACTIVE */
-    int rc = esm_proc_eps_bearer_context_deactivate(user, TRUE, ebi, &pid, &bid);
+  /* Release the default EPS bearer context and enter state INACTIVE */
+  int rc = esm_proc_eps_bearer_context_deactivate(user, TRUE, ebi, &pid, &bid);
 
-    if(rc != RETURNerror)
-    {
-        /* Reset default EPS bearer context internal data */
-        default_eps_bearer_context_data->ebi = ESM_EBI_UNASSIGNED;
-    }
+  if (rc != RETURNerror) {
+    /* Reset default EPS bearer context internal data */
+    default_eps_bearer_context_data->ebi = ESM_EBI_UNASSIGNED;
+  }
 
-    LOG_FUNC_RETURN(rc);
+  LOG_FUNC_RETURN (rc);
 }

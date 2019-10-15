@@ -72,8 +72,8 @@ mac_rrc_data_req(
 }
 
 //------------------------------------------------------------------------------
-int8_t
-mac_rrc_data_ind(
+/*  int8_t
+    mac_rrc_data_ind(
     const module_id_t     module_idP,
     const int             CC_idP,
     const frame_t         frameP,
@@ -85,22 +85,22 @@ mac_rrc_data_ind(
     const eNB_flag_t      eNB_flagP,
     const mac_enb_index_t eNB_indexP,
     const uint8_t         mbsfn_sync_area
-)
-//------------------------------------------------------------------------------
-{
+    )
+    //------------------------------------------------------------------------------
+    {
     return(mac_rrc_lite_data_ind(
-               module_idP,
-               CC_idP,
-               frameP, subframeP,
-               rntiP,
-               srb_idP,
-               sduP,
-               sdu_lenP,
-               eNB_flagP,
-               eNB_indexP,
-               mbsfn_sync_area)
-          );
-}
+           module_idP,
+           CC_idP,
+           frameP,subframeP,
+           rntiP,
+           srb_idP,
+           sduP,
+           sdu_lenP,
+           eNB_flagP,
+           eNB_indexP,
+           mbsfn_sync_area)
+        );
+    }*/
 
 //------------------------------------------------------------------------------
 void

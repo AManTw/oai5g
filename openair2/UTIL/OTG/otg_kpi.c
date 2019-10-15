@@ -45,14 +45,12 @@ extern unsigned char NB_UE_INST;
 
 void tx_throughput(int src, int dst, int application)
 {
-
     if(otg_info->tx_num_bytes[src][dst][application] > 0)
     {
         //  otg_info->tx_throughput[src][dst][application]=((double)otg_info->tx_num_bytes[src][dst][application] *1000*8)/ (get_ctime()*1024); // unit Kbit/sec, if ctime in ms
         if((g_otg->flow_start[src][dst][application] + g_otg->flow_duration[src][dst][application]) < get_ctime())
-        {
-            otg_info->tx_throughput[src][dst][application] = ((double)otg_info->tx_num_bytes[src][dst][application] * 1000 * 8) / ((g_otg->flow_start[src][dst][application] + g_otg->flow_duration[src][dst][application]) * 1024);    // unit Kbit/sec, if ctime in ms
-        }
+            otg_info->tx_throughput[src][dst][application] = ((double)otg_info->tx_num_bytes[src][dst][application] * 1000 * 8) / ((g_otg->flow_start[src][dst][application] + g_otg->flow_duration[src][dst][application])
+                    * 1024); // unit Kbit/sec, if ctime in ms
         else if(g_otg->flow_start[src][dst][application] < get_ctime())
         {
             otg_info->tx_throughput[src][dst][application] = ((double)otg_info->tx_num_bytes[src][dst][application] * 1000 * 8) / ((get_ctime() - g_otg->flow_start[src][dst][application]) * 1024);
@@ -81,21 +79,18 @@ void tx_throughput(int src, int dst, int application)
         //    LOG_I(OTG,"DUY, get_ctime() [i=%d,j=%d,k=%d] = %.d\n", src,dst,application,get_ctime());
         LOG_I(OTG, "otg_multicast_info->tx_num_bytes[i=%d,j=%d,k=%d] = %.d\n", src, dst, application, otg_multicast_info->tx_num_bytes[src][dst][application]);
     }
-
 }
 
 
 
 void rx_goodput(int src, int dst, int application)
 {
-
     if(otg_info->rx_num_bytes[src][dst][application] > 0)
     {
         // otg_info->rx_goodput[src][dst][application]=((double)otg_info->rx_num_bytes[src][dst][application]*1000*8)/(get_ctime()*1024); // unit kB/sec, if ctime in ms
         if((g_otg->flow_start[src][dst][application] + g_otg->flow_duration[src][dst][application]) < get_ctime())
-        {
-            otg_info->rx_goodput[src][dst][application] = ((double)otg_info->rx_num_bytes[src][dst][application] * 1000 * 8) / ((g_otg->flow_start[src][dst][application] + g_otg->flow_duration[src][dst][application]) * 1024);    // unit Kbit/sec, if ctime in ms
-        }
+            otg_info->rx_goodput[src][dst][application] = ((double)otg_info->rx_num_bytes[src][dst][application] * 1000 * 8) / ((g_otg->flow_start[src][dst][application] + g_otg->flow_duration[src][dst][application])
+                    * 1024); // unit Kbit/sec, if ctime in ms
         else if(g_otg->flow_start[src][dst][application] < get_ctime())
         {
             otg_info->rx_goodput[src][dst][application] = ((double)otg_info->rx_num_bytes[src][dst][application] * 1000 * 8) / ((get_ctime() - g_otg->flow_start[src][dst][application]) * 1024);
@@ -125,7 +120,6 @@ void rx_goodput(int src, int dst, int application)
 
 void rx_loss_rate_pkts(int src, int dst, int application)
 {
-
     if(otg_info->rx_num_pkt[src][dst][application] < otg_info->tx_num_pkt[src][dst][application])
     {
         otg_info->rx_loss_rate[src][dst][application] = 1 - ((double)otg_info->rx_num_pkt[src][dst][application] / otg_info->tx_num_pkt[src][dst][application]);
@@ -157,13 +151,11 @@ void rx_loss_rate_pkts(int src, int dst, int application)
     {
         otg_multicast_info->rx_loss_rate[src][dst] = 0;
     }
-
 }
 
 
 void rx_loss_rate_bytes(int src, int dst, int application)
 {
-
     if(otg_info->rx_num_pkt[src][dst][application] < otg_info->tx_num_pkt[src][dst][application])
     {
         otg_info->rx_loss_rate[src][dst][application] = 1 - ((double)otg_info->rx_num_bytes[src][dst][application] / otg_info->tx_num_bytes[src][dst][application]);
@@ -174,13 +166,11 @@ void rx_loss_rate_bytes(int src, int dst, int application)
     }
 
     LOG_I(OTG, "loss rate (src=%d, dst=%d, appli %d ):: = %lf(bytes) \n", src, dst, application, otg_info->rx_loss_rate[src][dst][application]);
-
 }
 
 void otg_kpi_nb_loss_pkts(void)
 {
     unsigned int i, j, k;
-
     otg_info->total_loss_dl = 0;
     otg_info->total_loss_ul = 0;
 
@@ -205,7 +195,6 @@ void otg_kpi_nb_loss_pkts(void)
 
 void average_pkt_jitter(int src, int dst, int application)
 {
-
     if(otg_info->rx_jitter_sample[src][dst][application] > 0)
     {
         otg_info->rx_jitter_avg[src][dst][application] /= otg_info->rx_jitter_sample[src][dst][application];
@@ -243,13 +232,11 @@ void average_pkt_jitter(int src, int dst, int application)
 
         LOG_T(OTG, "average_jitter_dl %lf average_jitter_ul %lf \n", otg_info->average_jitter_dl_e2e, otg_info->average_jitter_ul_e2e);
     }
-
 }
 
 void average_total_jitter(void)
 {
     unsigned int i, j, k;
-
     otg_info->average_jitter_dl = 0;
     otg_info->average_jitter_ul = 0;
     otg_info->average_jitter_dl_e2e = 0;
@@ -265,7 +252,6 @@ void average_total_jitter(void)
                 {
                     otg_info->average_jitter_dl += otg_info->rx_jitter_avg[i][j][k];
                     otg_info->average_jitter_dl_e2e += otg_info->rx_jitter_avg_e2e[i][j][k];
-
                 }
                 else
                 {
@@ -284,7 +270,6 @@ void average_total_jitter(void)
 void kpi_gen()
 {
     int i, j, k;
-
     int tx_total_bytes_dl = 0;
     int tx_total_pkts_dl = 0;
     int rx_total_bytes_dl = 0;
@@ -293,13 +278,10 @@ void kpi_gen()
     int tx_total_pkts_ul = 0;
     int rx_total_bytes_ul = 0;
     int rx_total_pkts_ul = 0;
-
     float min_owd_dl = 0;
     float max_owd_dl = 0;
-
     float min_owd_dl_e2e = 0;
     float max_owd_dl_e2e = 0;
-
     int tx_total_bytes_dl_background = 0;
     int tx_total_pkts_dl_background = 0;
     int rx_total_bytes_dl_background = 0;
@@ -308,27 +290,18 @@ void kpi_gen()
     int tx_total_pkts_ul_background = 0;
     int rx_total_bytes_ul_background = 0;
     int rx_total_pkts_ul_background = 0;
-
     float min_owd_ul = 0;
     float max_owd_ul = 0;
     float min_owd_ul_e2e = 0;
     float max_owd_ul_e2e = 0;
-
-
     int tx_total_bytes_dl_multicast = 0;
     int tx_total_pkts_dl_multicast = 0;
     int rx_total_bytes_dl_multicast = 0;
     int rx_total_pkts_dl_multicast = 0;
-
-
     int num_active_source = 0;
-
-
     int dl_ok = 1, ul_ok = 1;
-
     char traffic_type[12];
     char traffic[30];
-
 #ifdef STANDALONE
     FILE *file;
     file = fopen("log_OTG.txt", "w");
@@ -343,13 +316,10 @@ void kpi_gen()
 
 #endif
 
-
-
     for(i = 0; i < (NB_eNB_INST + NB_UE_INST); i++)
     {
         for(j = 0; j < (NB_eNB_INST + NB_UE_INST); j++)
         {
-
             /*background stats*/
             if(i < NB_eNB_INST)
             {
@@ -368,7 +338,6 @@ void kpi_gen()
 
             for(k = 0; k < MAX_NUM_APPLICATION; k++)
             {
-
                 tx_throughput(i, j, k);
                 rx_goodput(i, j, k);
                 rx_loss_rate_pkts(i, j, k);
@@ -388,7 +357,6 @@ void kpi_gen()
                     tx_total_pkts_dl_multicast += otg_multicast_info->tx_num_pkt[i][j][k];
                     rx_total_bytes_dl_multicast += otg_multicast_info->rx_num_bytes[i][j][k];
                     rx_total_pkts_dl_multicast += otg_multicast_info->rx_num_pkt[i][j][k];
-
 #ifdef STANDALONE
                     LOG_I(OTG, "No stats for multicast ");      // do nothing
 #else
@@ -399,21 +367,17 @@ void kpi_gen()
                     {
                         LOG_I(OTG, "----------------------------------------------------------\n");
                         LOG_I(OTG, "Total Time (multicast) (ms)= %d \n", otg_info->ctime + 1);
-
                         //   LOG_I(OTG,"[%s] Multicast [eNB:%d -> UE:%d] \n",traffic_type, i, j);
-
                         LOG_I(OTG, "[MULTICAST] Total packets(TX)= %d \n", otg_multicast_info->tx_num_pkt[i][j][k]);
                         LOG_I(OTG, "[MULTICAST] Total bytes(TX)= %d \n", otg_multicast_info->tx_num_bytes[i][j][k]);
                         LOG_I(OTG, "[MULTICAST] Total packets(RX)= %d \n", otg_multicast_info->rx_num_pkt[i][j][k]);
                         LOG_I(OTG, "[MULTICAST] Total bytes(RX)= %d \n", otg_multicast_info->rx_num_bytes[i][j][k]);
-
                         LOG_I(OTG, "[MULTICAST] TX throughput = %.7f (Kbit/s) \n", otg_multicast_info->tx_throughput[i][j]);
                         LOG_I(OTG, "[MULTICAST] RX goodput = %.7f (Kbit/s) \n", otg_multicast_info->rx_goodput[i][j]);
                         //   if (otg_multicast_info->rx_loss_rate[i][j]>0){
                         //  LOG_I(OTG,"[MULTICAST] Loss rate = %lf \n", (otg_multicast_info->rx_loss_rate[i][j]));
                         //  LOG_I(OTG,"[MULTICAST] NB Lost  packets=%d \n", (otg_multicast_info->tx_num_pkt[i][j][k]-otg_multicast_info->rx_num_pkt[i][j][k]));
                         //}
-
                         // if ((g_otg->background_stats==1)&&(otg_info->tx_num_bytes_background[i][j]>0)){
                         LOG_F(OTG, "----------------------------------------------------------\n");
                         LOG_F(OTG, "Total Time (multicast) (ms)= %d \n", otg_info->ctime + 1);
@@ -434,13 +398,10 @@ void kpi_gen()
                     }
 
 #endif
-
                 }// end for multicast
-
 
                 if((otg_info->tx_throughput[i][j][k] > 0) || ((otg_info->tx_throughput_background[i][j] > 0) && (otg_info->tx_num_bytes[i][j][k] > 0)))
                 {
-
                     num_active_source += 1;
 
                     if(i < NB_eNB_INST)  // DL
@@ -473,7 +434,6 @@ void kpi_gen()
                         {
                             max_owd_dl_e2e = otg_info->rx_owd_max_e2e[i][j][k];
                         }
-
                     }
                     else     // UL
                     {
@@ -505,7 +465,6 @@ void kpi_gen()
                         {
                             max_owd_ul_e2e = otg_info->rx_owd_max_e2e[i][j][k];
                         }
-
                     }
 
                     //LOG_D(OTG,"KPI: (src=%d, dst=%d, appli %d) NB packet TX= %d,  NB packet RX= %d\n ",i, j,  otg_info->tx_num_pkt[i][j][k],  otg_info->rx_num_pkt[i][j][k]);
@@ -530,9 +489,7 @@ void kpi_gen()
                         traffic[sizeof(traffic) - 1] = 0; // terminate string
                     }
 
-
 #ifdef STANDALONE
-
                     fprintf(file, "----------------------------------------------------------\n");
                     fprintf(file, "Total Time (ms)= %d \n", otg_info->ctime + 1);
 
@@ -570,8 +527,6 @@ void kpi_gen()
                         }
                         }
                     */
-
-
 #else
                     LOG_I(OTG, "----------------------------------------------------------\n");
                     LOG_I(OTG, "Total Time (ms)= %d \n", otg_info->ctime + 1);
@@ -668,14 +623,10 @@ void kpi_gen()
                         }
                     */
 #endif
-
                 }
 
                 //     if ((otg_multicast_info->tx_throughput[i][j]>0) && (otg_info->tx_num_bytes[i][j][k]>0))  {
-
             }// end loop of k
-
-
 
 #ifdef STANDALONE
 
@@ -760,14 +711,10 @@ void kpi_gen()
             }
 
 #endif
-
-
         }// end loop of j
     }// end loop of i
 
-
     //  average_total_jitter();
-
 #ifdef STANDALONE
     fprintf(file, "**************** TOTAL DL RESULTS ******************\n");
     fprintf(file, "Total Time= %d \n", otg_info->ctime + 1);
@@ -861,7 +808,6 @@ void kpi_gen()
         LOG_I(OTG, "[MULTICAST] RX throughput = %.7f(Kbit/s) \n", ((double)rx_total_bytes_dl_multicast * 1000 * 8) / (otg_info->ctime * 1024));
     }
 
-
     LOG_F(OTG, "**************** TOTAL DL RESULTS ******************\n");
     LOG_F(OTG, "Total Time (ms)= %d \n", otg_info->ctime + 1);
     LOG_F(OTG, "[DATA] Total packets(TX)= %d \n", tx_total_pkts_dl);
@@ -903,8 +849,6 @@ void kpi_gen()
         LOG_F(OTG, "[MULTICAST] RX throughput = %.7f(Kbit/s) \n", ((double)rx_total_bytes_dl_multicast * 1000 * 8) / (otg_info->ctime * 1024));
     }
 
-
-
     LOG_I(OTG, "**************** TOTAL UL RESULTS ******************\n");
     LOG_I(OTG, "Total Time (ms)= %d \n", otg_info->ctime + 1);
     LOG_I(OTG, "[DATA] Total packets(TX)= %d \n", tx_total_pkts_ul);
@@ -940,7 +884,6 @@ void kpi_gen()
         LOG_I(OTG, "[BACKGROUND] Total bytes(RX)= %d \n", rx_total_bytes_ul_background);
         LOG_I(OTG, "[BACKGROUND] TX throughput = %.7f(Kbit/s) \n", ((double)tx_total_bytes_ul_background * 1000 * 8) / (otg_info->ctime * 1024));
         LOG_I(OTG, "[BACKGROUND] RX throughput = %.7f(Kbit/s) \n", ((double)rx_total_bytes_ul_background * 1000 * 8) / (otg_info->ctime * 1024));
-
     }
 
     LOG_F(OTG, "**************** TOTAL UL RESULTS ******************\n");
@@ -972,7 +915,6 @@ void kpi_gen()
         LOG_F(OTG, "[BACKGROUND] Total bytes(RX)= %d \n", rx_total_bytes_ul_background);
         LOG_F(OTG, "[BACKGROUND] TX throughput = %.7f(Kbit/s) \n", ((double)tx_total_bytes_ul_background * 1000 * 8) / (otg_info->ctime * 1024));
         LOG_F(OTG, "[BACKGROUND] RX throughput = %.7f(Kbit/s) \n", ((double)rx_total_bytes_ul_background * 1000 * 8) / (otg_info->ctime * 1024));
-
     }
 
     if((dl_ok == 1) && (ul_ok == 1))
@@ -1017,9 +959,8 @@ void add_log_metric(int src, int dst, int ctime, double metric, unsigned int lab
         case OTG_JITTER:
             add_log_label(label, &start_log_GP_bg);
             break;
-
         default:
-            LOG_E(OTG, "File label unknown %d \n", label);
+            LOG_E(OTG, "File label unknown %u \n", label);
     }
 
     LOG_F(label, "%d ", ctime);
@@ -1076,7 +1017,7 @@ void  add_log_label(unsigned int label, unsigned int *start_log_metric)
 
                 if(node_actif > 0)
                 {
-                    LOG_F(label, "%d->%d ", i, j);
+                    LOG_F(label, "%u->%u ", i, j);
                 }
             }
         }

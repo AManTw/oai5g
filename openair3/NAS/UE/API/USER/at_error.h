@@ -1,39 +1,39 @@
 /*
-    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
-    contributor license agreements.  See the NOTICE file distributed with
-    this work for additional information regarding copyright ownership.
-    The OpenAirInterface Software Alliance licenses this file to You under
-    the OAI Public License, Version 1.1  (the "License"); you may not use this file
-    except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.openairinterface.org/?page_id=698
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-    -------------------------------------------------------------------------------
-    For more information about the OpenAirInterface (OAI) Software Alliance:
-        contact@openairinterface.org
-*/
+ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The OpenAirInterface Software Alliance licenses this file to You under
+ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+ * except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.openairinterface.org/?page_id=698
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *-------------------------------------------------------------------------------
+ * For more information about the OpenAirInterface (OAI) Software Alliance:
+ *      contact@openairinterface.org
+ */
 
 /*****************************************************************************
 
-    Source    at_error.h
+Source    at_error.h
 
-    Version   0.1
+Version   0.1
 
-    Date    2012/03/12
+Date    2012/03/12
 
-    Product   NAS stack
+Product   NAS stack
 
-    Subsystem Application Programming Interface
+Subsystem Application Programming Interface
 
-    Author    Frederic Maurel
+Author    Frederic Maurel
 
-    Description Defines error codes returned when execution of AT command
+Description Defines error codes returned when execution of AT command
     failed.
 
 *****************************************************************************/
@@ -45,15 +45,15 @@
 /****************************************************************************/
 
 /*
-    Cause code used to notify that the NAS procedure has been successfully
-    processed
-*/
+ * Cause code used to notify that the NAS procedure has been successfully
+ * processed
+ */
 #define AT_ERROR_SUCCESS        (-1)
 
 /*
-    General errors
-    --------------
-*/
+ * General errors
+ * --------------
+ */
 #define AT_ERROR_FIRST_GENERAL_ERROR AT_ERROR_PHONE_FAILURE
 
 #define AT_ERROR_PHONE_FAILURE        0
@@ -105,9 +105,9 @@
 #define AT_ERROR_UNKNOWN        100
 
 /*
-    GPRS-related errors
-    -------------------
-*/
+ * GPRS-related errors
+ * -------------------
+ */
 /* Errors related to a failure to perform an attach */
 #define AT_ERROR_FIRST_GPRS_RELATED_ERROR AT_ERROR_ILLEGAL_MS
 
@@ -131,9 +131,9 @@
 #define AT_ERROR_LAST_GPRS_RELATED_ERROR AT_ERROR_LAST_PDP_DISCONNECT_NOT_ALLOWED
 
 /*
-    VBS / VGCS and eMLPP -related errors
-    ------------------------------------
-*/
+ * VBS / VGCS and eMLPP -related errors
+ * ------------------------------------
+ */
 #define AT_ERROR_FIRST_VBS_RELATED_ERROR AT_ERROR_NO_SERVICE_SUBSCRIPTION_ON_SIM
 
 /* AT_ERROR_VBS_VGCS_NOT_SUPPORTED=151,*/ /* !!! Conflict with AT_ERROR_LAST_PDP_DISCONNECT_NOT_ALLOWED !!! */
@@ -159,25 +159,23 @@
 /****************************************************************************/
 
 /*
-    Error type identifiers
-*/
-typedef enum
-{
-    AT_ERROR_NONE,  /* No error code displayed      */
-    AT_ERROR_OK,  /* AT command successfully processed    */
-    AT_ERROR_SYNTAX,  /* AT command syntax error      */
-    AT_ERROR_CME, /* Error related to execution of AT command
-         operation          */
+ * Error type identifiers
+ */
+typedef enum {
+  AT_ERROR_NONE,  /* No error code displayed      */
+  AT_ERROR_OK,  /* AT command successfully processed    */
+  AT_ERROR_SYNTAX,  /* AT command syntax error      */
+  AT_ERROR_CME, /* Error related to execution of AT command
+       * operation          */
 } at_error_type_t;
 
 /*
-    Error code format identifiers
-*/
-typedef enum
-{
-    AT_ERROR_OFF, /* disable result code and use ERROR instead     */
-    AT_ERROR_NUMERIC, /* enable result code and use numeric error values */
-    AT_ERROR_VERBOSE, /* enable result code and use verbose error values */
+ * Error code format identifiers
+ */
+typedef enum {
+  AT_ERROR_OFF, /* disable result code and use ERROR instead     */
+  AT_ERROR_NUMERIC, /* enable result code and use numeric error values */
+  AT_ERROR_VERBOSE, /* enable result code and use verbose error values */
 } at_error_format_t;
 
 /****************************************************************************/
@@ -191,6 +189,6 @@ typedef enum
 void at_error_set_format(at_error_format_t format);
 at_error_format_t at_error_get_format(void);
 
-int at_error_encode(char *buffer, at_error_type_t type, int error);
+int at_error_encode(char* buffer, at_error_type_t type, int error);
 
 #endif /* __AT_ERROR_H__*/

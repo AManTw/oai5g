@@ -95,12 +95,10 @@ init_mobility_generator(omg_global_param omg_param_list[])
 
     for(node_t = eNB; node_t < MAX_NUM_NODE_TYPES; node_t++)
     {
-
         mobility_t = omg_param_list[node_t].mobility_type;
 
         switch(mobility_t)
         {
-
             case STATIC:
                 start_static_generator(omg_param_list[node_t]);
                 break;
@@ -117,10 +115,12 @@ init_mobility_generator(omg_global_param omg_param_list[])
                 start_trace_generator(omg_param_list[node_t]);
                 break;
 #ifdef SUMO_IF
+
             case SUMO:
                 start_sumo_generator(omg_param_list[node_t]);
                 break;
 #endif
+
             case STEADY_RWP:
                 start_steadystaterwp_generator(omg_param_list[node_t]);
                 break;
@@ -128,10 +128,7 @@ init_mobility_generator(omg_global_param omg_param_list[])
             default:
                 LOG_W(OMG, "Unsupported generator\n");
         }
-
-
     }
-
 }
 
 /**************************************************************************************/
@@ -145,7 +142,6 @@ stop_mobility_generator(omg_global_param *omg_param_list)
     {
         switch(omg_param_list[i].mobility_type)
         {
-
             case STATIC:
                 break;
 
@@ -162,16 +158,17 @@ stop_mobility_generator(omg_global_param *omg_param_list)
             case STEADY_RWP:
                 break;
 #ifdef SUMO_IF
+
             case SUMO:
                 stop_sumo_generator();
                 //LOG_D(OMG," --------OMG will interface with SUMO for mobility generation-------- \n");
                 break;
 #endif
+
             default:
                 LOG_W(OMG, "Unsupported generator\n");
         }
     }
-
 }
 
 /*****************************************************************************/
@@ -189,7 +186,6 @@ update_nodes(double cur_time)
             update_node_vector(i, cur_time);
         }
     }
-
 }
 
 
@@ -211,11 +207,13 @@ update_node_vector(int mobility_type, double cur_time)
             update_trace_nodes(cur_time);
             break;
 #ifdef SUMO_IF
+
         case SUMO:
             // printf("in SUMO case \n");
             update_sumo_nodes(cur_time);
             break;
 #endif
+
         case STEADY_RWP:
             update_steadystaterwp_nodes(cur_time);
             break;
@@ -231,11 +229,8 @@ update_node_vector(int mobility_type, double cur_time)
 node_list *
 get_current_positions(int mobility_type, int node_type, double cur_time)
 {
-
-
     get_nodes_positions(mobility_type, cur_time);
     return node_vector[node_type];
-
 }
 
 /*update current position of nodes for specific mobility type*/
@@ -243,7 +238,6 @@ void
 get_nodes_positions(int mobility_type, double cur_time)
 {
     //printf("%d \n",mobility_type);
-
     switch(mobility_type)
     {
         case STATIC:
@@ -261,11 +255,13 @@ get_nodes_positions(int mobility_type, double cur_time)
             get_trace_positions_updated(cur_time);
             break;
 #ifdef SUMO_IF
+
         case SUMO:
             LOG_I(OMG, "getting positions from SUMO\n");
             get_sumo_positions_updated(cur_time);
             break;
 #endif
+
         case STEADY_RWP:
             get_steadystaterwp_positions_updated(cur_time);
             break;
@@ -273,7 +269,6 @@ get_nodes_positions(int mobility_type, double cur_time)
         default:
             LOG_E(OMG, " Unsupported generator \n");
     }
-
 }
 
 /***************************************************************/
@@ -284,7 +279,6 @@ node_struct *
 get_node_position(int node_type, int nid)
 {
     node_list *tmp;
-
     tmp = node_vector[node_type];
 
     while(tmp != NULL)
@@ -305,13 +299,11 @@ get_node_position(int node_type, int nid)
 void
 set_new_mob_type(int id, int node_t, int mob_t, double cur_time)
 {
-
     int prev_mob;
     node_list *tmp;
     //job_list *tmp2, *prev_job;
     pair_struct *pair;
     double pause_p;
-
     //find previous mobility type
     tmp = node_vector[node_t];
 
@@ -330,7 +322,6 @@ set_new_mob_type(int id, int node_t, int mob_t, double cur_time)
 
     if(tmp != NULL && prev_mob != mob_t)
     {
-
         //initialize node position
         if(mob_t == STATIC || mob_t == RWP || mob_t == RWALK || mob_t == STEADY_RWP)
         {
@@ -360,9 +351,7 @@ set_new_mob_type(int id, int node_t, int mob_t, double cur_time)
 
         switch(mob_t)
         {
-
             case STATIC:
-
                 break;
 
             case RWP:
@@ -396,10 +385,12 @@ set_new_mob_type(int id, int node_t, int mob_t, double cur_time)
 
                 break;
 #ifdef SUMO_IF
+
             case SUMO:
                 LOG_E(OMG, "not possible to change mobility type to sumo \n");
                 break;
 #endif
+
             case TRACE:
                 LOG_E(OMG, "not possible to change mobility type to trace \n");
                 break;
@@ -407,10 +398,7 @@ set_new_mob_type(int id, int node_t, int mob_t, double cur_time)
             default:
                 LOG_E(OMG, " Unsupported generator \n");
         }
-
     }
-
-
 }
 
 #ifdef STANDALONE
@@ -476,11 +464,8 @@ get_options(int argc, char *argv[])
                        "U:u:E:e:R:r:A:a:B:b:C:c:D:d:f:g:hI:i:J:j:k:L:l:N:n:P:p:S:s:T:t:vW:w:X:x:Y:y:Z:z:"))
             != EOF)
     {
-
-
         switch(tag)
         {
-
             case 'U':
                 if(atoi(optarg) < 0)
                 {
@@ -906,8 +891,6 @@ main(int argc, char *argv[])
     //default parameters
     for(node_type = eNB; node_type < MAX_NUM_NODE_TYPES; node_type++)
     {
-
-
         if(node_type == UE)
         {
             omg_param_list[node_type].nodes = 5;
@@ -943,22 +926,16 @@ main(int argc, char *argv[])
         omg_param_list[node_type].sumo_port = 8890;
     }
 
-
     init_omg_global_params();   //initialize global paramaters
-
     get_options(argc, argv);  // overwrite the default params if any input parameter
 
     for(node_type = eNB; node_type < MAX_NUM_NODE_TYPES; node_type++)
     {
         omg_param_list[node_type].max_vertices =
             max_vertices_ongrid(omg_param_list[node_type]);
-
         omg_param_list[node_type].max_block_num =
             max_connecteddomains_ongrid(omg_param_list[node_type]);
-
     }
-
-
 
     init_mobility_generator(omg_param_list);  //initialize choosen mobility generator
 
@@ -973,10 +950,6 @@ main(int argc, char *argv[])
         sprintf(full_name, "%s/UTIL/OMV/OMV", getenv("OPENAIR2_DIR"));
         LOG_I(EMU, "Stating the OMV path %s pfd[0] %d pfd[1] %d \n", full_name,
               pfd[0], pfd[1]);
-
-
-
-
 
         switch(fork())
         {
@@ -997,7 +970,6 @@ main(int argc, char *argv[])
                 sprintf(y_area, "%f", omg_param_list[UE].max_y);
                 sprintf(z_area, "%f", 200.0);
                 sprintf(frames, "%d", (int) n_frames);
-
                 execl(full_name, "OMV", fdstr, frames, num_enb, num_ue, x_area,
                       y_area, z_area, NULL);
                 perror("error in execl the OMV");
@@ -1014,7 +986,6 @@ main(int argc, char *argv[])
 
     for(emu_info_time = 0.0; emu_info_time <= n_frames; emu_info_time += 0.1)
     {
-
         update_nodes(emu_info_time);
         time_s = round(emu_info_time * 1000.0);
 
@@ -1026,7 +997,6 @@ main(int argc, char *argv[])
                                       node_type, emu_info_time);
 
             if(current_positions != NULL)
-
                 display_job_list(emu_info_time,
                                  job_vector[omg_param_list
                                             [node_type].mobility_type]);
@@ -1036,14 +1006,11 @@ main(int argc, char *argv[])
                 nodes_avgspeed(job_vector[omg_param_list [node_type].mobility_type])); */
         }
 
-
         //display current postion of nodes
         if(omv_enabled == 1)
         {
             omv_write(pfd[1], node_vector[SUMO], omv_data);
         }
-
-
     }
 
     /*  LOG_I(OMG,"#-----event average-----\n");
@@ -1052,7 +1019,6 @@ main(int argc, char *argv[])
         if(events[i]!=0)
         LOG_D(OMG,"%d %d \n",i,event_sum[i]/events[i]);
         } */
-
     stop_mobility_generator(omg_param_list);
 
     if(omv_enabled == 1)
@@ -1061,7 +1027,6 @@ main(int argc, char *argv[])
     }
 
     //clear_mem();
-
     return 0;
 }
 
@@ -1080,7 +1045,7 @@ omv_write(int pfd, node_list *ue_node_list, Data_Flow_Unit omv_data)
     omv_data.geo[i].node_type = 0;  //eNB
     omv_data.geo[i].Neighbors = 0;
 
-    for(i = 1; i < omg_param_list[SUMO].nodes + 1; i++)
+    for(i = 1; i < omg_param_list[SUMO - 1].nodes + 1; i++)
     {
         if(ue_node_list != NULL)
         {
@@ -1091,7 +1056,7 @@ omv_write(int pfd, node_list *ue_node_list, Data_Flow_Unit omv_data)
                 (int)(ue_node_list->node->y_pos <
                       0.0) ? 0.0 : ue_node_list->node->y_pos;
             omv_data.geo[i].z = 1.0;
-            omv_data.geo[i].mobility_type = omg_param_list[SUMO].mobility_type;
+            omv_data.geo[i].mobility_type = omg_param_list[SUMO - 1].mobility_type;
             omv_data.geo[i].node_type = 1;  //UE
             ue_node_list = ue_node_list->next;
             omv_data.geo[i].Neighbors = 0;

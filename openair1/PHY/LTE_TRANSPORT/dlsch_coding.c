@@ -53,10 +53,10 @@
 */
 #define is_not_pilot(pilots,first_pilot,re) (1)
 /*  extern void thread_top_init(char *thread_name,
-		     int affinity,
-		     uint64_t runtime,
-		     uint64_t deadline,
-		     uint64_t period);*/
+         int affinity,
+         uint64_t runtime,
+         uint64_t deadline,
+         uint64_t period);*/
 extern WORKER_CONF_t get_thread_worker_conf(void);
 
 
@@ -72,8 +72,10 @@ void free_eNB_dlsch(LTE_eNB_DLSCH_t *dlsch)
             {
                 free16(dlsch->ue_spec_bf_weights[layer][aa], OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES * sizeof(int32_t));
             }
+
             free16(dlsch->ue_spec_bf_weights[layer], 64 * sizeof(int32_t *));
         }
+
         for(i = 0; i < dlsch->Mdlharq; i++)
         {
             if(dlsch->harq_processes[i])
@@ -83,6 +85,7 @@ void free_eNB_dlsch(LTE_eNB_DLSCH_t *dlsch)
                     free16(dlsch->harq_processes[i]->b, MAX_DLSCH_PAYLOAD_BYTES);
                     dlsch->harq_processes[i]->b = NULL;
                 }
+
                 for(r = 0; r < MAX_NUM_DLSCH_SEGMENTS; r++)
                 {
                     if(dlsch->harq_processes[i]->c[r])
@@ -90,24 +93,25 @@ void free_eNB_dlsch(LTE_eNB_DLSCH_t *dlsch)
                         free16(dlsch->harq_processes[i]->c[r], ((r == 0) ? 8 : 0) + 3 + 768);
                         dlsch->harq_processes[i]->c[r] = NULL;
                     }
+
                     if(dlsch->harq_processes[i]->d[r])
                     {
                         free16(dlsch->harq_processes[i]->d[r], (96 + 12 + 3 + (3 * 6144)));
                         dlsch->harq_processes[i]->d[r] = NULL;
                     }
                 }
+
                 free16(dlsch->harq_processes[i], sizeof(LTE_DL_eNB_HARQ_t));
                 dlsch->harq_processes[i] = NULL;
             }
         }
+
         free16(dlsch, sizeof(LTE_eNB_DLSCH_t));
-        dlsch = NULL;
     }
 }
 
 LTE_eNB_DLSCH_t *new_eNB_dlsch(unsigned char Kmimo, unsigned char Mdlharq, uint32_t Nsoft, unsigned char N_RB_DL, uint8_t abstraction_flag, LTE_DL_FRAME_PARMS *frame_parms)
 {
-
     LTE_eNB_DLSCH_t *dlsch;
     unsigned char exit_flag = 0, i, j, r, aa, layer;
     int re;
@@ -149,6 +153,7 @@ LTE_eNB_DLSCH_t *new_eNB_dlsch(unsigned char Kmimo, unsigned char Mdlharq, uint3
             for(aa = 0; aa < 64; aa++)
             {
                 dlsch->ue_spec_bf_weights[layer][aa] = (int32_t *)malloc16(OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES * sizeof(int32_t));
+
                 for(re = 0; re < OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES; re++)
                 {
                     dlsch->ue_spec_bf_weights[layer][aa][re] = 0x00007fff;
@@ -198,6 +203,7 @@ LTE_eNB_DLSCH_t *new_eNB_dlsch(unsigned char Kmimo, unsigned char Mdlharq, uint3
                         // account for filler in first segment and CRCs for multiple segment case
                         dlsch->harq_processes[i]->c[r] = (uint8_t *)malloc16(((r == 0) ? 8 : 0) + 3 + 768);
                         dlsch->harq_processes[i]->d[r] = (uint8_t *)malloc16((96 + 12 + 3 + (3 * 6144)));
+
                         if(dlsch->harq_processes[i]->c[r])
                         {
                             bzero(dlsch->harq_processes[i]->c[r], ((r == 0) ? 8 : 0) + 3 + 768);
@@ -207,6 +213,7 @@ LTE_eNB_DLSCH_t *new_eNB_dlsch(unsigned char Kmimo, unsigned char Mdlharq, uint3
                             printf("Can't get c\n");
                             exit_flag = 2;
                         }
+
                         if(dlsch->harq_processes[i]->d[r])
                         {
                             bzero(dlsch->harq_processes[i]->d[r], (96 + 12 + 3 + (3 * 6144)));
@@ -241,7 +248,6 @@ LTE_eNB_DLSCH_t *new_eNB_dlsch(unsigned char Kmimo, unsigned char Mdlharq, uint3
                             dlsch->harq_processes[i]->d[r][j] = LTE_NULL;
                         }
                     }
-
             }
 
             return(dlsch);
@@ -252,13 +258,10 @@ LTE_eNB_DLSCH_t *new_eNB_dlsch(unsigned char Kmimo, unsigned char Mdlharq, uint3
           exit_flag, sizeof(LTE_eNB_DLSCH_t));
     free_eNB_dlsch(dlsch);
     return(NULL);
-
-
 }
 
 void clean_eNb_dlsch(LTE_eNB_DLSCH_t *dlsch)
 {
-
     unsigned char Mdlharq;
     unsigned char i, j, r;
 
@@ -267,10 +270,12 @@ void clean_eNb_dlsch(LTE_eNB_DLSCH_t *dlsch)
         Mdlharq = dlsch->Mdlharq;
         dlsch->rnti = 0;
 #ifdef PHY_TX_THREAD
+
         for(i = 0; i < 10; i++)
         {
             dlsch->active[i] = 0;
         }
+
 #else
         dlsch->active = 0;
 #endif
@@ -295,7 +300,6 @@ void clean_eNb_dlsch(LTE_eNB_DLSCH_t *dlsch)
                         {
                             dlsch->harq_processes[i]->d[r][j] = LTE_NULL;
                         }
-
             }
         }
     }
@@ -306,26 +310,20 @@ void clean_eNb_dlsch(LTE_eNB_DLSCH_t *dlsch)
 
 int dlsch_encoding_2threads0(te_params *tep)
 {
-
     LTE_eNB_DLSCH_t *dlsch          = tep->dlsch;
     unsigned int G                  = tep->G;
     unsigned char harq_pid          = tep->harq_pid;
     unsigned int total_worker       = tep->total_worker;
     unsigned int current_worker     = tep->current_worker;
-
     unsigned short nb_rb = dlsch->harq_processes[harq_pid]->nb_rb;
     unsigned int Kr = 0, Kr_bytes, r, r_offset = 0;
     //  unsigned short m=dlsch->harq_processes[harq_pid]->mcs;
-
-
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_ENB_DLSCH_ENCODING_W, VCD_FUNCTION_IN);
 
     if(dlsch->harq_processes[harq_pid]->round == 0)     // this is a new packet
     {
-
         for(r = (dlsch->harq_processes[harq_pid]->C / (total_worker + 1)) * current_worker; r < (dlsch->harq_processes[harq_pid]->C / (total_worker + 1)) * (current_worker + 1); r++)
         {
-
             if(r < dlsch->harq_processes[harq_pid]->Cminus)
             {
                 Kr = dlsch->harq_processes[harq_pid]->Kminus;
@@ -336,7 +334,6 @@ int dlsch_encoding_2threads0(te_params *tep)
             }
 
             Kr_bytes = Kr >> 3;
-
             encoder(dlsch->harq_processes[harq_pid]->c[r],
                     Kr >> 3,
                     &dlsch->harq_processes[harq_pid]->d[r][96],
@@ -347,7 +344,6 @@ int dlsch_encoding_2threads0(te_params *tep)
                                              &dlsch->harq_processes[harq_pid]->d[r][96],
                                              dlsch->harq_processes[harq_pid]->w[r]);
         }
-
     }
 
     // Fill in the "e"-sequence from 36-212, V8.6 2009-03, p. 16-17 (for each "e") and concatenate the
@@ -362,6 +358,7 @@ int dlsch_encoding_2threads0(te_params *tep)
             int C = dlsch->harq_processes[harq_pid]->C;
             int Gp = G / Nl / Qm;
             int GpmodC = Gp % C;
+
             if(r < (C - (GpmodC)))
             {
                 r_offset += Nl * Qm * (Gp / C);
@@ -391,7 +388,6 @@ int dlsch_encoding_2threads0(te_params *tep)
     }
 
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_ENB_DLSCH_ENCODING_W, VCD_FUNCTION_OUT);
-
     return(0);
 }
 
@@ -401,23 +397,20 @@ void *te_thread(void *param)
 {
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
-
     thread_top_init("te_thread", 1, 200000, 250000, 500000);
     pthread_setname_np(pthread_self(), "te processing");
     LOG_I(PHY, "thread te created id=%ld\n", syscall(__NR_gettid));
-
-
     te_params *tep                 = (te_params *)param;
 
     //wait_sync("te_thread");
 
     while(!oai_exit)
     {
-
         if(wait_on_condition(&tep->mutex_te, &tep->cond_te, &tep->instance_cnt_te, "te thread") < 0)
         {
             break;
         }
+
         if(oai_exit)
         {
             break;
@@ -436,6 +429,7 @@ void *te_thread(void *param)
             exit_fun("ERROR pthread_cond_signal");
             return(NULL);
         }
+
         /*  if(opp_enabled == 1 && te_wakeup_stats0->p_time>50*3000){
             print_meas_now(te_wakeup_stats0,"coding_wakeup",stderr);
             printf("te_thread0 delay for waking up in frame_rx: %d  subframe_rx: %d \n",proc->frame_rx,proc->subframe_rx);
@@ -462,35 +456,31 @@ int dlsch_encoding_2threads(PHY_VARS_eNB *eNB,
                             time_stats_t *i_stats,
                             int worker_num)
 {
-
     //start_meas(&eNB->dlsch_turbo_encoding_preperation_stats);
-
     LTE_DL_FRAME_PARMS *frame_parms = &eNB->frame_parms;
     L1_proc_t *proc = &eNB->proc;
     unsigned int G;
     unsigned int crc = 1;
-
     unsigned char harq_pid = dlsch->harq_ids[frame % 2][subframe];
-    if(harq_pid >= dlsch->Mdlharq)
+    if((harq_pid < 0) || (harq_pid >= dlsch->Mdlharq))
     {
-        LOG_E(PHY, "dlsch_encoding_2threads illegal harq_pid %d\n", harq_pid);
+        LOG_E(PHY, "dlsch_encoding_2threads illegal harq_pid %d %s:%d\n", harq_pid, __FILE__, __LINE__);
         return(-1);
     }
+
     unsigned short nb_rb = dlsch->harq_processes[harq_pid]->nb_rb;
     unsigned int A;
     unsigned char mod_order;
     unsigned int Kr = 0, Kr_bytes, r, r_offset = 0;
     //  unsigned short m=dlsch->harq_processes[harq_pid]->mcs;
-
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_ENB_DLSCH_ENCODING, VCD_FUNCTION_IN);
-
     A = dlsch->harq_processes[harq_pid]->TBS; //6228
     mod_order = dlsch->harq_processes[harq_pid]->Qm;
-    G = get_G(frame_parms, nb_rb, dlsch->harq_processes[harq_pid]->rb_alloc, mod_order, dlsch->harq_processes[harq_pid]->Nl, num_pdcch_symbols, frame, subframe, dlsch->harq_processes[harq_pid]->mimo_mode == TM7 ? 7 : 0);
+    G = get_G(frame_parms, nb_rb, dlsch->harq_processes[harq_pid]->rb_alloc, mod_order, dlsch->harq_processes[harq_pid]->Nl, num_pdcch_symbols, frame, subframe,
+              dlsch->harq_processes[harq_pid]->mimo_mode == TM7 ? 7 : 0);
 
     if(dlsch->harq_processes[harq_pid]->round == 0)     // this is a new packet
     {
-
         start_meas(&eNB->dlsch_turbo_encoding_preperation_stats);
         // Add 24-bit crc (polynomial A) to payload
         crc = crc24a(a,
@@ -499,12 +489,11 @@ int dlsch_encoding_2threads(PHY_VARS_eNB *eNB,
         a[A >> 3] = ((uint8_t *)&crc)[2];
         a[1 + (A >> 3)] = ((uint8_t *)&crc)[1];
         a[2 + (A >> 3)] = ((uint8_t *)&crc)[0];
-
         dlsch->harq_processes[harq_pid]->B = A + 24;
         memcpy(dlsch->harq_processes[harq_pid]->b, a, (A / 8) + 4);
         //stop_meas(&eNB->dlsch_turbo_encoding_preperation_stats);
-
         start_meas(&eNB->dlsch_turbo_encoding_segmentation_stats);
+
         if(lte_segmentation(dlsch->harq_processes[harq_pid]->b,
                             dlsch->harq_processes[harq_pid]->c,
                             dlsch->harq_processes[harq_pid]->B,
@@ -519,8 +508,8 @@ int dlsch_encoding_2threads(PHY_VARS_eNB *eNB,
         }
 
         stop_meas(&eNB->dlsch_turbo_encoding_segmentation_stats);
-
         start_meas(&eNB->dlsch_turbo_encoding_signal_stats);
+
         for(int i = 0; i < worker_num; i++)
         {
             proc->tep[i].eNB               = eNB;
@@ -529,8 +518,8 @@ int dlsch_encoding_2threads(PHY_VARS_eNB *eNB,
             proc->tep[i].harq_pid          = harq_pid;
             proc->tep[i].total_worker      = worker_num;
             proc->tep[i].current_worker    = i;
-
             pthread_mutex_lock(&proc->tep[i].mutex_te);
+
             if(proc->tep[i].instance_cnt_te == 0)
             {
                 printf("[eNB] TE thread busy\n");
@@ -554,9 +543,9 @@ int dlsch_encoding_2threads(PHY_VARS_eNB *eNB,
 
         stop_meas(&eNB->dlsch_turbo_encoding_signal_stats);
         start_meas(te_main_stats);
+
         for(r = (dlsch->harq_processes[harq_pid]->C / (worker_num + 1)) * worker_num; r < dlsch->harq_processes[harq_pid]->C; r++)
         {
-
             if(r < dlsch->harq_processes[harq_pid]->Cminus)
             {
                 Kr = dlsch->harq_processes[harq_pid]->Kminus;
@@ -567,7 +556,6 @@ int dlsch_encoding_2threads(PHY_VARS_eNB *eNB,
             }
 
             Kr_bytes = Kr >> 3;
-
             start_meas(te_stats);
             encoder(dlsch->harq_processes[harq_pid]->c[r],
                     Kr >> 3,
@@ -575,7 +563,6 @@ int dlsch_encoding_2threads(PHY_VARS_eNB *eNB,
                     (r == 0) ? dlsch->harq_processes[harq_pid]->F : 0
                    );
             stop_meas(te_stats);
-
             start_meas(i_stats);
             dlsch->harq_processes[harq_pid]->RTC[r] =
                 sub_block_interleaving_turbo(4 + (Kr_bytes * 8),
@@ -583,11 +570,9 @@ int dlsch_encoding_2threads(PHY_VARS_eNB *eNB,
                                              dlsch->harq_processes[harq_pid]->w[r]);
             stop_meas(i_stats);
         }
-
     }
     else
     {
-
         for(int i = 0; i < worker_num; i++)
         {
             proc->tep[i].eNB               = eNB;
@@ -595,6 +580,7 @@ int dlsch_encoding_2threads(PHY_VARS_eNB *eNB,
             proc->tep[i].G                 = G;
             proc->tep[i].total_worker      = worker_num;
             proc->tep[i].current_worker    = i;
+
             if(pthread_cond_signal(&proc->tep[i].cond_te) != 0)
             {
                 printf("[eNB] ERROR pthread_cond_signal for te thread exit\n");
@@ -608,7 +594,6 @@ int dlsch_encoding_2threads(PHY_VARS_eNB *eNB,
     // outputs for each code segment, see Section 5.1.5 p.20
     for(r = 0, r_offset = 0; r < dlsch->harq_processes[harq_pid]->C; r++)
     {
-
         // get information for E for the segments that are handled by the worker thread
         if(r < (dlsch->harq_processes[harq_pid]->C / (worker_num + 1))*worker_num)
         {
@@ -617,6 +602,7 @@ int dlsch_encoding_2threads(PHY_VARS_eNB *eNB,
             int C = dlsch->harq_processes[harq_pid]->C;
             int Gp = G / Nl / Qm;
             int GpmodC = Gp % C;
+
             if(r < (C - (GpmodC)))
             {
                 r_offset += Nl * Qm * (Gp / C);
@@ -642,13 +628,14 @@ int dlsch_encoding_2threads(PHY_VARS_eNB *eNB,
                                                 dlsch->harq_processes[harq_pid]->Nl,
                                                 r,
                                                 nb_rb);
-            //					  m);                       // r
+            //            m);                       // r
             stop_meas(rm_stats);
         }
     }
-    stop_meas(te_main_stats);
 
+    stop_meas(te_main_stats);
     start_meas(te_wait_stats);
+
     if(worker_num == 1)
     {
         wait_on_busy_condition(&proc->tep[0].mutex_te, &proc->tep[0].cond_te, &proc->tep[0].instance_cnt_te, "te thread 0");
@@ -664,16 +651,13 @@ int dlsch_encoding_2threads(PHY_VARS_eNB *eNB,
         wait_on_busy_condition(&proc->tep[1].mutex_te, &proc->tep[1].cond_te, &proc->tep[1].instance_cnt_te, "te thread 1");
         wait_on_busy_condition(&proc->tep[2].mutex_te, &proc->tep[2].cond_te, &proc->tep[2].instance_cnt_te, "te thread 2");
     }
-    stop_meas(te_wait_stats);
 
+    stop_meas(te_wait_stats);
     /*  if(opp_enabled == 1 && te_wait_stats->p_time>100*3000){
         print_meas_now(te_wait_stats,"coding_wait",stderr);
         printf("coding delay in wait on codition in frame_rx: %d \n",proc->frame_rx);
         }*/
-
-
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_ENB_DLSCH_ENCODING, VCD_FUNCTION_OUT);
-
     return(0);
 }
 int dlsch_encoding_all(PHY_VARS_eNB *eNB,
@@ -692,7 +676,16 @@ int dlsch_encoding_all(PHY_VARS_eNB *eNB,
 {
     int encoding_return = 0;
     unsigned int L, C, B;
-    B = dlsch->harq_processes[dlsch->harq_ids[frame % 2][subframe]]->B;
+    uint8_t harq_pid = dlsch->harq_ids[frame % 2][subframe];
+    if(harq_pid >= dlsch->Mdlharq)
+    {
+        LOG_E(PHY, "dlsch_encoding_all illegal harq_pid %d\n", harq_pid);
+        return(-1);
+    }
+    B = dlsch->harq_processes[harq_pid]->B;
+
+    LOG_D(PHY, "B %d, harq_pid %d\n", B, dlsch->harq_ids[frame % 2][subframe]);
+
     if(B <= 6144)
     {
         L = 0;
@@ -702,6 +695,7 @@ int dlsch_encoding_all(PHY_VARS_eNB *eNB,
     {
         L = 24;
         C = B / (6144 - L);
+
         if((6144 - L)*C < B)
         {
             C = C + 1;
@@ -710,7 +704,7 @@ int dlsch_encoding_all(PHY_VARS_eNB *eNB,
 
     if(get_thread_worker_conf() == WORKER_ENABLE)
     {
-        if(C >= 8)//one main three worker
+        if(C >= 8)   //one main three worker
         {
             encoding_return =
                 dlsch_encoding_2threads(eNB,
@@ -728,7 +722,7 @@ int dlsch_encoding_all(PHY_VARS_eNB *eNB,
                                         i_stats,
                                         3);
         }
-        else if(C >= 6)//one main two worker
+        else if(C >= 6)     //one main two worker
         {
             encoding_return =
                 dlsch_encoding_2threads(eNB,
@@ -746,7 +740,7 @@ int dlsch_encoding_all(PHY_VARS_eNB *eNB,
                                         i_stats,
                                         2);
         }
-        else if(C >= 4)//one main one worker
+        else if(C >= 4)     //one main one worker
         {
             encoding_return =
                 dlsch_encoding_2threads(eNB,
@@ -791,6 +785,7 @@ int dlsch_encoding_all(PHY_VARS_eNB *eNB,
                            te_stats,
                            i_stats);
     }
+
     return encoding_return;
 }
 
@@ -805,26 +800,23 @@ int dlsch_encoding(PHY_VARS_eNB *eNB,
                    time_stats_t *te_stats,
                    time_stats_t *i_stats)
 {
-
     unsigned int G;
     unsigned int crc = 1;
-
     LTE_DL_FRAME_PARMS *frame_parms = &eNB->frame_parms;
     unsigned char harq_pid = dlsch->harq_ids[frame % 2][subframe];
-    if(harq_pid >= dlsch->Mdlharq)
+    if((harq_pid < 0) || (harq_pid >= dlsch->Mdlharq))
     {
-        LOG_E(PHY, "dlsch_encoding illegal harq_pid %d\n", harq_pid);
+        LOG_E(PHY, "dlsch_encoding illegal harq_pid %d %s:%d\n", harq_pid, __FILE__, __LINE__);
         return(-1);
     }
+
     unsigned short nb_rb = dlsch->harq_processes[harq_pid]->nb_rb;
     unsigned int A;
     unsigned char mod_order;
     unsigned int Kr = 0, Kr_bytes, r, r_offset = 0;
     //  unsigned short m=dlsch->harq_processes[harq_pid]->mcs;
     uint8_t beamforming_mode = 0;
-
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_ENB_DLSCH_ENCODING, VCD_FUNCTION_IN);
-
     A = dlsch->harq_processes[harq_pid]->TBS; //6228
     // printf("Encoder: A: %d\n",A);
     mod_order = dlsch->harq_processes[harq_pid]->Qm;
@@ -841,14 +833,14 @@ int dlsch_encoding(PHY_VARS_eNB *eNB,
     {
         beamforming_mode = 9;
     }
-    G = get_G(frame_parms, nb_rb, dlsch->harq_processes[harq_pid]->rb_alloc, mod_order, dlsch->harq_processes[harq_pid]->Nl, num_pdcch_symbols, frame, subframe, beamforming_mode);
 
+    G = get_G(frame_parms, nb_rb, dlsch->harq_processes[harq_pid]->rb_alloc, mod_order, dlsch->harq_processes[harq_pid]->Nl, num_pdcch_symbols, frame, subframe, beamforming_mode);
 
     //  if (dlsch->harq_processes[harq_pid]->Ndi == 1) {  // this is a new packet
     if(dlsch->harq_processes[harq_pid]->round == 0)     // this is a new packet
     {
 #ifdef DEBUG_DLSCH_CODING
-        printf("encoding thinks this is a new packet for harq_pid %d (%p) \n", harq_pid, dlsch->harq_processes[harq_pid]->b);
+        printf("encoding thinks this is a new packet for harq_pid %d (%p), A %u \n", harq_pid, dlsch, A);
 #endif
         /*
             int i;
@@ -858,14 +850,12 @@ int dlsch_encoding(PHY_VARS_eNB *eNB,
             printf("\n");
         */
         // Add 24-bit crc (polynomial A) to payload
-
         crc = crc24a(a,
                      A) >> 8;
         a[A >> 3] = ((uint8_t *)&crc)[2];
         a[1 + (A >> 3)] = ((uint8_t *)&crc)[1];
         a[2 + (A >> 3)] = ((uint8_t *)&crc)[0];
         //    printf("CRC %x (A %d)\n",crc,A);
-
         dlsch->harq_processes[harq_pid]->B = A + 24;
         //    dlsch->harq_processes[harq_pid]->b = a;
         memcpy(dlsch->harq_processes[harq_pid]->b, a, (A / 8) + 4);
@@ -885,7 +875,6 @@ int dlsch_encoding(PHY_VARS_eNB *eNB,
 
         for(r = 0; r < dlsch->harq_processes[harq_pid]->C; r++)
         {
-
             if(r < dlsch->harq_processes[harq_pid]->Cminus)
             {
                 Kr = dlsch->harq_processes[harq_pid]->Kminus;
@@ -896,18 +885,14 @@ int dlsch_encoding(PHY_VARS_eNB *eNB,
             }
 
             Kr_bytes = Kr >> 3;
-
 #ifdef DEBUG_DLSCH_CODING
-            printf("Generating Code Segment %d (%d bits)\n", r, Kr);
+            printf("Generating Code Segment %u (%u bits)\n", r, Kr);
             // generate codewords
-
-            printf("bits_per_codeword (Kr)= %d, A %d\n", Kr, A);
+            printf("bits_per_codeword (Kr)= %u, A %u\n", Kr, A);
             printf("N_RB = %d\n", nb_rb);
             printf("Ncp %d\n", frame_parms->Ncp);
             printf("mod_order %d\n", mod_order);
 #endif
-
-
             start_meas(te_stats);
             encoder(dlsch->harq_processes[harq_pid]->c[r],
                     Kr >> 3,
@@ -930,7 +915,6 @@ int dlsch_encoding(PHY_VARS_eNB *eNB,
                                              dlsch->harq_processes[harq_pid]->w[r]);
             stop_meas(i_stats);
         }
-
     }
 
     // Fill in the "e"-sequence from 36-212, V8.6 2009-03, p. 16-17 (for each "e") and concatenate the
@@ -939,13 +923,12 @@ int dlsch_encoding(PHY_VARS_eNB *eNB,
     for(r = 0; r < dlsch->harq_processes[harq_pid]->C; r++)
     {
 #ifdef DEBUG_DLSCH_CODING
-        printf("Rate Matching, Code segment %d (coded bits (G) %d,unpunctured/repeated bits per code segment %d,mod_order %d, nb_rb %d)...\n",
+        printf("Rate Matching, Code segment %u (coded bits (G) %u,unpunctured/repeated bits per code segment %u,mod_order %d, nb_rb %d)...\n",
                r,
                G,
                Kr * 3,
                mod_order, nb_rb);
 #endif
-
         start_meas(rm_stats);
 #ifdef DEBUG_DLSCH_CODING
         printf("rvidx in encoding = %d\n", dlsch->harq_processes[harq_pid]->rvidx);
@@ -976,7 +959,6 @@ int dlsch_encoding(PHY_VARS_eNB *eNB,
     }
 
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_ENB_DLSCH_ENCODING, VCD_FUNCTION_OUT);
-
     return(0);
 }
 

@@ -33,13 +33,9 @@
 
 #include "common/utils/LOG/log.h"
 #include "assertions.h"
-#if defined(ENABLE_ITTI)
-    #include "intertask_interface.h"
-    #if defined(ENABLE_USE_MME)
-        #include "s1ap_eNB.h"
-        #include "sctp_eNB_task.h"
-    #endif
-#endif
+#include "intertask_interface.h"
+#include "s1ap_eNB.h"
+#include "sctp_eNB_task.h"
 #include "LTE_SystemInformationBlockType2.h"
 #include "common/config/config_userapi.h"
 #include "RRC_config_tools.h"
@@ -98,28 +94,24 @@ int config_check_band_frequencies(int ind,
             if(band == eutra_bands[band_index].band)
             {
                 uint32_t uplink_frequency = downlink_frequency + uplink_frequency_offset;
-
                 AssertError(eutra_bands[band_index].dl_min < downlink_frequency, errors ++,
                             "enb %d downlink frequency %u too low (%u) for band %d!",
                             ind, downlink_frequency, eutra_bands[band_index].dl_min, band);
                 AssertError(downlink_frequency < eutra_bands[band_index].dl_max, errors ++,
                             "enb %d downlink frequency %u too high (%u) for band %d!",
                             ind, downlink_frequency, eutra_bands[band_index].dl_max, band);
-
                 AssertError(eutra_bands[band_index].ul_min < uplink_frequency, errors ++,
                             "enb %d uplink frequency %u too low (%u) for band %d!",
                             ind, uplink_frequency, eutra_bands[band_index].ul_min, band);
                 AssertError(uplink_frequency < eutra_bands[band_index].ul_max, errors ++,
                             "enb %d uplink frequency %u too high (%u) for band %d!",
                             ind, uplink_frequency, eutra_bands[band_index].ul_max, band);
-
                 AssertError(eutra_bands[band_index].frame_type == frame_type, errors ++,
                             "enb %d invalid frame type (%d/%d) for band %d!",
                             ind, eutra_bands[band_index].frame_type, frame_type, band);
             }
         }
     }
-
 
     return errors;
 }

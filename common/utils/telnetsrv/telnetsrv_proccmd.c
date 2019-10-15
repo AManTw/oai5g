@@ -190,7 +190,7 @@ void print_threads(char *buf, int debug, telnet_printfunc_t prnt)
         {
             continue;
         }
-        snprintf(aname, sizeof(aname), "/proc/%d/task/%s/stat", getpid(), entry->d_name);
+        snprintf(aname, sizeof(aname), "/proc/%d/task/%.*s/stat", getpid(), (int)(sizeof(aname) - 24), entry->d_name);
         read_statfile(aname, debug, prnt);
     } /* while entry != NULL */
     closedir(proc_dir);

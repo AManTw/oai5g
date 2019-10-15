@@ -55,7 +55,7 @@
 
 #include "PHY/TOOLS/lte_phy_scope.h"
 #include "dummy_functions.c"
-
+#include "nfapi/oai_integration/vendor_ext.h"
 #include "common/config/config_load_configmodule.h"
 double cpuf;
 #define inMicroS(a) (((double)(a))/(cpu_freq_GHz*1000.0))
@@ -81,7 +81,7 @@ double t_tx_min = 1000000000; /*!< \brief initial min process time for tx */
 double t_rx_min = 1000000000; /*!< \brief initial min process time for tx */
 int n_tx_dropped = 0; /*!< \brief initial max process time for tx */
 int n_rx_dropped = 0; /*!< \brief initial max process time for rx */
-int nfapi_mode = 0;
+
 
 extern void fep_full(RU_t *ru);
 extern void ru_fep_full_2thread(RU_t *ru);
@@ -373,19 +373,6 @@ int main(int argc, char **argv)
     char input_val_str[50], input_val_str2[50];
     //  FILE *rx_frame_file;
     FILE *csv_fdUL = NULL;
-    /*
-        FILE *fperen=NULL;
-        char fperen_name[512];
-
-        FILE *fmageren=NULL;
-        char fmageren_name[512];
-
-        FILE *flogeren=NULL;
-        char flogeren_name[512];
-    */
-    /*  FILE *ftxlev;
-        char ftxlev_name[512];
-    */
     char csv_fname[512];
     static int n_frames = 5000;
     static int n_ch_rlz = 1;
@@ -429,7 +416,6 @@ int main(int argc, char **argv)
     cpu_freq_GHz = (double)get_cpu_freq_GHz();
     cpuf = cpu_freq_GHz;
     set_parallel_conf("PARALLEL_SINGLE_THREAD");
-
     printf("Detected cpu_freq %f GHz\n", cpu_freq_GHz);
     AssertFatal(load_configmodule(argc, argv, CONFIG_ENABLECMDLINEONLY) != NULL,
                 "cannot load configuration module, exiting\n");
@@ -437,9 +423,9 @@ int main(int argc, char **argv)
     // enable these lines if you need debug info
     // however itti will catch all signals, so ctrl-c won't work anymore
     // alternatively you can disable ITTI completely in CMakeLists.txt
-    //itti_init(TASK_MAX, THREAD_MAX, MESSAGES_ID_MAX, tasks_info, messages_info, messages_definition_xml, NULL);
-    //set_comp_log(PHY,LOG_DEBUG,LOG_MED,1);
-    //set_glog(LOG_DEBUG,LOG_MED);
+    //  itti_init(TASK_MAX, THREAD_MAX, MESSAGES_ID_MAX, tasks_info, messages_info, messages_definition_xml, NULL);
+    //  set_comp_log(PHY,LOG_DEBUG,LOG_HIGH,1);
+    //  set_glog(LOG_DEBUG,LOG_HIGH);
     //hapZEbm:n:Y:X:x:s:w:e:q:d:D:O:c:r:i:f:y:c:oA:C:R:g:N:l:S:T:QB:PI:LF
     static paramdef_t options[] =
     {
@@ -482,9 +468,7 @@ int main(int argc, char **argv)
         { "", "", 0,  iptr: NULL, defintval: 0, TYPE_INT, 0 },
     };
     struct option *long_options = parse_oai_options(options);
-
     int option_index;
-
     int res;
 
     while((res = getopt_long_only(argc, argv, "", long_options, &option_index)) == 0)
@@ -629,11 +613,11 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-
     if(help || verbose)
     {
         display_options_values(options, true);
     }
+
     if(help)
     {
         exit(0);
@@ -643,6 +627,7 @@ int main(int argc, char **argv)
     {
         set_worker_conf("WORKER_ENABLE");
     }
+
     RC.nb_L1_inst = 1;
     RC.nb_RU = 1;
     lte_param_init(&eNB, &UE, &ru,
@@ -660,7 +645,7 @@ int main(int argc, char **argv)
                    threequarter_fs,
                    osf,
                    0);
-    RC.eNB = (PHY_VARS_eNB ***)malloc(sizeof(PHY_VARS_eNB **));
+    RC.eNB = (PHY_VARS_eNB ** *)malloc(sizeof(PHY_VARS_eNB **));
     RC.eNB[0] = (PHY_VARS_eNB **)malloc(sizeof(PHY_VARS_eNB *));
     RC.ru = (RU_t **)malloc(sizeof(RC.ru));
     RC.eNB[0][0] = eNB;
@@ -677,11 +662,11 @@ int main(int argc, char **argv)
     eNB->UL_INFO.crc_ind.crc_indication_body.crc_pdu_list = eNB->crc_pdu_list;
     eNB->UL_INFO.sr_ind.sr_indication_body.sr_pdu_list = eNB->sr_pdu_list;
     eNB->UL_INFO.harq_ind.harq_indication_body.harq_pdu_list = eNB->harq_pdu_list;
-    eNB->UL_INFO.cqi_ind.cqi_pdu_list = eNB->cqi_pdu_list;
-    eNB->UL_INFO.cqi_ind.cqi_raw_pdu_list = eNB->cqi_raw_pdu_list;
+    eNB->UL_INFO.cqi_ind.cqi_indication_body.cqi_pdu_list = eNB->cqi_pdu_list;
+    eNB->UL_INFO.cqi_ind.cqi_indication_body.cqi_raw_pdu_list = eNB->cqi_raw_pdu_list;
     printf("lte_param_init done\n");
     // for a call to phy_reset_ue later we need PHY_vars_UE_g allocated and pointing to UE
-    PHY_vars_UE_g = (PHY_VARS_UE ***)malloc(sizeof(PHY_VARS_UE **));
+    PHY_vars_UE_g = (PHY_VARS_UE ** *)malloc(sizeof(PHY_VARS_UE **));
     PHY_vars_UE_g[0] = (PHY_VARS_UE **) malloc(sizeof(PHY_VARS_UE *));
     PHY_vars_UE_g[0][0] = UE;
 
@@ -806,9 +791,9 @@ int main(int argc, char **argv)
 
     if(get_thread_worker_conf() == WORKER_ENABLE)
     {
-        extern void init_fep_thread(PHY_VARS_eNB *, pthread_attr_t *);
+        extern void init_fep_thread(RU_t *, pthread_attr_t *);
         extern void init_td_thread(PHY_VARS_eNB *);
-        init_fep_thread(eNB, NULL);
+        init_fep_thread(ru, NULL);
         init_td_thread(eNB);
     }
 
@@ -886,7 +871,7 @@ int main(int argc, char **argv)
     }
 
     rate = (double)dlsch_tbs25[get_I_TBS(mcs)][nb_rb - 1] / (coded_bits_per_codeword);
-    printf("Rate = %f (mod %d), coded bits %d\n", rate, get_Qm_ul(mcs), coded_bits_per_codeword);
+    printf("Rate = %f (mod %d), coded bits %u\n", rate, get_Qm_ul(mcs), coded_bits_per_codeword);
 
     for(ch_realization = 0; ch_realization < n_ch_rlz; ch_realization++)
     {
@@ -965,7 +950,7 @@ int main(int argc, char **argv)
 
                 while(!feof(input_fdUL))
                 {
-                    ret = fscanf(input_fdUL, "%s %s", input_val_str, input_val_str2); //&input_val1,&input_val2);
+                    ret = fscanf(input_fdUL, "%49s %49s", input_val_str, input_val_str2); //&input_val1,&input_val2);
 
                     if(ret != 2)
                     {
@@ -1064,7 +1049,7 @@ int main(int argc, char **argv)
 
                     if(n_frames == 1)
                     {
-                        printf("filling ulsch: Trial %d : Round %d (subframe %d, frame %d)\n", trials, round, proc_rxtx_ue->subframe_tx, proc_rxtx_ue->frame_tx);
+                        printf("filling ulsch: Trial %u : Round %d (subframe %d, frame %d)\n", trials, round, proc_rxtx_ue->subframe_tx, proc_rxtx_ue->frame_tx);
                     }
 
                     round_trials[round]++;
@@ -1180,11 +1165,11 @@ int main(int argc, char **argv)
                     sigma2_dB = N0;//-10*log10(UE->frame_parms.ofdm_symbol_size/(UE->frame_parms.N_RB_DL*12));//10*log10((double)tx_lev)  +10*log10(UE->frame_parms.ofdm_symbol_size/(UE->frame_parms.N_RB_DL*12)) - SNR;
                     sigma2 = pow(10, sigma2_dB / 10);
                     // compute tx_gain to achieve target SNR (per resource element!)
-                    tx_gain = sqrt(pow(10.0, .1 * (N0 + SNR)) / (double)tx_lev); //*(nb_rb*12/(double)UE->frame_parms.ofdm_symbol_size)/(double)tx_lev);
+                    tx_gain = sqrt(pow(10.0, .1 * (N0 + SNR)) / (double)tx_lev); // *(nb_rb*12/(double)UE->frame_parms.ofdm_symbol_size)/(double)tx_lev);
 
                     if(n_frames == 1)
                     {
-                        printf("tx_lev = %d (%d.%d dB,%f), gain %f\n", tx_lev, tx_lev_dB / 10, tx_lev_dB, 10 * log10((double)tx_lev), 10 * log10(tx_gain));
+                        printf("tx_lev = %u (%u.%u dB,%f), gain %f\n", tx_lev, tx_lev_dB / 10, tx_lev_dB, 10 * log10((double)tx_lev), 10 * log10(tx_gain));
                     }
 
                     // fill measurement symbol (19) with noise
@@ -1230,7 +1215,7 @@ int main(int argc, char **argv)
                                 // calculate freq domain representation to compute SINR
                                 freq_channel(UE2eNB, N_RB_DL, 12 * N_RB_DL + 1);
                                 // snr=pow(10.0,.1*SNR);
-                                fprintf(csv_fdUL, "%f,%d,%d,%f,%f,%f,", SNR, tx_lev, tx_lev_dB, sigma2_dB, tx_gain, SNR2);
+                                fprintf(csv_fdUL, "%f,%u,%u,%f,%f,%f,", SNR, tx_lev, tx_lev_dB, sigma2_dB, tx_gain, SNR2);
 
                                 //fprintf(csv_fdUL,"%f,",SNR);
                                 for(u = 0; u < 12 * nb_rb; u++)
@@ -1394,16 +1379,12 @@ int main(int argc, char **argv)
                             }
 
                             dump_ulsch(eNB, eNB->proc.frame_rx, subframe, 0, round);
-
-                            if(round == 4)
-                            {
-                                exit(-1);
-                            }
+                            round = 5;
                         }
 
                         if(n_frames == 1)
                         {
-                            printf("round %d errors %d/%d\n", round, errs[round], trials);
+                            printf("round %d errors %u/%u\n", round, errs[round], trials);
                         }
 
                         round++;
@@ -1472,7 +1453,7 @@ int main(int argc, char **argv)
                 LOG_UDUMPMSG(SIM, dataArray(table_rx), table_rx->size, LOG_DUMP_DOUBLE, "The receiver raw data: \n");
             }
 
-            printf("\n**********rb: %d ***mcs : %d  *********SNR = %f dB (%f): TX %d dB (gain %f dB), N0W %f dB, I0 %d dB, delta_IF %d [ (%d,%d) dB / (%d,%d) dB ]**************************\n",
+            printf("\n**********rb: %d ***mcs : %d  *********SNR = %f dB (%f): TX %u dB (gain %f dB), N0W %f dB, I0 %d dB, delta_IF %d [ (%d,%d) dB / (%d,%d) dB ]**************************\n",
                    nb_rb, mcs, SNR, SNR2,
                    tx_lev_dB,
                    20 * log10(tx_gain),
@@ -1484,7 +1465,7 @@ int main(int argc, char **argv)
                    eNB->measurements.n0_power_dB[0],
                    eNB->measurements.n0_power_dB[1]);
             effective_rate = ((double)(round_trials[0]) / ((double)round_trials[0] + round_trials[1] + round_trials[2] + round_trials[3]));
-            printf("Errors (%d/%d %d/%d %d/%d %d/%d), Pe = (%e,%e,%e,%e) => effective rate %f (%3.1f%%,%f,%f), normalized delay %f (%f)\n",
+            printf("Errors (%u/%u %u/%u %u/%u %u/%u), Pe = (%e,%e,%e,%e) => effective rate %f (%3.1f%%,%f,%f), normalized delay %f (%f)\n",
                    errs[0],
                    round_trials[0],
                    errs[1],
@@ -1507,7 +1488,7 @@ int main(int argc, char **argv)
 
             if(cqi_flag > 0)
             {
-                printf("CQI errors %d/%d,false positives %d/%d, CQI false negatives %d/%d\n",
+                printf("CQI errors %d/%u,false positives %d/%u, CQI false negatives %d/%u\n",
                        cqi_errors, round_trials[0] + round_trials[1] + round_trials[2] + round_trials[3],
                        cqi_crc_falsepositives, round_trials[0] + round_trials[1] + round_trials[2] + round_trials[3],
                        cqi_crc_falsenegatives, round_trials[0] + round_trials[1] + round_trials[2] + round_trials[3]);
@@ -1515,10 +1496,10 @@ int main(int argc, char **argv)
 
             if(eNB->ulsch[0]->harq_processes[harq_pid]->o_ACK[0] > 0)
             {
-                printf("ACK/NAK errors %d/%d\n", ack_errors, round_trials[0] + round_trials[1] + round_trials[2] + round_trials[3]);
+                printf("ACK/NAK errors %d/%u\n", ack_errors, round_trials[0] + round_trials[1] + round_trials[2] + round_trials[3]);
             }
 
-            fprintf(bler_fd, "%f;%d;%d;%d;%f;%d;%d;%d;%d;%d;%d;%d;%d\n",
+            fprintf(bler_fd, "%f;%d;%d;%d;%f;%u;%u;%u;%u;%u;%u;%u;%u\n",
                     SNR,
                     mcs,
                     nb_rb,
@@ -1601,7 +1582,7 @@ int main(int argc, char **argv)
             if((test_perf != 0) && (100 * effective_rate > test_perf))
             {
                 //fprintf(time_meas_fd,"SNR; MCS; TBS; rate; err0; trials0; err1; trials1; err2; trials2; err3; trials3\n");
-                fprintf(time_meas_fd, "%f;%d;%d;%f;%d;%d;%d;%d;%d;%d;%d;%d;",
+                fprintf(time_meas_fd, "%f;%d;%d;%f;%u;%u;%u;%u;%u;%u;%u;%u;",
                         SNR,
                         mcs,
                         eNB->ulsch[0]->harq_processes[harq_pid]->TBS,
@@ -1615,7 +1596,7 @@ int main(int argc, char **argv)
                         errs[3],
                         round_trials[3]);
                 //fprintf(time_meas_fd,"SNR; MCS; TBS; rate; err0; trials0; err1; trials1; err2; trials2; err3; trials3;ND;\n");
-                fprintf(time_meas_fd, "%f;%d;%d;%f;%2.1f;%f;%d;%d;%d;%d;%d;%d;%d;%d;%e;%e;%e;%e;%f;%f;",
+                fprintf(time_meas_fd, "%f;%d;%d;%f;%2.1f;%f;%u;%u;%u;%u;%u;%u;%u;%u;%e;%e;%e;%e;%f;%f;",
                         SNR,
                         mcs,
                         eNB->ulsch[0]->harq_processes[harq_pid]->TBS,
@@ -1727,5 +1708,8 @@ int main(int argc, char **argv)
     return(0);
 }
 
-
-
+/* temporary dummy implem of get_softmodem_optmask, till basic simulators implemented as device */
+uint64_t get_softmodem_optmask(void)
+{
+    return 0;
+}

@@ -35,6 +35,11 @@
 
 uint8_t get_mi(LTE_DL_FRAME_PARMS *frame_parms, uint8_t subframe)
 {
+    // for FeMBMS
+    if(frame_parms->FeMBMS_active != 0)
+    {
+        return(0);
+    }
 
     // for FDD
     if(frame_parms->frame_type == FDD)
@@ -45,7 +50,6 @@ uint8_t get_mi(LTE_DL_FRAME_PARMS *frame_parms, uint8_t subframe)
     // for TDD
     switch(frame_parms->tdd_config)
     {
-
         case 0:
             if((subframe == 0) || (subframe == 5))
             {
@@ -129,7 +133,6 @@ uint8_t get_mi(LTE_DL_FRAME_PARMS *frame_parms, uint8_t subframe)
 
 unsigned char subframe2_ul_harq(LTE_DL_FRAME_PARMS *frame_parms, unsigned char subframe)
 {
-
     if(frame_parms->frame_type == FDD)
     {
         return(subframe & 7);
@@ -168,7 +171,6 @@ unsigned char subframe2_ul_harq(LTE_DL_FRAME_PARMS *frame_parms, unsigned char s
             }
 
             break;
-
     }
 
     return(0);
@@ -360,7 +362,6 @@ uint8_t phich_subframe2_pusch_subframe(LTE_DL_FRAME_PARMS *frame_parms, uint8_t 
 
 int check_pcfich(LTE_DL_FRAME_PARMS *frame_parms, uint16_t reg)
 {
-
     if((reg == frame_parms->pcfich_reg[0]) ||
             (reg == frame_parms->pcfich_reg[1]) ||
             (reg == frame_parms->pcfich_reg[2]) ||
@@ -374,7 +375,6 @@ int check_pcfich(LTE_DL_FRAME_PARMS *frame_parms, uint16_t reg)
 
 void generate_phich_reg_mapping(LTE_DL_FRAME_PARMS *frame_parms)
 {
-
     unsigned short n0 = (frame_parms->N_RB_DL * 2) - 4;  // 2 REG per RB less the 4 used by PCFICH in first symbol
     unsigned short n1 = (frame_parms->N_RB_DL * 3);      // 3 REG per RB in second and third symbol
     unsigned short n2 = n1;
@@ -382,10 +382,8 @@ void generate_phich_reg_mapping(LTE_DL_FRAME_PARMS *frame_parms)
     unsigned short Ngroup_PHICH;
     //  uint16_t *phich_reg = frame_parms->phich_reg;
     uint16_t *pcfich_reg = frame_parms->pcfich_reg;
-
     // compute Ngroup_PHICH (see formula at beginning of Section 6.9 in 36-211
     Ngroup_PHICH = (frame_parms->phich_config_common.phich_resource * frame_parms->N_RB_DL) / 48;
-
 
     if(((frame_parms->phich_config_common.phich_resource * frame_parms->N_RB_DL) % 48) > 0)
     {
@@ -399,7 +397,8 @@ void generate_phich_reg_mapping(LTE_DL_FRAME_PARMS *frame_parms)
     }
 
 #ifdef DEBUG_PHICH
-    LOG_D(PHY, "Ngroup_PHICH %d (phich_config_common.phich_resource %d,phich_config_common.phich_duration %s, NidCell %d,Ncp %d, frame_type %d), smallest pcfich REG %d, n0 %d, n1 %d (first PHICH REG %d)\n",
+    LOG_D(PHY,
+          "Ngroup_PHICH %d (phich_config_common.phich_resource %d,phich_config_common.phich_duration %s, NidCell %d,Ncp %d, frame_type %d), smallest pcfich REG %d, n0 %d, n1 %d (first PHICH REG %d)\n",
           ((frame_parms->Ncp == NORMAL) ? Ngroup_PHICH : (Ngroup_PHICH >> 1)),
           frame_parms->phich_config_common.phich_resource,
           frame_parms->phich_config_common.phich_duration == normal ? "normal" : "extended",
@@ -416,10 +415,8 @@ void generate_phich_reg_mapping(LTE_DL_FRAME_PARMS *frame_parms)
             mprime < ((frame_parms->Ncp == NORMAL) ? Ngroup_PHICH : (Ngroup_PHICH >> 1));
             mprime++)
     {
-
         if(frame_parms->phich_config_common.phich_duration == normal)  // normal PHICH duration
         {
-
             frame_parms->phich_reg[mprime][0] = (frame_parms->Nid_cell + mprime) % n0;
 
             if(frame_parms->phich_reg[mprime][0] >= pcfich_reg[frame_parms->pcfich_first_reg_idx])
@@ -444,7 +441,6 @@ void generate_phich_reg_mapping(LTE_DL_FRAME_PARMS *frame_parms)
 
             frame_parms->phich_reg[mprime][1] = (frame_parms->Nid_cell + mprime + (n0 / 3)) % n0;
 
-
             if(frame_parms->phich_reg[mprime][1] >= pcfich_reg[frame_parms->pcfich_first_reg_idx])
             {
                 frame_parms->phich_reg[mprime][1]++;
@@ -464,7 +460,6 @@ void generate_phich_reg_mapping(LTE_DL_FRAME_PARMS *frame_parms)
             {
                 frame_parms->phich_reg[mprime][1]++;
             }
-
 
             frame_parms->phich_reg[mprime][2] = (frame_parms->Nid_cell + mprime + (2 * n0 / 3)) % n0;
 
@@ -496,14 +491,12 @@ void generate_phich_reg_mapping(LTE_DL_FRAME_PARMS *frame_parms)
         {
             frame_parms->phich_reg[mprime << 1][0] = (frame_parms->Nid_cell + mprime) % n0;
             frame_parms->phich_reg[1 + (mprime << 1)][0] = (frame_parms->Nid_cell + mprime) % n0;
-
             frame_parms->phich_reg[mprime << 1][1] = ((frame_parms->Nid_cell * n1 / n0) + mprime + (n1 / 3)) % n1;
             frame_parms->phich_reg[mprime << 1][2] = ((frame_parms->Nid_cell * n2 / n0) + mprime + (2 * n2 / 3)) % n2;
-
             frame_parms->phich_reg[1 + (mprime << 1)][1] = ((frame_parms->Nid_cell * n1 / n0) + mprime + (n1 / 3)) % n1;
             frame_parms->phich_reg[1 + (mprime << 1)][2] = ((frame_parms->Nid_cell * n2 / n0) + mprime + (2 * n2 / 3)) % n2;
             //#ifdef DEBUG_PHICH
-            printf("phich_reg :%d => %d,%d,%d\n", mprime << 1, frame_parms->phich_reg[mprime << 1][0], frame_parms->phich_reg[mprime][1], frame_parms->phich_reg[mprime][2]);
+            printf("phich_reg :%u => %d,%d,%d\n", mprime << 1, frame_parms->phich_reg[mprime << 1][0], frame_parms->phich_reg[mprime][1], frame_parms->phich_reg[mprime][2]);
             printf("phich_reg :%d => %d,%d,%d\n", 1 + (mprime << 1), frame_parms->phich_reg[1 + (mprime << 1)][0], frame_parms->phich_reg[1 + (mprime << 1)][1], frame_parms->phich_reg[1 + (mprime << 1)][2]);
             //#endif
         }

@@ -50,9 +50,7 @@ void dump_prach_config(LTE_DL_FRAME_PARMS *frame_parms, uint8_t subframe);
 
 int main(int argc, char **argv)
 {
-
     char c;
-
     int i, aa, aarx;
     double sigma2, sigma2_dB = 0, SNR, snr0 = -2.0, snr1 = 0.0, ue_speed0 = 0.0, ue_speed1 = 0.0;
     uint8_t snr1set = 0;
@@ -64,7 +62,6 @@ int main(int argc, char **argv)
     int trial; //, ntrials=1;
     uint8_t transmission_mode = 1, n_tx = 1, n_rx = 1;
     uint16_t Nid_cell = 0;
-
     uint8_t awgn_flag = 0;
     uint8_t hs_flag = 0;
     int n_frames = 1;
@@ -73,9 +70,7 @@ int main(int argc, char **argv)
     uint8_t extended_prefix_flag = 0;
     //  int8_t interf1=-19,interf2=-19;
     LTE_DL_FRAME_PARMS *frame_parms;
-
     SCM_t channel_model = Rayleigh1;
-
     //  uint8_t abstraction_flag=0,calibration_flag=0;
     //  double prach_sinr;
     uint8_t osf = 1, N_RB_DL = 25;
@@ -91,14 +86,9 @@ int main(int argc, char **argv)
     double ue_speed = 0;
     int NCS_config = 1, rootSequenceIndex = 0;
     int threequarter_fs = 0;
-
     cpuf = get_cpu_freq_GHz();
-
     logInit();
-
     number_of_cards = 1;
-
-
 
     while((c = getopt(argc, argv, "hHaA:Cr:p:g:n:s:S:t:x:y:v:V:z:N:F:d:Z:L:R:E")) != -1)
     {
@@ -148,21 +138,27 @@ int main(int argc, char **argv)
 
                     case 'H':
                         channel_model = Rayleigh8;
+                        break;
 
                     case 'I':
                         channel_model = Rayleigh1;
+                        break;
 
                     case 'J':
                         channel_model = Rayleigh1_corr;
+                        break;
 
                     case 'K':
                         channel_model = Rayleigh1_anticorr;
+                        break;
 
                     case 'L':
                         channel_model = Rice8;
+                        break;
 
                     case 'M':
                         channel_model = Rice1;
+                        break;
 
                     case 'N':
                         channel_model = Rayleigh1_800;
@@ -327,7 +323,6 @@ int main(int argc, char **argv)
                    osf,
                    0);
 
-
     if(snr1set == 0)
     {
         if(n_frames == 1)
@@ -353,24 +348,16 @@ int main(int argc, char **argv)
     }
 
     printf("SNR0 %f, SNR1 %f\n", snr0, snr1);
-
     frame_parms = &eNB->frame_parms;
-
-
     txdata = UE->common_vars.txdata;
     printf("txdata %p\n", &txdata[0][subframe * frame_parms->samples_per_tti]);
-
     s_re = malloc(2 * sizeof(double *));
     s_im = malloc(2 * sizeof(double *));
     r_re = malloc(2 * sizeof(double *));
     r_im = malloc(2 * sizeof(double *));
     nsymb = (frame_parms->Ncp == 0) ? 14 : 12;
-
     printf("FFT Size %d, Extended Prefix %d, Samples per subframe %d, Symbols per subframe %d\n", NUMBER_OF_OFDM_CARRIERS,
            frame_parms->Ncp, frame_parms->samples_per_tti, nsymb);
-
-
-
     msg("[SIM] Using SCM/101\n");
     UE2eNB = new_channel_desc_scm(UE->frame_parms.nb_antennas_tx,
                                   eNB->frame_parms.nb_antennas_rx,
@@ -389,12 +376,10 @@ int main(int argc, char **argv)
 
     for(i = 0; i < 2; i++)
     {
-
         s_re[i] = malloc(FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
         bzero(s_re[i], FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
         s_im[i] = malloc(FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
         bzero(s_im[i], FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
-
         r_re[i] = malloc(FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
         bzero(r_re[i], FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
         r_im[i] = malloc(FRAME_LENGTH_COMPLEX_SAMPLES * sizeof(double));
@@ -406,30 +391,22 @@ int main(int argc, char **argv)
     UE->frame_parms.prach_config_common.prach_ConfigInfo.zeroCorrelationZoneConfig = NCS_config;
     UE->frame_parms.prach_config_common.prach_ConfigInfo.highSpeedFlag = hs_flag;
     UE->frame_parms.prach_config_common.prach_ConfigInfo.prach_FreqOffset = 0;
-
-
     eNB->frame_parms.prach_config_common.rootSequenceIndex = rootSequenceIndex;
     eNB->frame_parms.prach_config_common.prach_ConfigInfo.prach_ConfigIndex = 0;
     eNB->frame_parms.prach_config_common.prach_ConfigInfo.zeroCorrelationZoneConfig = NCS_config;
     eNB->frame_parms.prach_config_common.prach_ConfigInfo.highSpeedFlag = hs_flag;
     eNB->frame_parms.prach_config_common.prach_ConfigInfo.prach_FreqOffset = 0;
-
     eNB->node_function       = eNodeB_3GPP;
     eNB->proc.subframe_rx    = subframe;
     eNB->proc.subframe_prach = subframe;
-
     /* N_ZC not used later, so prach_fmt is also useless, don't set */
     //prach_fmt = get_prach_fmt(eNB->frame_parms.prach_config_common.prach_ConfigInfo.prach_ConfigIndex,
     //                          eNB->frame_parms.frame_type);
     /* N_ZC not used later, no need to set */
     //N_ZC = (prach_fmt <4)?839:139;
-
     compute_prach_seq(&eNB->frame_parms.prach_config_common, eNB->frame_parms.frame_type, eNB->X_u);
-
     compute_prach_seq(&UE->frame_parms.prach_config_common, UE->frame_parms.frame_type, UE->X_u);
-
     UE->prach_vars[0]->amp = AMP;
-
     UE->prach_resources[0] = &prach_resources;
 
     if(preamble_tx == 99)
@@ -444,18 +421,14 @@ int main(int argc, char **argv)
 
     UE->prach_resources[0]->ra_PreambleIndex = preamble_tx;
     UE->prach_resources[0]->ra_TDD_map_index = 0;
-
     tx_lev = generate_prach(UE,
                             0, //eNB_id,
                             subframe,
                             0); //Nf
-
     /* tx_lev_dB not used later, no need to set */
     //tx_lev_dB = (unsigned int) dB_fixed(tx_lev);
-
     LOG_M("txsig0_new.m", "txs0", &txdata[0][subframe * frame_parms->samples_per_tti], frame_parms->samples_per_tti, 1, 1);
     //LOG_M("txsig1.m","txs1", txdata[1],FRAME_LENGTH_COMPLEX_SAMPLES,1,1);
-
     // multipath channel
     dump_prach_config(&eNB->frame_parms, subframe);
 
@@ -487,8 +460,6 @@ int main(int argc, char **argv)
         }
     }
 
-
-
     for(SNR = snr0; SNR < snr1; SNR += .2)
     {
         for(ue_speed = ue_speed0; ue_speed < ue_speed1; ue_speed += 10)
@@ -501,7 +472,6 @@ int main(int argc, char **argv)
 
             for(trial = 0; trial < n_frames; trial++)
             {
-
                 sigma2_dB = 10 * log10((double)tx_lev) - SNR;
 
                 if(n_frames == 1)
@@ -512,7 +482,6 @@ int main(int argc, char **argv)
                 //AWGN
                 sigma2 = pow(10, sigma2_dB / 10);
                 //  printf("Sigma2 %f (sigma2_dB %f)\n",sigma2,sigma2_dB);
-
 
                 if(awgn_flag == 0)
                 {
@@ -531,7 +500,6 @@ int main(int argc, char **argv)
                 {
                     for(aa = 0; aa < eNB->frame_parms.nb_antennas_rx; aa++)
                     {
-
                         ((short *) &eNB->common_vars.rxdata[0][aa][subframe * frame_parms->samples_per_tti])[2 * i] = (short)(.167 * (r_re[aa][i] + sqrt(sigma2 / 2) * gaussdouble(0.0, 1.0)));
                         ((short *) &eNB->common_vars.rxdata[0][aa][subframe * frame_parms->samples_per_tti])[2 * i + 1] = (short)(.167 * (r_im[aa][i] + (iqim * r_re[aa][i]) + sqrt(sigma2 / 2) * gaussdouble(0.0, 1.0)));
                     }
@@ -542,7 +510,6 @@ int main(int argc, char **argv)
                          preamble_delay_list,
                          0,   //Nf
                          0);    //tdd_mapindex
-
                 preamble_energy_max = preamble_energy_list[0];
                 preamble_max = 0;
 
@@ -595,7 +562,6 @@ int main(int argc, char **argv)
         //  printf("(%f,%f)\n",SNR,(double)prach_errors/(double)n_frames);
     } //SNR loop
 
-
     for(i = 0; i < 2; i++)
     {
         free(s_re[i]);
@@ -608,11 +574,8 @@ int main(int argc, char **argv)
     free(s_im);
     free(r_re);
     free(r_im);
-
     lte_sync_time_free();
-
     return(0);
-
 }
 
 

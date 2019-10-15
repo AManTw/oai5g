@@ -47,9 +47,7 @@ double cpuf;
 
 int main(int argc, char **argv)
 {
-
     char c;
-
     int i, l, aa;
     double sigma2, sigma2_dB = 0, SNR, snr0 = -2.0, snr1 = 0.0;
     uint8_t snr1set = 0;
@@ -61,21 +59,16 @@ int main(int argc, char **argv)
     double *r_re[2] = {r_re0, r_re1};
     double *r_im[2] = {r_im0, r_im1};
     double ricean_factor = 0.0000005, iqim = 0.0;
-
     int trial, n_trials, ntrials = 1, n_errors;
     uint8_t transmission_mode = 1, n_tx = 1, n_rx = 1;
     unsigned char eNB_id = 0;
     uint16_t Nid_cell = 0;
-
     int n_frames = 1;
     channel_desc_t *UE2eNB;
     uint32_t nsymb, tx_lev;
     uint8_t extended_prefix_flag = 0;
-
     LTE_DL_FRAME_PARMS *frame_parms;
-
     SCM_t channel_model = Rayleigh1_corr;
-
     //  double pucch_sinr;
     uint8_t osf = 1, N_RB_DL = 25;
     uint32_t pucch_tx = 0, pucch1_missed = 0, pucch1_false = 0, pucch3_false = 0, sig;
@@ -90,15 +83,11 @@ int main(int argc, char **argv)
     double stat_no_sig, stat_sig;
     uint8_t N0 = 40;
     uint8_t pucch1_thres = 10;
-
     uint16_t n1_pucch = 0;
     uint16_t n2_pucch = 0;
     uint16_t n3_pucch = 20;
-
     uint16_t n_rnti = 0x1234;
-
     number_of_cards = 1;
-
     cpuf = get_cpu_freq_GHz();
 
     while((c = getopt(argc, argv, "har:pf:g:n:s:S:x:y:z:N:F:T:R:")) != -1)
@@ -169,18 +158,23 @@ int main(int argc, char **argv)
 
                     case 'H':
                         channel_model = Rayleigh8;
+                        break;
 
                     case 'I':
                         channel_model = Rayleigh1;
+                        break;
 
                     case 'J':
                         channel_model = Rayleigh1_corr;
+                        break;
 
                     case 'K':
                         channel_model = Rayleigh1_anticorr;
+                        break;
 
                     case 'L':
                         channel_model = Rice8;
+                        break;
 
                     case 'M':
                         channel_model = Rice1;
@@ -328,7 +322,6 @@ int main(int argc, char **argv)
                    osf,
                    0);
 
-
     if(snr1set == 0)
     {
         if(n_frames == 1)
@@ -342,19 +335,11 @@ int main(int argc, char **argv)
     }
 
     printf("SNR0 %f, SNR1 %f\n", snr0, snr1);
-
     frame_parms = &eNB->frame_parms;
-
-
     txdata = eNB->common_vars.txdata[eNB_id];
-
     nsymb = (frame_parms->Ncp == 0) ? 14 : 12;
-
     printf("FFT Size %d, Extended Prefix %d, Samples per subframe %d, Symbols per subframe %d\n", NUMBER_OF_OFDM_CARRIERS,
            frame_parms->Ncp, frame_parms->samples_per_tti, nsymb);
-
-
-
     printf("[SIM] Using SCM/101\n");
     UE2eNB = new_channel_desc_scm(eNB->frame_parms.nb_antennas_tx,
                                   UE->frame_parms.nb_antennas_rx,
@@ -365,7 +350,6 @@ int main(int argc, char **argv)
                                   0,
                                   0);
 
-
     if(UE2eNB == NULL)
     {
         printf("Problem generating channel model. Exiting.\n");
@@ -373,19 +357,15 @@ int main(int argc, char **argv)
     }
 
     init_ncs_cell(&eNB->frame_parms, eNB->ncs_cell);
-
     init_ncs_cell(&UE->frame_parms, UE->ncs_cell);
-
     init_ul_hopping(&eNB->frame_parms);
     init_ul_hopping(&UE->frame_parms);
-
     eNB->frame_parms.pucch_config_common.deltaPUCCH_Shift = 2;
     eNB->frame_parms.pucch_config_common.nRB_CQI          = 4;
     eNB->frame_parms.pucch_config_common.nCS_AN           = 6;
     UE->frame_parms.pucch_config_common.deltaPUCCH_Shift = 2;
     UE->frame_parms.pucch_config_common.nRB_CQI          = 4;
     UE->frame_parms.pucch_config_common.nCS_AN           = 6;
-
 
     if((pucch_format == pucch_format1) || (pucch_format == pucch_format1a) || (pucch_format == pucch_format1b))
     {
@@ -407,6 +387,7 @@ int main(int argc, char **argv)
         {
             pucch3_payload[i] = (uint8_t)(taus() & 0x1);
         }
+
         generate_pucch3x(UE->common_vars.txdataF,
                          frame_parms,
                          UE->ncs_cell,
@@ -419,11 +400,9 @@ int main(int argc, char **argv)
                          subframe, //subframe
                          n_rnti);  //rnti
     }
+
     LOG_M("txsigF0.m", "txsF0", &UE->common_vars.txdataF[0][2 * subframe * nsymb * OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES_NO_PREFIX], OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES_NO_PREFIX * nsymb, 1, 1);
-
     tx_lev = 0;
-
-
 
     for(aa = 0; aa < eNB->frame_parms.nb_antennas_tx; aa++)
     {
@@ -444,15 +423,11 @@ int main(int argc, char **argv)
             //apply_7_5_kHz(UE,UE->common_vars.txdata[aa],1+(subframe<<1));
             apply_7_5_kHz(UE, &txdata[aa][eNB->frame_parms.samples_per_tti * subframe], 0);
             apply_7_5_kHz(UE, &txdata[aa][eNB->frame_parms.samples_per_tti * subframe], 1);
-
-
         }
 
         tx_lev += signal_energy(&txdata[aa][subframe * eNB->frame_parms.samples_per_tti],
                                 OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES);
     }
-
-
 
     LOG_M("txsig0.m", "txs0", txdata[0], FRAME_LENGTH_COMPLEX_SAMPLES, 1, 1);
     //LOG_M("txsig1.m","txs1", txdata[1],FRAME_LENGTH_COMPLEX_SAMPLES,1,1);
@@ -468,30 +443,21 @@ int main(int argc, char **argv)
         }
     }
 
-
-
     for(SNR = snr0; SNR < snr1; SNR += .2)
     {
-
         printf("n_frames %d SNR %f\n", n_frames, SNR);
-
         n_errors = 0;
         pucch_tx = 0;
         pucch1_missed = 0;
         pucch1_false = 0;
         pucch3_false = 0;
-
         stat_no_sig = 0;
         stat_sig = 0;
 
         for(trial = 0; trial < n_frames; trial++)
         {
-
-
-
             multipath_channel(UE2eNB, s_re, s_im, r_re, r_im,
                               eNB->frame_parms.samples_per_tti, 0);
-
             sigma2_dB = N0;//10*log10((double)tx_lev) - SNR;
             tx_gain = sqrt(pow(10.0, .1 * (N0 + SNR)) / (double)tx_lev);
 
@@ -540,13 +506,10 @@ int main(int argc, char **argv)
                 {
                     for(aa = 0; aa < eNB->frame_parms.nb_antennas_rx; aa++)
                     {
-
                         ((short *) &eNB->common_vars.rxdata[0][aa][(frame_parms->samples_per_tti << 1) - frame_parms->ofdm_symbol_size])[2 * i] = (short)((sqrt(sigma2 / 2) * gaussdouble(0.0, 1.0)));
                         ((short *) &eNB->common_vars.rxdata[0][aa][(frame_parms->samples_per_tti << 1) - frame_parms->ofdm_symbol_size])[2 * i + 1] = (short)((sqrt(sigma2 / 2) * gaussdouble(0.0, 1.0)));
                     }
                 }
-
-
 
                 for(i = 0; i < 2 * nsymb * OFDM_SYMBOL_SIZE_COMPLEX_SAMPLES; i++)
                 {
@@ -558,7 +521,6 @@ int main(int argc, char **argv)
                             //    r_im[aa][i] += (pow(10.0,.05*interf1)*r_im1[aa][i] + pow(10.0,.05*interf2)*r_im2[aa][i]);
                         }
 
-
                         if(sig == 1)
                         {
                             ((short *) &eNB->common_vars.rxdata[0][aa][subframe * frame_parms->samples_per_tti])[2 * i] = (short)(((tx_gain * r_re[aa][i]) + sqrt(sigma2 / 2) * gaussdouble(0.0, 1.0)));
@@ -568,7 +530,6 @@ int main(int argc, char **argv)
                         {
                             ((short *) &eNB->common_vars.rxdata[0][aa][subframe * frame_parms->samples_per_tti])[2 * i] = (short)((sqrt(sigma2 / 2) * gaussdouble(0.0, 1.0)));
                             ((short *) &eNB->common_vars.rxdata[0][aa][subframe * frame_parms->samples_per_tti])[2 * i + 1] = (short)((sqrt(sigma2 / 2) * gaussdouble(0.0, 1.0)));
-
                         }
                     }
                 }
@@ -578,7 +539,6 @@ int main(int argc, char **argv)
 
                 for(l = 0; l < eNB->frame_parms.symbols_per_tti / 2; l++)
                 {
-
                     slot_fep_ul(&eNB->frame_parms,
                                 &eNB->common_vars,
                                 l,
@@ -593,10 +553,7 @@ int main(int argc, char **argv)
                                 0,
                                 0
                                );
-
-
                 }
-
 
                 //      if (sig == 1)
                 //    printf("*");
@@ -682,11 +639,8 @@ int main(int argc, char **argv)
         LOG_M("rxsigF0.m", "rxsF0", &eNB->common_vars.rxdataF[0][0][0], 512 * nsymb * 2, 2, 1);
     }
 
-
     lte_sync_time_free();
-
     return(n_errors);
-
 }
 
 

@@ -1,38 +1,38 @@
 /*
-    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
-    contributor license agreements.  See the NOTICE file distributed with
-    this work for additional information regarding copyright ownership.
-    The OpenAirInterface Software Alliance licenses this file to You under
-    the OAI Public License, Version 1.1  (the "License"); you may not use this file
-    except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.openairinterface.org/?page_id=698
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-    -------------------------------------------------------------------------------
-    For more information about the OpenAirInterface (OAI) Software Alliance:
-        contact@openairinterface.org
-*/
+ * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The OpenAirInterface Software Alliance licenses this file to You under
+ * the OAI Public License, Version 1.1  (the "License"); you may not use this file
+ * except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.openairinterface.org/?page_id=698
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *-------------------------------------------------------------------------------
+ * For more information about the OpenAirInterface (OAI) Software Alliance:
+ *      contact@openairinterface.org
+ */
 
 /*****************************************************************************
-    Source    emm_msg.h
+Source    emm_msg.h
 
-    Version   0.1
+Version   0.1
 
-    Date    2012/09/27
+Date    2012/09/27
 
-    Product   NAS stack
+Product   NAS stack
 
-    Subsystem EPS Mobility Management
+Subsystem EPS Mobility Management
 
-    Author    Frederic Maurel
+Author    Frederic Maurel
 
-    Description Defines EPS Mobility Management messages and functions used
+Description Defines EPS Mobility Management messages and functions used
     to encode and decode
 
 *****************************************************************************/
@@ -82,41 +82,40 @@
 /****************************************************************************/
 
 /*
-    Structure of EMM plain NAS message
-    ----------------------------------
-*/
-typedef union
-{
-    emm_msg_header_t header;
-    attach_request_msg attach_request;
-    attach_accept_msg attach_accept;
-    attach_complete_msg attach_complete;
-    attach_reject_msg attach_reject;
-    detach_request_msg detach_request;
-    detach_accept_msg detach_accept;
-    tracking_area_update_request_msg tracking_area_update_request;
-    tracking_area_update_accept_msg tracking_area_update_accept;
-    tracking_area_update_complete_msg tracking_area_update_complete;
-    tracking_area_update_reject_msg tracking_area_update_reject;
-    extended_service_request_msg extended_service_request;
-    service_request_msg service_request;
-    service_reject_msg service_reject;
-    guti_reallocation_command_msg guti_reallocation_command;
-    guti_reallocation_complete_msg guti_reallocation_complete;
-    authentication_request_msg authentication_request;
-    authentication_response_msg authentication_response;
-    authentication_reject_msg authentication_reject;
-    authentication_failure_msg authentication_failure;
-    identity_request_msg identity_request;
-    identity_response_msg identity_response;
-    security_mode_command_msg security_mode_command;
-    security_mode_complete_msg security_mode_complete;
-    security_mode_reject_msg security_mode_reject;
-    emm_status_msg emm_status;
-    emm_information_msg emm_information;
-    downlink_nas_transport_msg downlink_nas_transport;
-    uplink_nas_transport_msg uplink_nas_transport;
-    cs_service_notification_msg cs_service_notification;
+ * Structure of EMM plain NAS message
+ * ----------------------------------
+ */
+typedef union {
+  emm_msg_header_t header;
+  attach_request_msg attach_request;
+  attach_accept_msg attach_accept;
+  attach_complete_msg attach_complete;
+  attach_reject_msg attach_reject;
+  detach_request_msg detach_request;
+  detach_accept_msg detach_accept;
+  tracking_area_update_request_msg tracking_area_update_request;
+  tracking_area_update_accept_msg tracking_area_update_accept;
+  tracking_area_update_complete_msg tracking_area_update_complete;
+  tracking_area_update_reject_msg tracking_area_update_reject;
+  extended_service_request_msg extended_service_request;
+  service_request_msg service_request;
+  service_reject_msg service_reject;
+  guti_reallocation_command_msg guti_reallocation_command;
+  guti_reallocation_complete_msg guti_reallocation_complete;
+  authentication_request_msg authentication_request;
+  authentication_response_msg authentication_response;
+  authentication_reject_msg authentication_reject;
+  authentication_failure_msg authentication_failure;
+  identity_request_msg identity_request;
+  identity_response_msg identity_response;
+  security_mode_command_msg security_mode_command;
+  security_mode_complete_msg security_mode_complete;
+  security_mode_reject_msg security_mode_reject;
+  emm_status_msg emm_status;
+  emm_information_msg emm_information;
+  downlink_nas_transport_msg downlink_nas_transport;
+  uplink_nas_transport_msg uplink_nas_transport;
+  cs_service_notification_msg cs_service_notification;
 } EMM_msg;
 
 

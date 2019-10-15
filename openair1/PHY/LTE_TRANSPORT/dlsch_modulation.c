@@ -2299,6 +2299,11 @@ int allocate_REs_in_RB_MCH(int32_t **txdataF,
 
             case 4:  //16QAM
 
+                if(qam_table_s == NULL)
+                {
+                    LOG_E(PHY, "qam table pointer is NULL\n");
+                    return -1;
+                }
                 qam16_table_offset_re = 0;
                 qam16_table_offset_im = 0;
 
@@ -2388,7 +2393,9 @@ int allocate_REs_in_RB_MCH(int32_t **txdataF,
                 ((int16_t *)&txdataF[4][tti_offset])[1] = qam_table_s[qam64_table_offset_im]; //(int16_t)(((int32_t)amp*qam64_table[qam64_table_offset_im])>>15);
 
                 break;
-
+            default:
+                LOG_E(PHY, "Invalid modulation order %i_n", mod_order);
+                break;
         }
     }
 
@@ -2661,9 +2668,9 @@ int dlsch_modulation(PHY_VARS_eNB *phy_vars_eNB,
     {
 
         harq_pid = dlsch0->harq_ids[frame % 2][subframe_offset];
-        if(harq_pid >= dlsch0->Mdlharq)
+        if((harq_pid < 0) || (harq_pid >= dlsch0->Mdlharq))
         {
-            LOG_E(PHY, "illegal harq_pid %d\n", harq_pid);
+            LOG_E(PHY, "illegal harq_pid %d %s:%d\n", harq_pid, __FILE__, __LINE__);
             return(-1);
         }
         dlsch0_harq = dlsch0->harq_processes[harq_pid];
@@ -2685,9 +2692,9 @@ int dlsch_modulation(PHY_VARS_eNB *phy_vars_eNB,
     {
 
         harq_pid = dlsch0->harq_ids[frame % 2][subframe_offset];
-        if(harq_pid >= dlsch0->Mdlharq)
+        if((harq_pid < 0) || (harq_pid >= dlsch0->Mdlharq))
         {
-            LOG_E(PHY, "illegal harq_pid %d\n", harq_pid);
+            LOG_E(PHY, "illegal harq_pid %d %s:%d\n", harq_pid, __FILE__, __LINE__);
             return(-1);
         }
         dlsch0_harq = dlsch0->harq_processes[harq_pid];
@@ -2709,9 +2716,9 @@ int dlsch_modulation(PHY_VARS_eNB *phy_vars_eNB,
     {
 
         harq_pid = dlsch1->harq_ids[frame % 2][subframe_offset];
-        if(harq_pid >= dlsch1->Mdlharq)
+        if((harq_pid < 0) || (harq_pid >= dlsch1->Mdlharq))
         {
-            LOG_E(PHY, "illegal harq_pid %d\n", harq_pid);
+            LOG_E(PHY, "illegal harq_pid %d %s:%d\n", harq_pid, __FILE__, __LINE__);
             return(-1);
         }
         dlsch1_harq = dlsch1->harq_processes[harq_pid];

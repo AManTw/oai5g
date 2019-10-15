@@ -77,11 +77,9 @@ void *ue_ip_interrupt(void)
 {
     //---------------------------------------------------------------------------
     uint8_t cxi;
-
     //  ue_ip_priv_t *priv_p=netdev_priv(dev_id);
     //  unsigned int flags;
     //  priv_p->lock = SPIN_LOCK_UNLOCKED;
-
 #ifdef OAI_DRV_DEBUG_INTERRUPT
     printk("INTERRUPT - begin\n");
 #endif
@@ -112,7 +110,6 @@ void *ue_ip_interrupt(void)
 #else
     ue_ip_priv_t *priv_p = (ue_ip_priv_t *)dataP;
 #endif
-
     spin_lock(&priv_p->lock);
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
     mod_timer(&priv_p->timer, jiffies + UE_IP_TIMER_TICK);
@@ -122,7 +119,6 @@ void *ue_ip_interrupt(void)
     (priv_p->timer).data = dataP;
     add_timer(&priv_p->timer);
 #endif
-
     spin_unlock(&priv_p->lock);
     return;
     //  add_timer(&gpriv->timer);
@@ -135,7 +131,6 @@ int ue_ip_open(struct net_device *dev_pP)
 {
     //---------------------------------------------------------------------------
     ue_ip_priv_t *priv_p = netdev_priv(dev_pP);
-
     // Address has already been set at init
 #ifndef OAI_NW_DRIVER_USE_NETLINK
 
@@ -166,7 +161,6 @@ int ue_ip_open(struct net_device *dev_pP)
     (priv_p->timer).function  = ue_ip_timer;
 #endif
     //add_timer(&priv_p->timer);
-
     printk("[UE_IP_DRV][%s] name = %s\n", __FUNCTION__, dev_pP->name);
     return 0;
 }
@@ -177,7 +171,6 @@ int ue_ip_stop(struct net_device *dev_pP)
 {
     //---------------------------------------------------------------------------
     ue_ip_priv_t *priv_p = netdev_priv(dev_pP);
-
     printk("[UE_IP_DRV][%s] Begin\n", __FUNCTION__);
     del_timer(&(priv_p->timer));
     netif_stop_queue(dev_pP);
@@ -192,7 +185,6 @@ void ue_ip_teardown(struct net_device *dev_pP)
     //---------------------------------------------------------------------------
     ue_ip_priv_t    *priv_p;
     int              inst;
-
     printk("[UE_IP_DRV][%s] Begin\n", __FUNCTION__);
 
     if(dev_pP)
@@ -205,7 +197,6 @@ void ue_ip_teardown(struct net_device *dev_pP)
             printk("[UE_IP_DRV][%s] ERROR, couldn't find instance\n", __FUNCTION__);
             return;
         }
-
 
         printk("[UE_IP_DRV][%s] End\n", __FUNCTION__);
     } // check dev_pP
@@ -346,7 +337,6 @@ void ue_ip_tx_timeout(struct net_device *dev_pP)
     //---------------------------------------------------------------------------
     // Transmitter timeout, serious problems.
     ue_ip_priv_t *priv_p =  netdev_priv(dev_pP);
-
     printk("[UE_IP_DRV][%s] begin\n", __FUNCTION__);
     //  (ue_ip_priv_t *)(dev_pP->priv_p)->stats.tx_errors++;
     (priv_p->stats).tx_errors++;
@@ -369,7 +359,7 @@ static const struct net_device_ops ue_ip_netdev_ops =
     .ndo_set_mac_address    = ue_ip_set_mac_address,
     .ndo_set_config         = ue_ip_set_config,
     .ndo_do_ioctl           = NULL,
-#if RHEL_RELEASE_CODE>=1797
+#if (defined RHEL_RELEASE_CODE && RHEL_RELEASE_CODE >= 1797)
     .extended.ndo_change_mtu         = ue_ip_change_mtu,
 #else
     .ndo_change_mtu   = ue_ip_change_mtu,
@@ -410,8 +400,6 @@ int init_module(void)
     //---------------------------------------------------------------------------
     int err, inst;
     char devicename[100];
-
-
     // Initialize parameters shared with RRC
     printk("[UE_IP_DRV][%s] Starting OAI IP driver", __FUNCTION__);
 
@@ -454,7 +442,6 @@ int init_module(void)
     }
 
     return err;
-
 }
 
 //---------------------------------------------------------------------------
@@ -462,7 +449,6 @@ void cleanup_module(void)
 {
     //---------------------------------------------------------------------------
     int inst;
-
     printk("[UE_IP_DRV][CLEANUP] begin\n");
 
     for(inst = 0; inst < UE_IP_NB_INSTANCES_MAX; inst++)

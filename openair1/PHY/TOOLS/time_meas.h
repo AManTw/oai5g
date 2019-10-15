@@ -95,9 +95,12 @@ static inline uint32_t rdtsc_oai(void)
 }
 #endif
 
+#define CPUMEAS_DISABLE  0
+#define CPUMEAS_ENABLE   1
+#define CPUMEAS_GETSTATE 2
+int cpumeas(int action);
 static inline void start_meas(time_stats_t *ts)
 {
-
     if(opp_enabled)
     {
         if(ts->meas_flag == 0)
@@ -115,11 +118,9 @@ static inline void start_meas(time_stats_t *ts)
 
 static inline void stop_meas(time_stats_t *ts)
 {
-
     if(opp_enabled)
     {
         long long out = rdtsc_oai();
-
         ts->diff += (out - ts->in);
         /// process duration is the difference between two clock points
         ts->p_time = (out - ts->in);
@@ -136,19 +137,16 @@ static inline void stop_meas(time_stats_t *ts)
 
 static inline void reset_meas(time_stats_t *ts)
 {
-
     ts->trials = 0;
     ts->diff = 0;
     ts->p_time = 0;
     ts->diff_square = 0;
     ts->max = 0;
     ts->meas_flag = 0;
-
 }
 
 static inline void copy_meas(time_stats_t *dst_ts, time_stats_t *src_ts)
 {
-
     if(opp_enabled)
     {
         dst_ts->trials = src_ts->trials;

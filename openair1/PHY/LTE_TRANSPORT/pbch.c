@@ -333,15 +333,15 @@ int generate_pbch(LTE_eNB_PBCH *eNB_pbch,
 #ifdef DEBUG_PBCH
         if(frame_mod4 == 0)
         {
-            LOG_M"pbch_e.m", "pbch_e",
-            eNB_pbch->pbch_e,
-            pbch_E,
-            1,
-            4);
+            LOG_M("pbch_e.m", "pbch_e",
+                  eNB_pbch->pbch_e,
+                  pbch_E,
+                  1,
+                  4);
 
             for(i = 0; i < 16; i++)
-        {
-            printf("e[%d] %d\n", i, eNB_pbch->pbch_e[i]);
+            {
+                printf("e[%d] %d\n", i, eNB_pbch->pbch_e[i]);
             }
         }
 #endif //DEBUG_PBCH
@@ -353,15 +353,15 @@ int generate_pbch(LTE_eNB_PBCH *eNB_pbch,
 #ifdef DEBUG_PBCH
         if(frame_mod4 == 0)
         {
-            LOG_M"pbch_e_s.m", "pbch_e_s",
-            eNB_pbch->pbch_e,
-            pbch_E,
-            1,
-            4);
+            LOG_M("pbch_e_s.m", "pbch_e_s",
+                  eNB_pbch->pbch_e,
+                  pbch_E,
+                  1,
+                  4);
 
             for(i = 0; i < 16; i++)
-        {
-            printf("e_s[%d] %d\n", i, eNB_pbch->pbch_e[i]);
+            {
+                printf("e_s[%d] %d\n", i, eNB_pbch->pbch_e[i]);
             }
         }
 #endif //DEBUG_PBCH 

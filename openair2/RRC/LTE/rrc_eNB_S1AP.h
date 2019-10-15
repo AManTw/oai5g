@@ -31,13 +31,10 @@
 #ifndef RRC_ENB_S1AP_H_
 #define RRC_ENB_S1AP_H_
 
-# if defined(ENABLE_USE_MME)
-
 #include "LTE_UL-DCCH-Message.h"
 
 /* Up link procedures */
 
-#   if defined(ENABLE_ITTI)
 typedef struct rrc_ue_s1ap_ids_s
 {
     /* Tree related data */
@@ -150,6 +147,16 @@ void rrc_eNB_send_S1AP_UE_CONTEXT_RELEASE_REQ(
     const rrc_eNB_ue_context_t        *const ue_context_pP,
     const s1ap_Cause_t                       causeP,
     const long                               cause_valueP
+);
+
+/*! \fn rrc_eNB_send_S1AP_UE_CONTEXT_RELEASE_CPLT(const module_id_t enb_mod_idP, const struct rrc_eNB_ue_context_s *const ue_context_pP)
+    \brief create a S1AP_UE_CONTEXT_RELEASE_COMPLETE message, the message is sent by the eNB to S1AP task to acknowledge/complete the release of the UE-associated S1-logical connection over the S1 interface. .
+    \param enb_mod_idP Instance ID of eNB.
+    \param eNB_ue_s1ap_id UE's S1AP ID in the eNB.
+*/
+void rrc_eNB_send_S1AP_UE_CONTEXT_RELEASE_CPLT(
+    module_id_t enb_mod_idP,
+    uint32_t eNB_ue_s1ap_id
 );
 
 /* Down link procedures */
@@ -270,6 +277,13 @@ int rrc_eNB_process_S1AP_E_RAB_RELEASE_COMMAND(MessageDef *msg_p, const char *ms
 */
 int rrc_eNB_send_S1AP_E_RAB_RELEASE_RESPONSE(const protocol_ctxt_t *const ctxt_pP, rrc_eNB_ue_context_t  *const ue_context_pP, uint8_t xid);
 
-#   endif
-# endif /* defined(ENABLE_USE_MME) */
+int rrc_eNB_send_PATH_SWITCH_REQ(const protocol_ctxt_t *const ctxt_pP,
+                                 rrc_eNB_ue_context_t          *const ue_context_pP);
+int rrc_eNB_process_X2AP_TUNNEL_SETUP_REQ(instance_t instance, rrc_eNB_ue_context_t *const ue_context_target_p);
+int rrc_eNB_process_S1AP_PATH_SWITCH_REQ_ACK(MessageDef *msg_p, const char *msg_name, instance_t instance);
+
+int rrc_eNB_send_X2AP_UE_CONTEXT_RELEASE(const protocol_ctxt_t *const ctxt_pP, rrc_eNB_ue_context_t *const ue_context_pP);
+
+int s1ap_ue_context_release(instance_t instance, const uint32_t eNB_ue_s1ap_id);
+
 #endif /* RRC_ENB_S1AP_H_ */

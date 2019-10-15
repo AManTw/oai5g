@@ -31,6 +31,7 @@
 */
 #include "PHY/sse_intrin.h"
 #include "PHY/defs_UE.h"
+#include "targets/RT/USER/lte-softmodem.h"
 #include "PHY/phy_extern_ue.h"
 //#include "prach.h"
 #include "PHY/LTE_TRANSPORT/if4_tools.h"
@@ -45,7 +46,6 @@
 
 int32_t generate_prach(PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint16_t Nf)
 {
-
     lte_frame_type_t frame_type         = ue->frame_parms.frame_type;
     //uint8_t tdd_config         = ue->frame_parms.tdd_config;
     uint16_t rootSequenceIndex = ue->frame_parms.prach_config_common.rootSequenceIndex;
@@ -67,7 +67,6 @@ int32_t generate_prach(PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint16
     uint16_t preamble_offset, preamble_shift;
     uint16_t preamble_index0, n_shift_ra, n_shift_ra_bar;
     uint16_t d_start, numshift;
-
     uint8_t prach_fmt = get_prach_fmt(prach_ConfigIndex, frame_type);
     //uint8_t Nsp=2;
     //uint8_t f_ra,t1_ra;
@@ -82,36 +81,36 @@ int32_t generate_prach(PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint16
     int i, prach_len;
     uint16_t first_nonzero_root_idx = 0;
 
-#if defined(EXMIMO) || defined(OAI_USRP)
-    prach_start = (ue->rx_offset + subframe * ue->frame_parms.samples_per_tti - ue->hw_timing_advance - ue->N_TA_offset);
+    if(!(IS_SOFTMODEM_BASICSIM || IS_SOFTMODEM_RFSIM))
+    {
+        prach_start = (ue->rx_offset + subframe * ue->frame_parms.samples_per_tti - ue->hw_timing_advance - ue->N_TA_offset);
 #ifdef PRACH_DEBUG
-    LOG_I(PHY, "[UE %d] prach_start %d, rx_offset %d, hw_timing_advance %d, N_TA_offset %d\n", ue->Mod_id,
-          prach_start,
-          ue->rx_offset,
-          ue->hw_timing_advance,
-          ue->N_TA_offset);
+        LOG_I(PHY, "[UE %d] prach_start %d, rx_offset %d, hw_timing_advance %d, N_TA_offset %d\n", ue->Mod_id,
+              prach_start,
+              ue->rx_offset,
+              ue->hw_timing_advance,
+              ue->N_TA_offset);
 #endif
 
-    if(prach_start < 0)
-    {
-        prach_start += (ue->frame_parms.samples_per_tti * LTE_NUMBER_OF_SUBFRAMES_PER_FRAME);
+        if(prach_start < 0)
+        {
+            prach_start += (ue->frame_parms.samples_per_tti * LTE_NUMBER_OF_SUBFRAMES_PER_FRAME);
+        }
+
+        if(prach_start >= (ue->frame_parms.samples_per_tti * LTE_NUMBER_OF_SUBFRAMES_PER_FRAME))
+        {
+            prach_start -= (ue->frame_parms.samples_per_tti * LTE_NUMBER_OF_SUBFRAMES_PER_FRAME);
+        }
     }
-
-    if(prach_start >= (ue->frame_parms.samples_per_tti * LTE_NUMBER_OF_SUBFRAMES_PER_FRAME))
+    else     //normal case (simulation)
     {
-        prach_start -= (ue->frame_parms.samples_per_tti * LTE_NUMBER_OF_SUBFRAMES_PER_FRAME);
+        prach_start = subframe * ue->frame_parms.samples_per_tti - ue->N_TA_offset;
+        LOG_I(PHY, "[UE %d] prach_start %d, rx_offset %d, hw_timing_advance %d, N_TA_offset %d\n", ue->Mod_id,
+              prach_start,
+              ue->rx_offset,
+              ue->hw_timing_advance,
+              ue->N_TA_offset);
     }
-
-#else //normal case (simulation)
-    prach_start = subframe * ue->frame_parms.samples_per_tti - ue->N_TA_offset;
-    LOG_I(PHY, "[UE %d] prach_start %d, rx_offset %d, hw_timing_advance %d, N_TA_offset %d\n", ue->Mod_id,
-          prach_start,
-          ue->rx_offset,
-          ue->hw_timing_advance,
-          ue->N_TA_offset);
-
-#endif
-
 
     // First compute physical root sequence
     if(restricted_set == 0)
@@ -132,7 +131,6 @@ int32_t generate_prach(PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint16
                                     ue->frame_parms.prach_config_common.prach_ConfigInfo.prach_FreqOffset,
                                     tdd_mapindex, Nf);
     prach_root_sequence_map = (prach_fmt < 4) ? prach_root_sequence_map0_3 : prach_root_sequence_map4;
-
     /*
         // this code is not part of get_prach_prb_offset
         if (frame_type == TDD) { // TDD
@@ -164,7 +162,6 @@ int32_t generate_prach(PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint16
         }
         }
     */
-
     // This is the relative offset (for unrestricted case) in the root sequence table (5.7.2-4 from 36.211) for the given preamble index
     preamble_offset = ((NCS == 0) ? preamble_index : (preamble_index / (N_ZC / NCS)));
 
@@ -176,11 +173,9 @@ int32_t generate_prach(PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint16
     }
     else     // This is the high-speed case
     {
-
 #ifdef PRACH_DEBUG
         LOG_I(PHY, "[UE %d] High-speed mode, NCS_config %d\n", ue->Mod_id, Ncs_config);
 #endif
-
         not_found = 1;
         preamble_index0 = preamble_index;
         // set preamble_offset to initial rootSequenceIndex and look if we need more root sequences for this
@@ -204,7 +199,6 @@ int32_t generate_prach(PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint16
             }
 
             u = prach_root_sequence_map[index];
-
             uint16_t n_group_ra = 0;
 
             if((du[u] < (N_ZC / 3)) && (du[u] >= NCS))
@@ -239,7 +233,6 @@ int32_t generate_prach(PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint16
             {
                 not_found      = 0;
                 preamble_shift = (d_start * (preamble_index0 / n_shift_ra)) + ((preamble_index0 % n_shift_ra) * NCS);
-
             }
             else     // skip to next rootSequenceIndex and recompute parameters
             {
@@ -258,10 +251,8 @@ int32_t generate_prach(PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint16
               preamble_offset, preamble_shift);
 
 #endif
-
     //  nsymb = (frame_parms->Ncp==0) ? 14:12;
     //  subframe_offset = (unsigned int)frame_parms->ofdm_symbol_size*subframe*nsymb;
-
     k = (12 * n_ra_prb) - 6 * ue->frame_parms.N_RB_UL;
 
     if(k < 0)
@@ -271,9 +262,7 @@ int32_t generate_prach(PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint16
 
     k *= 12;
     k += 13;
-
     Xu = (int16_t *)ue->X_u[preamble_offset - first_nonzero_root_idx];
-
     /*
         k+=(12*ue->frame_parms.first_carrier_offset);
         if (k>(12*ue->frame_parms.ofdm_symbol_size))
@@ -312,12 +301,12 @@ int32_t generate_prach(PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint16
             {
                 memset((void *)prachF, 0, 4 * 18432);
             }
+
             break;
     }
 
     for(offset = 0, offset2 = 0; offset < N_ZC; offset++, offset2 += preamble_shift)
     {
-
         if(offset2 >= N_ZC)
         {
             offset2 -= N_ZC;
@@ -544,6 +533,7 @@ int32_t generate_prach(PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint16
                     memmove(prach, prach + 36864, Ncp << 2);
                     prach_len = 18432 + Ncp;
                     printf("Generated prach for 100 PRB, 3/4 sampling\n");
+
                     if(prach_fmt > 1)
                     {
                         memmove(prach2 + 36834, prach2, 73728);
@@ -556,54 +546,56 @@ int32_t generate_prach(PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint16
     }
 
     //LOG_I(PHY,"prach_len=%d\n",prach_len);
-
     AssertFatal(prach_fmt < 4,
                 "prach_fmt4 not fully implemented");
-#if defined(EXMIMO) || defined(OAI_USRP) || defined(OAI_BLADERF) || defined(OAI_LMSSDR)
-    int j;
-    int overflow = prach_start + prach_len - LTE_NUMBER_OF_SUBFRAMES_PER_FRAME * ue->frame_parms.samples_per_tti;
-    LOG_I(PHY, "prach_start=%d, overflow=%d\n", prach_start, overflow);
 
-    for(i = prach_start, j = 0; i < min(ue->frame_parms.samples_per_tti * LTE_NUMBER_OF_SUBFRAMES_PER_FRAME, prach_start + prach_len); i++, j++)
+    if(!(IS_SOFTMODEM_BASICSIM || IS_SOFTMODEM_RFSIM))
     {
-        ((int16_t *)ue->common_vars.txdata[0])[2 * i] = prach[2 * j];
-        ((int16_t *)ue->common_vars.txdata[0])[2 * i + 1] = prach[2 * j + 1];
-    }
+        int j;
+        int overflow = prach_start + prach_len - LTE_NUMBER_OF_SUBFRAMES_PER_FRAME * ue->frame_parms.samples_per_tti;
+        LOG_I(PHY, "prach_start=%d, overflow=%d\n", prach_start, overflow);
 
-    for(i = 0; i < overflow; i++, j++)
-    {
-        ((int16_t *)ue->common_vars.txdata[0])[2 * i] = prach[2 * j];
-        ((int16_t *)ue->common_vars.txdata[0])[2 * i + 1] = prach[2 * j + 1];
-    }
+        for(i = prach_start, j = 0; i < min(ue->frame_parms.samples_per_tti * LTE_NUMBER_OF_SUBFRAMES_PER_FRAME, prach_start + prach_len); i++, j++)
+        {
+            ((int16_t *)ue->common_vars.txdata[0])[2 * i] = prach[2 * j];
+            ((int16_t *)ue->common_vars.txdata[0])[2 * i + 1] = prach[2 * j + 1];
+        }
+
+        for(i = 0; i < overflow; i++, j++)
+        {
+            ((int16_t *)ue->common_vars.txdata[0])[2 * i] = prach[2 * j];
+            ((int16_t *)ue->common_vars.txdata[0])[2 * i + 1] = prach[2 * j + 1];
+        }
+
 #if defined(EXMIMO)
-    // handle switch before 1st TX subframe, guarantee that the slot prior to transmission is switch on
-    for(k = prach_start - (ue->frame_parms.samples_per_tti >> 1) ; k < prach_start ; k++)
-    {
-        if(k < 0)
-        {
-            ue->common_vars.txdata[0][k + ue->frame_parms.samples_per_tti * LTE_NUMBER_OF_SUBFRAMES_PER_FRAME] &= 0xFFFEFFFE;
-        }
-        else if(k > (ue->frame_parms.samples_per_tti * LTE_NUMBER_OF_SUBFRAMES_PER_FRAME))
-        {
-            ue->common_vars.txdata[0][k - ue->frame_parms.samples_per_tti * LTE_NUMBER_OF_SUBFRAMES_PER_FRAME] &= 0xFFFEFFFE;
-        }
-        else
-        {
-            ue->common_vars.txdata[0][k] &= 0xFFFEFFFE;
-        }
-    }
-#endif
-#else
 
-    for(i = 0; i < prach_len; i++)
-    {
-        ((int16_t *)(&ue->common_vars.txdata[0][prach_start]))[2 * i] = prach[2 * i];
-        ((int16_t *)(&ue->common_vars.txdata[0][prach_start]))[2 * i + 1] = prach[2 * i + 1];
-    }
+        // handle switch before 1st TX subframe, guarantee that the slot prior to transmission is switch on
+        for(k = prach_start - (ue->frame_parms.samples_per_tti >> 1) ; k < prach_start ; k++)
+        {
+            if(k < 0)
+            {
+                ue->common_vars.txdata[0][k + ue->frame_parms.samples_per_tti * LTE_NUMBER_OF_SUBFRAMES_PER_FRAME] &= 0xFFFEFFFE;
+            }
+            else if(k > (ue->frame_parms.samples_per_tti * LTE_NUMBER_OF_SUBFRAMES_PER_FRAME))
+            {
+                ue->common_vars.txdata[0][k - ue->frame_parms.samples_per_tti * LTE_NUMBER_OF_SUBFRAMES_PER_FRAME] &= 0xFFFEFFFE;
+            }
+            else
+            {
+                ue->common_vars.txdata[0][k] &= 0xFFFEFFFE;
+            }
+        }
 
 #endif
-
-
+    }
+    else     // simulators
+    {
+        for(i = 0; i < prach_len; i++)
+        {
+            ((int16_t *)(&ue->common_vars.txdata[0][prach_start]))[2 * i] = prach[2 * i];
+            ((int16_t *)(&ue->common_vars.txdata[0][prach_start]))[2 * i + 1] = prach[2 * i + 1];
+        }
+    }
 
 #if defined(PRACH_WRITE_OUTPUT_DEBUG)
     LOG_M("prach_txF0.m", "prachtxF0", prachF, prach_len - Ncp, 1, 1);
@@ -611,7 +603,6 @@ int32_t generate_prach(PHY_VARS_UE *ue, uint8_t eNB_id, uint8_t subframe, uint16
     LOG_M("txsig.m", "txs", (int16_t *)(&ue->common_vars.txdata[0][0]), 2 * ue->frame_parms.samples_per_tti, 1, 1);
     exit(-1);
 #endif
-
     return signal_energy((int *)prach, 256);
 }
 

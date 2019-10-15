@@ -32,20 +32,20 @@
 */
 
 #include "RRC/LTE/rrc_defs.h"
-
+#include "x2ap_messages_types.h"
 #include "flexran_agent_extern.h"
 
 //main.c
 int rrc_init_global_param(void);
 int L3_xface_init(void);
 void openair_rrc_top_init(int eMBMS_active, char *uecap_xer, uint8_t cba_group_active, uint8_t HO_enabled);
-#if defined(ENABLE_ITTI)
+
 char
 openair_rrc_eNB_configuration(
     const module_id_t enb_mod_idP,
     RrcConfigurationReq *configuration
 );
-#endif
+
 char openair_rrc_eNB_init(
     const module_id_t module_idP);
 
@@ -220,13 +220,13 @@ uint8_t rrc_eNB_get_next_transaction_identifier(module_id_t module_idP);
 
 /** \brief Entry routine to decode a UL-CCCH-Message.  Invokes PER decoder and parses message.
     \param ctxt_pP Running context
-    \param Srb_info Pointer to SRB0 information structure (buffer, etc.)*/
-int
-rrc_eNB_decode_ccch(
-    protocol_ctxt_t *const ctxt_pP,
-    const SRB_INFO        *const Srb_info,
-    const int              CC_id
-);
+    \param buffer Pointer to SDU
+    \param buffer_length length of SDU in bytes
+    \param CC_id component carrier index*/
+int rrc_eNB_decode_ccch(protocol_ctxt_t *const ctxt_pP,
+                        const uint8_t         *buffer,
+                        int                    buffer_length,
+                        const int              CC_id);
 
 /** \brief Entry routine to decode a UL-DCCH-Message.  Invokes PER decoder and parses message.
     \param ctxt_pP Context
@@ -306,9 +306,17 @@ void
 flexran_rrc_eNB_generate_defaultRRCConnectionReconfiguration(
     const protocol_ctxt_t *const ctxt_pP,
     rrc_eNB_ue_context_t *const ue_context_pP,
-    const uint8_t ho_state,
-    agent_reconf_rrc *trig_param
+    const uint8_t ho_state
 );
+void
+rrc_eNB_generate_HO_RRCConnectionReconfiguration(const protocol_ctxt_t *const ctxt_pP,
+        rrc_eNB_ue_context_t  *const ue_context_pP,
+        uint8_t               *buffer,
+        int                    *_size
+        //const uint8_t        ho_state
+                                                );
+void
+rrc_eNB_configure_rbs_handover(struct rrc_eNB_ue_context_s *ue_context_p, protocol_ctxt_t *const ctxt_pP);
 
 int freq_to_arfcn10(int band, unsigned long freq);
 
@@ -335,19 +343,24 @@ void
 rrc_eNB_reconfigure_DRBs(const protocol_ctxt_t *const ctxt_pP,
                          rrc_eNB_ue_context_t  *ue_context_pP);
 
-#if defined(ENABLE_ITTI)
 
-    void  rrc_enb_init(void);
-    void *rrc_enb_process_itti_msg(void *);
 
-    /** \brief RRC eNB task.
+void  rrc_enb_init(void);
+void *rrc_enb_process_itti_msg(void *);
+
+/** \brief RRC eNB task.
     \param void *args_p Pointer on arguments to start the task. */
-    void *rrc_enb_task(void *args_p);
+void *rrc_enb_task(void *args_p);
 
-    /** \brief RRC UE task.
+/** \brief RRC UE task.
     \param void *args_p Pointer on arguments to start the task. */
-    void *rrc_ue_task(void *args_p);
-#endif
+void *rrc_ue_task(void *args_p);
+
+void rrc_eNB_process_x2_setup_request(int mod_id, x2ap_setup_req_t *m);
+
+void rrc_eNB_process_x2_setup_response(int mod_id, x2ap_setup_resp_t *m);
+
+void rrc_eNB_process_handoverPreparationInformation(int mod_id, x2ap_handover_req_t *m);
 
 /** \brief Generate/decode the handover RRCConnectionReconfiguration at eNB
     \param module_idP Instance ID for eNB/CH
@@ -416,6 +429,7 @@ mac_rrc_data_req(
     const int         CC_id,
     const frame_t     frameP,
     const rb_id_t     Srb_id,
+    const rnti_t      rnti,
     const uint8_t     Nb_tb,
     uint8_t    *const buffer_pP,
     const uint8_t     mbsfn_sync_area
@@ -424,14 +438,18 @@ mac_rrc_data_req(
 int8_t
 mac_rrc_data_ind(
     const module_id_t     module_idP,
-    const int         CC_id,
+    const int             CC_id,
     const frame_t         frameP,
     const sub_frame_t     sub_frameP,
+    const int             UE_id,
     const rnti_t          rntiP,
     const rb_id_t         srb_idP,
     const uint8_t        *sduP,
     const sdu_size_t      sdu_lenP,
     const uint8_t         mbsfn_sync_areaP
+#if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
+    , const boolean_t		brOption
+#endif
 );
 
 int8_t
@@ -526,6 +544,16 @@ int decode_BCCH_DLSCH_Message(
     const uint8_t                rsrq,
     const uint8_t                rsrp);
 
+#if (LTE_RRC_VERSION >= MAKE_VERSION(14, 0, 0))
+int decode_BCCH_MBMS_DLSCH_Message(
+    const protocol_ctxt_t *const ctxt_pP,
+    const uint8_t                eNB_index,
+    uint8_t               *const Sdu,
+    const uint8_t                Sdu_len,
+    const uint8_t                rsrq,
+    const uint8_t                rsrp);
+#endif
+
 int decode_PCCH_DLSCH_Message(
     const protocol_ctxt_t *const ctxt_pP,
     const uint8_t                eNB_index,
@@ -577,10 +605,18 @@ rrc_eNB_process_MeasurementReport(
 
 void
 rrc_eNB_generate_HandoverPreparationInformation(
-    const protocol_ctxt_t *const ctxt_pP,
+    //const protocol_ctxt_t* const ctxt_pP,
     rrc_eNB_ue_context_t          *const ue_context_pP,
-    LTE_PhysCellId_t targetPhyId
+    uint8_t                     *buffer,
+    int                          *_size
+    //LTE_PhysCellId_t targetPhyId
 );
+
+int
+flexran_rrc_eNB_trigger_handover(int mod_id,
+                                 const protocol_ctxt_t *const ctxt_pP,
+                                 rrc_eNB_ue_context_t  *ue_context_pP,
+                                 int target_cell_id);
 
 void
 check_handovers(
@@ -596,7 +632,6 @@ check_handovers(
                 );
 */
 
-#if !defined(ENABLE_USE_MME)
 void rrc_eNB_emulation_notify_ue_module_id(
     const module_id_t ue_module_idP,
     const rnti_t      rntiP,
@@ -604,7 +639,7 @@ void rrc_eNB_emulation_notify_ue_module_id(
     const uint8_t     cell_identity_byte1P,
     const uint8_t     cell_identity_byte2P,
     const uint8_t     cell_identity_byte3P);
-#endif
+
 
 
 void
@@ -632,9 +667,11 @@ void openair_rrc_top_init_ue(
     uint8_t cba_group_active,
     uint8_t HO_active
 );
-pthread_mutex_t      rrc_release_freelist;
-RRC_release_list_t rrc_release_info;
-pthread_mutex_t      lock_ue_freelist;
+
+extern pthread_mutex_t      rrc_release_freelist;
+extern RRC_release_list_t   rrc_release_info;
+extern pthread_mutex_t      lock_ue_freelist;
+
 void remove_UE_from_freelist(module_id_t mod_id, rnti_t rnti);
 void put_UE_in_freelist(module_id_t mod_id, rnti_t rnti, boolean_t removeFlag);
 void release_UE_in_freeList(module_id_t mod_id);

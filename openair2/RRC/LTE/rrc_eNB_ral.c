@@ -46,7 +46,6 @@ int rrc_enb_ral_delete_all_thresholds_type(unsigned int mod_idP, ral_link_param_
     rrc_ral_threshold_key_t *keys = NULL;
     unsigned int             num_keys = 0;
     int                      return_code = 0;
-
     rc =  obj_hashtable_get_keys(eNB_rrc_inst[mod_idP].ral_meas_thresholds, (void *)&keys, &num_keys);
 
     if(rc == HASH_TABLE_OK)
@@ -89,7 +88,6 @@ int rrc_enb_ral_delete_threshold(unsigned int mod_idP, ral_link_param_type_t *pa
 {
     hashtable_rc_t           rc;
     rrc_ral_threshold_key_t  ref_key;
-
     memcpy(&ref_key.link_param_type, param_type_pP, sizeof(ral_link_param_type_t));
     memcpy(&ref_key.threshold,       threshold_pP,  sizeof(ral_threshold_t));
     rc = obj_hashtable_remove(eNB_rrc_inst[mod_idP].ral_meas_thresholds, (void *)&ref_key, sizeof(rrc_ral_threshold_key_t));
@@ -116,12 +114,9 @@ int rrc_enb_ral_handle_configure_threshold_request(unsigned int mod_idP, Message
     MessageDef                        *message_p                 = NULL;
     unsigned int                       ix_param                  = 0;
     unsigned int                       ix_thresholds             = 0;
-
     DevAssert(msg_pP != NULL);
-
     LOG_I(RRC, "[eNB %d] Received %s\n", mod_idP, ITTI_MSG_NAME(msg_pP));
     configure_threshold_req_p = &RRC_RAL_CONFIGURE_THRESHOLD_REQ(msg_pP);
-
     transaction_id = configure_threshold_req_p->transaction_id;
 
     for(ix_param = 0; ix_param < configure_threshold_req_p->num_link_cfg_params; ix_param++)
@@ -134,7 +129,6 @@ int rrc_enb_ral_handle_configure_threshold_request(unsigned int mod_idP, Message
             case RAL_TH_ACTION_SET_ONE_SHOT_THRESHOLD:
                 switch(link_cfg_param_p->link_param_type.choice)
                 {
-
                     case RAL_LINK_PARAM_TYPE_CHOICE_GEN:
                         switch(link_cfg_param_p->link_param_type._union.link_param_gen)
                         {

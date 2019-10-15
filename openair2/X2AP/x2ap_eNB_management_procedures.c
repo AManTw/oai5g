@@ -19,6 +19,13 @@
         contact@openairinterface.org
 */
 
+/*! \file x2ap_eNB_management_procedures.c
+    \brief x2ap tasks for eNB
+    \author Konstantinos Alexandris <Konstantinos.Alexandris@eurecom.fr>, Cedric Roux <Cedric.Roux@eurecom.fr>, Navid Nikaein <Navid.Nikaein@eurecom.fr>
+    \date 2018
+    \version 1.0
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -180,7 +187,6 @@ x2ap_eNB_instance_t *x2ap_eNB_get_instance(instance_t instance)
     return NULL;
 }
 
-
 /// utility functions
 
 void x2ap_dump_eNB(x2ap_eNB_data_t   *eNB_ref);
@@ -221,6 +227,26 @@ void x2ap_dump_eNB(x2ap_eNB_data_t   *eNB_ref)
     indent--;
 }
 
+x2ap_eNB_data_t   *x2ap_is_eNB_pci_in_list(const uint32_t pci)
+{
+    x2ap_eNB_instance_t    *inst;
+    struct x2ap_eNB_data_s *elm;
+
+    STAILQ_FOREACH(inst, &x2ap_eNB_internal_data.x2ap_eNB_instances_head, x2ap_eNB_entries)
+    {
+        RB_FOREACH(elm, x2ap_enb_map, &inst->x2ap_enb_head)
+        {
+            for(int i = 0; i < elm->num_cc; i++)
+            {
+                if(elm->Nid_cell[i] == pci)
+                {
+                    return elm;
+                }
+            }
+        }
+    }
+    return NULL;
+}
 
 x2ap_eNB_data_t   *x2ap_is_eNB_id_in_list(const uint32_t eNB_id)
 {
@@ -262,4 +288,3 @@ x2ap_eNB_data_t   *x2ap_is_eNB_assoc_id_in_list(const uint32_t sctp_assoc_id)
     }
     return NULL;
 }
-
