@@ -1,23 +1,23 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 #include "assertions.h"
 
@@ -318,9 +318,9 @@ do {                                                                    \
 } while(0)
 
 
-/* TS 38.473 v15.2.1 section 9.3.1.32:
- * C RNTI is BIT_STRING(16)
- */
+/*  TS 38.473 v15.2.1 section 9.3.1.32:
+    C RNTI is BIT_STRING(16)
+*/
 #define C_RNTI_TO_BIT_STRING(mACRO, bITsTRING)          \
 do {                                                    \
     (bITsTRING)->buf = calloc(2, sizeof(uint8_t));      \
@@ -331,9 +331,9 @@ do {                                                    \
 } while(0)
 
 
-/* TS 38.473 v15.2.1 section 9.3.2.3:
- * TRANSPORT LAYER ADDRESS for IPv4 is 32bit (TS 38.414)
- */
+/*  TS 38.473 v15.2.1 section 9.3.2.3:
+    TRANSPORT LAYER ADDRESS for IPv4 is 32bit (TS 38.414)
+*/
 #define TRANSPORT_LAYER_ADDRESS_IPv4_TO_BIT_STRING(mACRO, bITsTRING)    \
 do {                                                    \
     (bITsTRING)->buf = calloc(4, sizeof(uint8_t));      \
@@ -356,9 +356,9 @@ do {                                                                    \
 } while (0)
 
 
-/* TS 38.473 v15.1.1 section 9.3.1.12:
- * NR CELL ID
- */
+/*  TS 38.473 v15.1.1 section 9.3.1.12:
+    NR CELL ID
+*/
 #define NR_CELL_ID_TO_BIT_STRING(mACRO, bITsTRING)      \
 do {                                                    \
     (bITsTRING)->buf = calloc(5, sizeof(uint8_t));      \
@@ -371,9 +371,9 @@ do {                                                    \
     (bITsTRING)->bits_unused = 4;                       \
 } while(0)
 
-/* TS 38.473 v15.2.1 section 9.3.1.55:
- * MaskedIMEISV is BIT_STRING(64)
- */
+/*  TS 38.473 v15.2.1 section 9.3.1.55:
+    MaskedIMEISV is BIT_STRING(64)
+*/
 #define MaskedIMEISV_TO_BIT_STRING(mACRO, bITsTRING)    \
 do {                                                    \
     (bITsTRING)->buf = calloc(8, sizeof(uint8_t));      \
@@ -403,13 +403,13 @@ do {                                                                    \
             ((bITsTRING)->buf[7]);                                      \
 } while (0)
 
-/* TS 36.413 v10.9.0 section 9.2.1.37:
- * Macro eNB ID:
- * Equal to the 20 leftmost bits of the Cell
- * Identity IE contained in the E-UTRAN CGI
- * IE (see subclause 9.2.1.38) of each cell
- * served by the eNB.
- */
+/*  TS 36.413 v10.9.0 section 9.2.1.37:
+    Macro eNB ID:
+    Equal to the 20 leftmost bits of the Cell
+    Identity IE contained in the E-UTRAN CGI
+    IE (see subclause 9.2.1.38) of each cell
+    served by the eNB.
+*/
 #define MACRO_ENB_ID_TO_BIT_STRING(mACRO, bITsTRING)    \
 do {                                                    \
     (bITsTRING)->buf = calloc(3, sizeof(uint8_t));      \
@@ -419,12 +419,12 @@ do {                                                    \
     (bITsTRING)->size = 3;                              \
     (bITsTRING)->bits_unused = 4;                       \
 } while(0)
-/* TS 36.413 v10.9.0 section 9.2.1.38:
- * E-UTRAN CGI/Cell Identity
- * The leftmost bits of the Cell
- * Identity correspond to the eNB
- * ID (defined in subclause 9.2.1.37).
- */
+/*  TS 36.413 v10.9.0 section 9.2.1.38:
+    E-UTRAN CGI/Cell Identity
+    The leftmost bits of the Cell
+    Identity correspond to the eNB
+    ID (defined in subclause 9.2.1.37).
+*/
 #define MACRO_ENB_ID_TO_CELL_IDENTITY(mACRO, cELL_iD, bITsTRING) \
 do {                                                    \
     (bITsTRING)->buf = calloc(4, sizeof(uint8_t));      \

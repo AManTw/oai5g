@@ -1,38 +1,38 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*****************************************************************************
-Source      EsmStatus.c
+    Source      EsmStatus.c
 
-Version     0.1
+    Version     0.1
 
-Date        2013/06/17
+    Date        2013/06/17
 
-Product     NAS stack
+    Product     NAS stack
 
-Subsystem   EPS Session Management
+    Subsystem   EPS Session Management
 
-Author      Frederic Maurel
+    Author      Frederic Maurel
 
-Description Defines the ESM status procedure executed by the Non-Access
+    Description Defines the ESM status procedure executed by the Non-Access
         Stratum.
 
         ESM status procedure can be related to an EPS bearer context
@@ -90,57 +90,58 @@ Description Defines the ESM status procedure executed by the Non-Access
  **                                                                        **
  ***************************************************************************/
 int esm_proc_status_ind(
-  int pti, int ebi, int *esm_cause)
+    int pti, int ebi, int *esm_cause)
 {
-  LOG_FUNC_IN;
+    LOG_FUNC_IN;
 
-  int rc;
+    int rc;
 
-  LOG_TRACE(INFO,"ESM-PROC  - ESM status procedure requested (cause=%d)",
-            *esm_cause);
+    LOG_TRACE(INFO, "ESM-PROC  - ESM status procedure requested (cause=%d)",
+              *esm_cause);
 
-  LOG_TRACE(DEBUG, "ESM-PROC  - To be implemented");
+    LOG_TRACE(DEBUG, "ESM-PROC  - To be implemented");
 
-  switch (*esm_cause) {
-  case ESM_CAUSE_INVALID_EPS_BEARER_IDENTITY:
-    /*
-     * Abort any ongoing ESM procedure related to the received EPS
-     * bearer identity, stop any related timer, and deactivate the
-     * corresponding EPS bearer context locally
-     */
-    /* TODO */
-    rc = RETURNok;
-    break;
+    switch(*esm_cause)
+    {
+        case ESM_CAUSE_INVALID_EPS_BEARER_IDENTITY:
+            /*
+                Abort any ongoing ESM procedure related to the received EPS
+                bearer identity, stop any related timer, and deactivate the
+                corresponding EPS bearer context locally
+            */
+            /* TODO */
+            rc = RETURNok;
+            break;
 
-  case ESM_CAUSE_INVALID_PTI_VALUE:
-    /*
-     * Abort any ongoing ESM procedure related to the received PTI
-     * value and stop any related timer
-     */
-    /* TODO */
-    rc = RETURNok;
-    break;
+        case ESM_CAUSE_INVALID_PTI_VALUE:
+            /*
+                Abort any ongoing ESM procedure related to the received PTI
+                value and stop any related timer
+            */
+            /* TODO */
+            rc = RETURNok;
+            break;
 
-  case ESM_CAUSE_MESSAGE_TYPE_NOT_IMPLEMENTED:
-    /*
-     * Abort any ongoing ESM procedure related to the PTI or
-     * EPS bearer identity and stop any related timer
-     */
-    /* TODO */
-    rc = RETURNok;
-    break;
+        case ESM_CAUSE_MESSAGE_TYPE_NOT_IMPLEMENTED:
+            /*
+                Abort any ongoing ESM procedure related to the PTI or
+                EPS bearer identity and stop any related timer
+            */
+            /* TODO */
+            rc = RETURNok;
+            break;
 
-  default:
-    /*
-     * No state transition and no specific action shall be taken;
-     * local actions are possible
-     */
-    /* TODO */
-    rc = RETURNok;
-    break;
-  }
+        default:
+            /*
+                No state transition and no specific action shall be taken;
+                local actions are possible
+            */
+            /* TODO */
+            rc = RETURNok;
+            break;
+    }
 
-  LOG_FUNC_RETURN (rc);
+    LOG_FUNC_RETURN(rc);
 }
 
 /****************************************************************************
@@ -165,23 +166,23 @@ int esm_proc_status(nas_user_t *user, int is_standalone,
                     int ebi, OctetString *msg,
                     int ue_triggered)
 {
-  LOG_FUNC_IN;
+    LOG_FUNC_IN;
 
-  int rc;
-  emm_sap_t emm_sap;
+    int rc;
+    emm_sap_t emm_sap;
 
-  LOG_TRACE(INFO,"ESM-PROC  - ESM status procedure requested");
+    LOG_TRACE(INFO, "ESM-PROC  - ESM status procedure requested");
 
-  /*
-   * Notity EMM that ESM PDU has to be forwarded to lower layers
-   */
-  emm_sap.primitive = EMMESM_UNITDATA_REQ;
-  emm_sap.u.emm_esm.ueid = user->ueid;
-  emm_sap.u.emm_esm.u.data.msg.length = msg->length;
-  emm_sap.u.emm_esm.u.data.msg.value = msg->value;
-  rc = emm_sap_send(user, &emm_sap);
+    /*
+        Notity EMM that ESM PDU has to be forwarded to lower layers
+    */
+    emm_sap.primitive = EMMESM_UNITDATA_REQ;
+    emm_sap.u.emm_esm.ueid = user->ueid;
+    emm_sap.u.emm_esm.u.data.msg.length = msg->length;
+    emm_sap.u.emm_esm.u.data.msg.value = msg->value;
+    rc = emm_sap_send(user, &emm_sap);
 
-  LOG_FUNC_RETURN (rc);
+    LOG_FUNC_RETURN(rc);
 }
 
 /****************************************************************************/

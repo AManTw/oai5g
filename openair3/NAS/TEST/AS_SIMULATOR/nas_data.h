@@ -1,41 +1,41 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*****************************************************************************
       Eurecom OpenAirInterface 3
       Copyright(c) 2012 Eurecom
 
-Source    nas_data.h
+    Source    nas_data.h
 
-Version   0.1
+    Version   0.1
 
-Date    2013/04/11
+    Date    2013/04/11
 
-Product   Access-Stratum sublayer simulator
+    Product   Access-Stratum sublayer simulator
 
-Subsystem Non-Access-Stratum data
+    Subsystem Non-Access-Stratum data
 
-Author    Frederic Maurel
+    Author    Frederic Maurel
 
-Description Defines constants and functions used by the AS simulator
+    Description Defines constants and functions used by the AS simulator
     process.
 
 *****************************************************************************/
@@ -74,29 +74,29 @@ Description Defines constants and functions used by the AS simulator
 /******************  E X P O R T E D    F U N C T I O N S  ******************/
 /****************************************************************************/
 
-const char* emmMsgType(int type);
-const char* esmMsgType(int type);
+const char *emmMsgType(int type);
+const char *esmMsgType(int type);
 
-const char* emmCauseCode(EmmCause code);
-const char* esmCauseCode(EsmCause code);
+const char *emmCauseCode(EmmCause code);
+const char *esmCauseCode(EsmCause code);
 
-const char* attachType(const EpsAttachType* type);
-const char* detachType(const DetachType* type);
+const char *attachType(const EpsAttachType *type);
+const char *detachType(const DetachType *type);
 
-ssize_t epsIdentity(char* buffer, size_t len, const EpsMobileIdentity* ident);
-const char* identityType(const IdentityType2* type);
-ssize_t mobileIdentity(char* buffer, size_t len, const MobileIdentity* ident);
+ssize_t epsIdentity(char *buffer, size_t len, const EpsMobileIdentity *ident);
+const char *identityType(const IdentityType2 *type);
+ssize_t mobileIdentity(char *buffer, size_t len, const MobileIdentity *ident);
 
-const char* requestType(const RequestType* type);
-const char* pdnType(const PdnType* type);
-ssize_t pdnAddress(char* buffer, size_t len, const PdnAddress* addr);
+const char *requestType(const RequestType *type);
+const char *pdnType(const PdnType *type);
+ssize_t pdnAddress(char *buffer, size_t len, const PdnAddress *addr);
 
-ssize_t nasKeySetIdentifier(char* buffer, size_t len, const NasKeySetIdentifier* ksi);
-ssize_t authenticationParameter(char* buffer, size_t len, const OctetString* param);
-const char* nasCipheringAlgorithm(const NasSecurityAlgorithms* algo);
-const char* nasIntegrityAlgorithm(const NasSecurityAlgorithms* algo);
+ssize_t nasKeySetIdentifier(char *buffer, size_t len, const NasKeySetIdentifier *ksi);
+ssize_t authenticationParameter(char *buffer, size_t len, const OctetString *param);
+const char *nasCipheringAlgorithm(const NasSecurityAlgorithms *algo);
+const char *nasIntegrityAlgorithm(const NasSecurityAlgorithms *algo);
 
-ssize_t gprsTimer(char* buffer, size_t len, const GprsTimer* timer);
-ssize_t taiList(char* buffer, size_t len, const TrackingAreaIdentityList* tai);
+ssize_t gprsTimer(char *buffer, size_t len, const GprsTimer *timer);
+ssize_t taiList(char *buffer, size_t len, const TrackingAreaIdentityList *tai);
 
 #endif // __NAS_DATA_H__

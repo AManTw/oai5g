@@ -1,38 +1,38 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*****************************************************************************
-Source      EmmDeregisteredLimitedService.c
+    Source      EmmDeregisteredLimitedService.c
 
-Version     0.1
+    Version     0.1
 
-Date        2012/10/03
+    Date        2012/10/03
 
-Product     NAS stack
+    Product     NAS stack
 
-Subsystem   EPS Mobility Management
+    Subsystem   EPS Mobility Management
 
-Author      Frederic Maurel
+    Author      Frederic Maurel
 
-Description Implements the EPS Mobility Management procedures executed
+    Description Implements the EPS Mobility Management procedures executed
         when the EMM-SAP is in EMM-DEREGISTERED.LIMITED-SERVICE state.
 
         In EMM-DEREGISTERED.LIMITED-SERVICE state, the EPS update
@@ -85,71 +85,73 @@ Description Implements the EPS Mobility Management procedures executed
  ***************************************************************************/
 int EmmDeregisteredLimitedService(nas_user_t *user, const emm_reg_t *evt)
 {
-  LOG_FUNC_IN;
+    LOG_FUNC_IN;
 
-  int rc = RETURNerror;
+    int rc = RETURNerror;
 
-  assert(emm_fsm_get_status(user) == EMM_DEREGISTERED_LIMITED_SERVICE);
+    assert(emm_fsm_get_status(user) == EMM_DEREGISTERED_LIMITED_SERVICE);
 
-  switch (evt->primitive) {
-  case _EMMREG_REGISTER_REQ:
-    /*
-     * The user manually re-selected a PLMN to register to
-     */
-    rc = emm_fsm_set_status(user, EMM_DEREGISTERED_PLMN_SEARCH);
+    switch(evt->primitive)
+    {
+        case _EMMREG_REGISTER_REQ:
+            /*
+                The user manually re-selected a PLMN to register to
+            */
+            rc = emm_fsm_set_status(user, EMM_DEREGISTERED_PLMN_SEARCH);
 
-    if (rc != RETURNerror) {
-      /* Process the network registration request */
-      rc = emm_fsm_process(user, evt);
+            if(rc != RETURNerror)
+            {
+                /* Process the network registration request */
+                rc = emm_fsm_process(user, evt);
+            }
+
+            break;
+
+        case _EMMREG_ATTACH_INIT:
+            /*
+                Initiate attach procedure for emergency bearer services
+            */
+            rc = emm_proc_attach(user, EMM_ATTACH_TYPE_EMERGENCY);
+            break;
+
+        case _EMMREG_ATTACH_REQ:
+            /*
+                An attach for bearer emergency services has been requested
+                (Attach Request message successfully delivered to the network);
+                enter state EMM-REGISTERED-INITIATED
+            */
+            rc = emm_fsm_set_status(user, EMM_REGISTERED_INITIATED);
+            break;
+
+        case _EMMREG_LOWERLAYER_SUCCESS:
+            /*
+                Initial NAS message has been successfully delivered
+                to the network
+            */
+            rc = emm_proc_lowerlayer_success(user->lowerlayer_data);
+            break;
+
+        case _EMMREG_LOWERLAYER_FAILURE:
+            /*
+                Initial NAS message failed to be delivered to the network
+            */
+            rc = emm_proc_lowerlayer_failure(user->lowerlayer_data, TRUE);
+            break;
+
+        case _EMMREG_LOWERLAYER_RELEASE:
+            /*
+                NAS signalling connection has been released
+            */
+            rc = emm_proc_lowerlayer_release(user->lowerlayer_data);
+            break;
+
+        default:
+            LOG_TRACE(ERROR, "EMM-FSM   - Primitive is not valid (%d)",
+                      evt->primitive);
+            break;
     }
 
-    break;
-
-  case _EMMREG_ATTACH_INIT:
-    /*
-     * Initiate attach procedure for emergency bearer services
-     */
-    rc = emm_proc_attach(user, EMM_ATTACH_TYPE_EMERGENCY);
-    break;
-
-  case _EMMREG_ATTACH_REQ:
-    /*
-     * An attach for bearer emergency services has been requested
-     * (Attach Request message successfully delivered to the network);
-     * enter state EMM-REGISTERED-INITIATED
-     */
-    rc = emm_fsm_set_status(user, EMM_REGISTERED_INITIATED);
-    break;
-
-  case _EMMREG_LOWERLAYER_SUCCESS:
-    /*
-     * Initial NAS message has been successfully delivered
-     * to the network
-     */
-    rc = emm_proc_lowerlayer_success(user->lowerlayer_data);
-    break;
-
-  case _EMMREG_LOWERLAYER_FAILURE:
-    /*
-     * Initial NAS message failed to be delivered to the network
-     */
-    rc = emm_proc_lowerlayer_failure(user->lowerlayer_data, TRUE);
-    break;
-
-  case _EMMREG_LOWERLAYER_RELEASE:
-    /*
-     * NAS signalling connection has been released
-     */
-    rc = emm_proc_lowerlayer_release(user->lowerlayer_data);
-    break;
-
-  default:
-    LOG_TRACE(ERROR, "EMM-FSM   - Primitive is not valid (%d)",
-              evt->primitive);
-    break;
-  }
-
-  LOG_FUNC_RETURN (rc);
+    LOG_FUNC_RETURN(rc);
 }
 
 /****************************************************************************/

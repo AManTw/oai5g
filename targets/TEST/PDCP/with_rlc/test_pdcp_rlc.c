@@ -1,23 +1,23 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 #define PDCP_C
 #include <string.h>
@@ -105,64 +105,73 @@ static s8_t *g_sdus[] = {"En dépit de son volontarisme affiché, le premier min
 
 
 
-int pdcp_fifo_flush_sdus () {}
-int pdcp_fifo_read_input_sdus_remaining_bytes () {}
-int pdcp_fifo_read_input_sdus () {}
+int pdcp_fifo_flush_sdus() {}
+int pdcp_fifo_read_input_sdus_remaining_bytes() {}
+int pdcp_fifo_read_input_sdus() {}
 
 BOOL init_pdcp_entity(pdcp_t *pdcp_entity);
 
 //-----------------------------------------------------------------------------
-void pdcp_rlc_test_mac_rlc_loop (struct mac_data_ind *data_indP,  struct mac_data_req *data_requestP, int* drop_countP, int *tx_packetsP, int* dropped_tx_packetsP) //-----------------------------------------------------------------------------
+void pdcp_rlc_test_mac_rlc_loop(struct mac_data_ind *data_indP,  struct mac_data_req *data_requestP, int *drop_countP, int *tx_packetsP, int *dropped_tx_packetsP)  //-----------------------------------------------------------------------------
 {
-  mem_block_t* tb_src;
-  mem_block_t* tb_dst;
-  unsigned int tb_size;
+    mem_block_t *tb_src;
+    mem_block_t *tb_dst;
+    unsigned int tb_size;
 
-  data_indP->no_tb = 0;
+    data_indP->no_tb = 0;
 
-  while (data_requestP->data.nb_elements > 0) {
-    tb_src = list_remove_head (&data_requestP->data);
+    while(data_requestP->data.nb_elements > 0)
+    {
+        tb_src = list_remove_head(&data_requestP->data);
 
-    if (tb_src != NULL) {
-      tb_size = ((struct mac_tb_req *) (tb_src->data))->tb_size_in_bits >> 3;
-      printf("[RLC-LOOP] FOUND TB SIZE IN BITS %d IN BYTES %u sizeof (mac_rlc_max_rx_header_size_t) %d\n",
-             ((struct mac_tb_req *) (tb_src->data))->tb_size_in_bits,
-             tb_size, sizeof (mac_rlc_max_rx_header_size_t));
+        if(tb_src != NULL)
+        {
+            tb_size = ((struct mac_tb_req *)(tb_src->data))->tb_size_in_bits >> 3;
+            printf("[RLC-LOOP] FOUND TB SIZE IN BITS %d IN BYTES %u sizeof (mac_rlc_max_rx_header_size_t) %d\n",
+                   ((struct mac_tb_req *)(tb_src->data))->tb_size_in_bits,
+                   tb_size, sizeof(mac_rlc_max_rx_header_size_t));
 
-      *tx_packetsP = *tx_packetsP + 1;
+            *tx_packetsP = *tx_packetsP + 1;
 
-      if (*drop_countP == 0) {
-        tb_dst  = get_free_mem_block(sizeof (mac_rlc_max_rx_header_size_t) + tb_size, __func__);
+            if(*drop_countP == 0)
+            {
+                tb_dst  = get_free_mem_block(sizeof(mac_rlc_max_rx_header_size_t) + tb_size, __func__);
 
-        if (tb_dst != NULL) {
-          ((struct mac_tb_ind *) (tb_dst->data))->first_bit        = 0;
-          ((struct mac_tb_ind *) (tb_dst->data))->data_ptr         = &tb_dst->data[sizeof (mac_rlc_max_rx_header_size_t)];
-          ((struct mac_tb_ind *) (tb_dst->data))->size             = tb_size;
-          ((struct mac_tb_ind *) (tb_dst->data))->error_indication = 0;
+                if(tb_dst != NULL)
+                {
+                    ((struct mac_tb_ind *)(tb_dst->data))->first_bit        = 0;
+                    ((struct mac_tb_ind *)(tb_dst->data))->data_ptr         = &tb_dst->data[sizeof(mac_rlc_max_rx_header_size_t)];
+                    ((struct mac_tb_ind *)(tb_dst->data))->size             = tb_size;
+                    ((struct mac_tb_ind *)(tb_dst->data))->error_indication = 0;
 
-          memcpy(((struct mac_tb_ind *) (tb_dst->data))->data_ptr,
-                 &((struct mac_tb_req *) (tb_src->data))->data_ptr[0],
-                 tb_size);
+                    memcpy(((struct mac_tb_ind *)(tb_dst->data))->data_ptr,
+                           &((struct mac_tb_req *)(tb_src->data))->data_ptr[0],
+                           tb_size);
 
-          list_add_tail_eurecom(tb_dst, &data_indP->data);
-          data_indP->no_tb  += 1;
-        } else {
-          printf("Out of memory error\n");
-//          exit(-1);
+                    list_add_tail_eurecom(tb_dst, &data_indP->data);
+                    data_indP->no_tb  += 1;
+                }
+                else
+                {
+                    printf("Out of memory error\n");
+                    //          exit(-1);
+                }
+            }
+            else
+            {
+                printf("[RLC-LOOP] DROPPING 1 TB\n");
+                *drop_countP = *drop_countP - 1;
+                *dropped_tx_packetsP = *dropped_tx_packetsP + 1;
+            }
+
+            free_mem_block(tb_src, __func__);
+
+            if(data_indP->no_tb > 0)
+            {
+                printf("[RLC-LOOP] Exchange %d TBs\n", data_indP->no_tb);
+            }
         }
-      } else {
-        printf("[RLC-LOOP] DROPPING 1 TB\n");
-        *drop_countP = *drop_countP - 1;
-        *dropped_tx_packetsP = *dropped_tx_packetsP + 1;
-      }
-
-      free_mem_block(tb_src, __func__);
-
-      if (data_indP->no_tb > 0) {
-        printf("[RLC-LOOP] Exchange %d TBs\n",data_indP->no_tb);
-      }
     }
-  }
 }
 //-----------------------------------------------------------------------------
 void pdcp_rlc_test_exchange_pdus(rlc_um_entity_t *um_txP,
@@ -171,127 +180,134 @@ void pdcp_rlc_test_exchange_pdus(rlc_um_entity_t *um_txP,
                                  u16_t           bytes_rxP)
 //-----------------------------------------------------------------------------
 {
-  struct mac_data_req    data_request_tx;
-  struct mac_data_req    data_request_rx;
-  struct mac_data_ind    data_ind_tx;
-  struct mac_data_ind    data_ind_rx;
-  struct mac_status_ind  tx_status;
-  struct mac_status_resp mac_rlc_status_resp_tx;
-  struct mac_status_resp mac_rlc_status_resp_rx;
+    struct mac_data_req    data_request_tx;
+    struct mac_data_req    data_request_rx;
+    struct mac_data_ind    data_ind_tx;
+    struct mac_data_ind    data_ind_rx;
+    struct mac_status_ind  tx_status;
+    struct mac_status_resp mac_rlc_status_resp_tx;
+    struct mac_status_resp mac_rlc_status_resp_rx;
 
 
-  memset(&data_request_tx, 0, sizeof(struct mac_data_req));
-  memset(&data_request_rx, 0, sizeof(struct mac_data_req));
-  memset(&data_ind_tx,     0, sizeof(struct mac_data_ind));
-  memset(&data_ind_rx,     0, sizeof(struct mac_data_ind));
-  memset(&tx_status,       0, sizeof(struct mac_status_ind));
-  memset(&mac_rlc_status_resp_tx, 0, sizeof(struct mac_status_resp));
-  memset(&mac_rlc_status_resp_rx, 0, sizeof(struct mac_status_resp));
+    memset(&data_request_tx, 0, sizeof(struct mac_data_req));
+    memset(&data_request_rx, 0, sizeof(struct mac_data_req));
+    memset(&data_ind_tx,     0, sizeof(struct mac_data_ind));
+    memset(&data_ind_rx,     0, sizeof(struct mac_data_ind));
+    memset(&tx_status,       0, sizeof(struct mac_status_ind));
+    memset(&mac_rlc_status_resp_tx, 0, sizeof(struct mac_status_resp));
+    memset(&mac_rlc_status_resp_rx, 0, sizeof(struct mac_status_resp));
 
-  mac_rlc_status_resp_tx = rlc_um_mac_status_indication(um_txP, bytes_txP, tx_status, ENB_FLAG_YES);
-  data_request_tx        = rlc_um_mac_data_request(um_txP);
-  mac_rlc_status_resp_rx = rlc_um_mac_status_indication(um_rxP, bytes_rxP, tx_status, ENB_FLAG_YES);
-  data_request_rx        = rlc_um_mac_data_request(um_rxP);
+    mac_rlc_status_resp_tx = rlc_um_mac_status_indication(um_txP, bytes_txP, tx_status, ENB_FLAG_YES);
+    data_request_tx        = rlc_um_mac_data_request(um_txP);
+    mac_rlc_status_resp_rx = rlc_um_mac_status_indication(um_rxP, bytes_rxP, tx_status, ENB_FLAG_YES);
+    data_request_rx        = rlc_um_mac_data_request(um_rxP);
 
 
-  pdcp_rlc_test_mac_rlc_loop(&data_ind_rx, &data_request_tx, &g_drop_tx, &g_tx_packets, &g_dropped_tx_packets);
-  pdcp_rlc_test_mac_rlc_loop(&data_ind_tx, &data_request_rx, &g_drop_rx, &g_rx_packets, &g_dropped_rx_packets);
-  rlc_um_mac_data_indication(um_rxP, data_ind_rx);
-  rlc_um_mac_data_indication(um_txP, data_ind_tx);
-  mac_xface->frame += 1;
+    pdcp_rlc_test_mac_rlc_loop(&data_ind_rx, &data_request_tx, &g_drop_tx, &g_tx_packets, &g_dropped_tx_packets);
+    pdcp_rlc_test_mac_rlc_loop(&data_ind_tx, &data_request_rx, &g_drop_rx, &g_rx_packets, &g_dropped_rx_packets);
+    rlc_um_mac_data_indication(um_rxP, data_ind_rx);
+    rlc_um_mac_data_indication(um_txP, data_ind_tx);
+    mac_xface->frame += 1;
 
-  //rlc_um_tx_buffer_display(um_txP,NULL);
-  //assert(um_txP->t_status_prohibit.time_out != 1);
-  //assert(um_rxP->t_status_prohibit.time_out != 1);
-  //assert(!((um_txP->vt_a == 954) && (um_txP->vt_us == 53)));
-  //assert(mac_xface->frame <= 151);
-  //check_mem_area(NULL);
-  //display_mem_load();
+    //rlc_um_tx_buffer_display(um_txP,NULL);
+    //assert(um_txP->t_status_prohibit.time_out != 1);
+    //assert(um_rxP->t_status_prohibit.time_out != 1);
+    //assert(!((um_txP->vt_a == 954) && (um_txP->vt_us == 53)));
+    //assert(mac_xface->frame <= 151);
+    //check_mem_area(NULL);
+    //display_mem_load();
 }
 //-----------------------------------------------------------------------------
 void pdcp_rlc_test_send_sdu(module_id_t module_idP, rb_id_t rab_idP, int sdu_indexP)
 //-----------------------------------------------------------------------------
 {
-  pdcp_data_req(module_idP, rab_idP, strlen(g_sdus[sdu_indexP]) + 1, g_sdus[sdu_indexP]);
+    pdcp_data_req(module_idP, rab_idP, strlen(g_sdus[sdu_indexP]) + 1, g_sdus[sdu_indexP]);
 }
 //-----------------------------------------------------------------------------
 int main(int argc, char **argv)
 //-----------------------------------------------------------------------------
 {
-  unsigned long   index = 0;
-  rlc_op_status_t rlc_op_status;
-  rlc_info_t      rlc_info;
-  char * g_log_level = "trace"; // by default global log level is set to trace
+    unsigned long   index = 0;
+    rlc_op_status_t rlc_op_status;
+    rlc_info_t      rlc_info;
+    char *g_log_level = "trace";  // by default global log level is set to trace
 
-  mac_xface = malloc(sizeof(MAC_xface));
-  Mac_rlc_xface = (MAC_RLC_XFACE*)malloc16(sizeof(MAC_RLC_XFACE));
+    mac_xface = malloc(sizeof(MAC_xface));
+    Mac_rlc_xface = (MAC_RLC_XFACE *)malloc16(sizeof(MAC_RLC_XFACE));
 
-  rlc_module_init ();
-  pdcp_module_init();
-  logInit();
+    rlc_module_init();
+    pdcp_module_init();
+    logInit();
 
-  if (init_pdcp_entity(&pdcp_array[0][1]) == TRUE && init_pdcp_entity(&pdcp_array[1][1]) == TRUE)
-    msg("PDCP entity initialization OK\n");
-  else {
-    msg("Cannot initialize PDCP entities!\n");
-    return 1;
-  }
-
-  /* Initialize PDCP state variables */
-  for (index = 0; index < 2; ++index) {
-    if (pdcp_init_seq_numbers(&pdcp_array[index][1]) == FALSE) {
-      msg("Cannot initialize %s PDCP entity!\n", ((index == 0) ? "first" : "second"));
-      exit(1);
+    if(init_pdcp_entity(&pdcp_array[0][1]) == TRUE && init_pdcp_entity(&pdcp_array[1][1]) == TRUE)
+    {
+        msg("PDCP entity initialization OK\n");
     }
-  }
+    else
+    {
+        msg("Cannot initialize PDCP entities!\n");
+        return 1;
+    }
+
+    /* Initialize PDCP state variables */
+    for(index = 0; index < 2; ++index)
+    {
+        if(pdcp_init_seq_numbers(&pdcp_array[index][1]) == FALSE)
+        {
+            msg("Cannot initialize %s PDCP entity!\n", ((index == 0) ? "first" : "second"));
+            exit(1);
+        }
+    }
 
 
-  /* Configure RLCs */
-  rlc_info.rlc_mode = RLC_UM;
-  rlc_info.rlc.rlc_um_info.timer_reordering = 20;
-  rlc_info.rlc.rlc_um_info.sn_field_length  = 10;
-  rlc_info.rlc.rlc_um_info.is_mXch          = 0;
+    /* Configure RLCs */
+    rlc_info.rlc_mode = RLC_UM;
+    rlc_info.rlc.rlc_um_info.timer_reordering = 20;
+    rlc_info.rlc.rlc_um_info.sn_field_length  = 10;
+    rlc_info.rlc.rlc_um_info.is_mXch          = 0;
 
-  rlc_op_status = rrc_rlc_config_req   (0, ACTION_ADD, 1, RADIO_ACCESS_BEARER, rlc_info);
-  assert(rlc_op_status == RLC_OP_STATUS_OK);
+    rlc_op_status = rrc_rlc_config_req(0, ACTION_ADD, 1, RADIO_ACCESS_BEARER, rlc_info);
+    assert(rlc_op_status == RLC_OP_STATUS_OK);
 
-  rlc_op_status = rrc_rlc_config_req   (1, ACTION_ADD, 1, RADIO_ACCESS_BEARER, rlc_info);
-  assert(rlc_op_status == RLC_OP_STATUS_OK);
-
-
-  /* Simulate data traffic */
-  pdcp_rlc_test_send_sdu(0, 1, 2);
-  pdcp_rlc_test_exchange_pdus(&rlc[0].m_rlc_um_array[rlc[0].m_rlc_pointer[1].rlc_index],
-                              &rlc[1].m_rlc_um_array[rlc[1].m_rlc_pointer[1].rlc_index],
-                              1000,
-                              1000);
-  pdcp_rlc_test_exchange_pdus(&rlc[1].m_rlc_um_array[rlc[1].m_rlc_pointer[1].rlc_index],
-                              &rlc[0].m_rlc_um_array[rlc[0].m_rlc_pointer[1].rlc_index],
-                              1000,
-                              1000);
+    rlc_op_status = rrc_rlc_config_req(1, ACTION_ADD, 1, RADIO_ACCESS_BEARER, rlc_info);
+    assert(rlc_op_status == RLC_OP_STATUS_OK);
 
 
-  return 0;
+    /* Simulate data traffic */
+    pdcp_rlc_test_send_sdu(0, 1, 2);
+    pdcp_rlc_test_exchange_pdus(&rlc[0].m_rlc_um_array[rlc[0].m_rlc_pointer[1].rlc_index],
+                                &rlc[1].m_rlc_um_array[rlc[1].m_rlc_pointer[1].rlc_index],
+                                1000,
+                                1000);
+    pdcp_rlc_test_exchange_pdus(&rlc[1].m_rlc_um_array[rlc[1].m_rlc_pointer[1].rlc_index],
+                                &rlc[0].m_rlc_um_array[rlc[0].m_rlc_pointer[1].rlc_index],
+                                1000,
+                                1000);
+
+
+    return 0;
 }
 
 //-----------------------------------------------------------------------------
 BOOL init_pdcp_entity(pdcp_t *pdcp_entity)
 //-----------------------------------------------------------------------------
 {
-  if (pdcp_entity == NULL)
-    return FALSE;
+    if(pdcp_entity == NULL)
+    {
+        return FALSE;
+    }
 
-  /*
-   * Initialize sequence number state variables of relevant PDCP entity
-   */
-  pdcp_entity->next_pdcp_tx_sn = 0;
-  pdcp_entity->next_pdcp_rx_sn = 0;
-  pdcp_entity->tx_hfn = 0;
-  pdcp_entity->rx_hfn = 0;
-  /* SN of the last PDCP SDU delivered to upper layers */
-  pdcp_entity->last_submitted_pdcp_rx_sn = 4095;
-  pdcp_entity->seq_num_size = 12;
+    /*
+        Initialize sequence number state variables of relevant PDCP entity
+    */
+    pdcp_entity->next_pdcp_tx_sn = 0;
+    pdcp_entity->next_pdcp_rx_sn = 0;
+    pdcp_entity->tx_hfn = 0;
+    pdcp_entity->rx_hfn = 0;
+    /* SN of the last PDCP SDU delivered to upper layers */
+    pdcp_entity->last_submitted_pdcp_rx_sn = 4095;
+    pdcp_entity->seq_num_size = 12;
 
-  return TRUE;
+    return TRUE;
 }
 

@@ -32,7 +32,8 @@
 #define ENC_ALGO          USIM_ENC_EEA0
 #define SECURITY_ALGORITHMS (ENC_ALGO | INT_ALGO)
 
-typedef struct {
+typedef struct
+{
     const char *msin;
     const char *usim_api_k;
     const char *msisdn;

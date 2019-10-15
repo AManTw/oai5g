@@ -1,39 +1,39 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*****************************************************************************
 
-Source      Attach.c
+    Source      Attach.c
 
-Version     0.1
+    Version     0.1
 
-Date        2012/12/04
+    Date        2012/12/04
 
-Product     NAS stack
+    Product     NAS stack
 
-Subsystem   EPS Mobility Management
+    Subsystem   EPS Mobility Management
 
-Author      Frederic Maurel
+    Author      Frederic Maurel
 
-Description Defines the attach related EMM procedure executed by the
+    Description Defines the attach related EMM procedure executed by the
         Non-Access Stratum.
 
         To get internet connectivity from the network, the network
@@ -79,25 +79,27 @@ Description Defines the attach related EMM procedure executed by the
 /****************************************************************************/
 
 /* String representation of the EPS attach type */
-char *emm_attach_type2str(int type) {
-static char *_emm_attach_type_str[] = {
-  "EPS", "IMSI", "EMERGENCY", "RESERVED"
-};
-return _emm_attach_type_str[type];
+char *emm_attach_type2str(int type)
+{
+    static char *_emm_attach_type_str[] =
+    {
+        "EPS", "IMSI", "EMERGENCY", "RESERVED"
+    };
+    return _emm_attach_type_str[type];
 }
 /*
- * --------------------------------------------------------------------------
- *      Internal data handled by the attach procedure in the UE
- * --------------------------------------------------------------------------
- */
+    --------------------------------------------------------------------------
+        Internal data handled by the attach procedure in the UE
+    --------------------------------------------------------------------------
+*/
 /*
- * Timer handlers
- */
+    Timer handlers
+*/
 static void *_emm_attach_t3411_handler(void *args);
 
 /*
- * Abnormal case attach procedure
- */
+    Abnormal case attach procedure
+*/
 static void _emm_attach_abnormal_cases_bcd(nas_user_t *user, emm_sap_t *);
 
 /****************************************************************************/
@@ -105,10 +107,10 @@ static void _emm_attach_abnormal_cases_bcd(nas_user_t *user, emm_sap_t *);
 /****************************************************************************/
 
 /*
- * --------------------------------------------------------------------------
- *          Attach procedure executed by the UE
- * --------------------------------------------------------------------------
- */
+    --------------------------------------------------------------------------
+            Attach procedure executed by the UE
+    --------------------------------------------------------------------------
+*/
 /****************************************************************************
  **                                                                        **
  ** Name:    emm_proc_attach()                                         **
@@ -133,145 +135,166 @@ static void _emm_attach_abnormal_cases_bcd(nas_user_t *user, emm_sap_t *);
  ***************************************************************************/
 int emm_proc_attach(nas_user_t *user, emm_proc_attach_type_t type)
 {
-  LOG_FUNC_IN;
+    LOG_FUNC_IN;
 
-  emm_sap_t emm_sap;
-  emm_as_establish_t *emm_as = &emm_sap.u.emm_as.u.establish;
-  esm_sap_t esm_sap;
-  int rc;
-  emm_timers_t *emm_timers = user->emm_data->emm_timers;
+    emm_sap_t emm_sap;
+    emm_as_establish_t *emm_as = &emm_sap.u.emm_as.u.establish;
+    esm_sap_t esm_sap;
+    int rc;
+    emm_timers_t *emm_timers = user->emm_data->emm_timers;
 
-  LOG_TRACE(INFO, "EMM-PROC  - Initiate EPS attach type = %s (%d)",
-            emm_attach_type2str(type), type);
+    LOG_TRACE(INFO, "EMM-PROC  - Initiate EPS attach type = %s (%d)",
+              emm_attach_type2str(type), type);
 
-  /* Update the emergency bearer service indicator */
-  if (type == EMM_ATTACH_TYPE_EMERGENCY) {
-    user->emm_data->is_emergency = TRUE;
-  }
-
-  /* Setup initial NAS information message to transfer */
-  emm_as->NASinfo = EMM_AS_NAS_INFO_ATTACH;
-  /* Set the attach type */
-  emm_as->type = type;
-
-  /* Set the RRC connection establishment cause */
-  if (user->emm_data->is_emergency) {
-    emm_as->RRCcause = NET_ESTABLISH_CAUSE_EMERGENCY;
-    emm_as->RRCtype = NET_ESTABLISH_TYPE_EMERGENCY_CALLS;
-  } else {
-    emm_as->RRCcause = NET_ESTABLISH_CAUSE_MO_SIGNAL;
-    emm_as->RRCtype = NET_ESTABLISH_TYPE_ORIGINATING_SIGNAL;
-  }
-
-  /* Set the PLMN identifier of the selected PLMN */
-  emm_as->plmnID = &user->emm_data->splmn;
-  /*
-   * Process the EPS mobile identity
-   */
-  emm_as->UEid.guti = NULL;
-  emm_as->UEid.tai  = NULL;
-  emm_as->UEid.imsi = NULL;
-  emm_as->UEid.imei = NULL;
-
-  /* Check whether the UE is configured for "AttachWithIMSI" */
-  if (user->emm_data->AttachWithImsi) {
-    /* Check whether the selected PLMN is neither the registered PLMN
-     * nor in the list of equivalent PLMNs */
-    if ( (!user->emm_data->is_rplmn) && (!user->emm_data->is_eplmn) ) {
-      LOG_TRACE(INFO, "EMM-PROC  - Initiate EPS attach with IMSI");
-      /* Include the IMSI */
-      emm_as->UEid.imsi = user->emm_data->imsi;
-    } else {
-      LOG_TRACE(INFO,
-                "EMM-PROC  - Initiate EPS attach with NO IMSI, is registered PLMN %d, is equivalent PLMN %d",
-                user->emm_data->is_rplmn,
-                user->emm_data->is_eplmn);
-    }
-  } else if (user->emm_data->guti) {
-    LOG_TRACE(INFO, "EMM-PROC  - Initiate EPS attach with GUTI");
-    /* Include a valid GUTI and the last visited registered TAI */
-    emm_as->UEid.guti = user->emm_data->guti;
-    emm_as->UEid.tai = user->emm_data->tai;
-  } else if (!user->emm_data->is_emergency) {
-    LOG_TRACE(INFO, "EMM-PROC  - Initiate EPS attach with IMSI cause is no emergency and no GUTI");
-    /* Include the IMSI if no valid GUTI is available */
-    emm_as->UEid.imsi = user->emm_data->imsi;
-  } else {
-    /* The UE is attaching for emergency bearer services and
-     * does not hold a valid GUTI */
-    if (user->emm_data->imsi) {
-      /* Include the IMSI if valid (USIM is present) */
-      LOG_TRACE(INFO, "EMM-PROC  - Initiate EPS attach with IMSI cause is emergency and no GUTI");
-      emm_as->UEid.imsi = user->emm_data->imsi;
-    } else {
-      LOG_TRACE(INFO, "EMM-PROC  - Initiate EPS attach with IMSI cause is emergency and no GUTI and no IMSI");
-      /* Include the IMEI if the IMSI is not valid */
-      emm_as->UEid.imei = user->emm_data->imei;
-    }
-  }
-
-  /* Setup EPS NAS security data */
-  emm_as_set_security_data(&emm_as->sctx, user->emm_data->security, FALSE, FALSE);
-  emm_as->ksi = EMM_AS_NO_KEY_AVAILABLE;
-
-  if (user->emm_data->security) {
-    if (user->emm_data->security->type != EMM_KSI_NOT_AVAILABLE) {
-      emm_as->ksi = user->emm_data->security->eksi;
+    /* Update the emergency bearer service indicator */
+    if(type == EMM_ATTACH_TYPE_EMERGENCY)
+    {
+        user->emm_data->is_emergency = TRUE;
     }
 
-    LOG_TRACE(INFO, "EMM-PROC  - eps_encryption 0x%X", user->emm_data->security->capability.eps_encryption);
-    LOG_TRACE(INFO, "EMM-PROC  - eps_integrity  0x%X", user->emm_data->security->capability.eps_integrity);
-    emm_as->encryption = user->emm_data->security->capability.eps_encryption;
-    emm_as->integrity = user->emm_data->security->capability.eps_integrity;
-  }
+    /* Setup initial NAS information message to transfer */
+    emm_as->NASinfo = EMM_AS_NAS_INFO_ATTACH;
+    /* Set the attach type */
+    emm_as->type = type;
 
-  /*
-   * Notify ESM that initiation of a PDN connectivity procedure
-   * is requested to setup a default EPS bearer
-   */
-  esm_sap.primitive = ESM_PDN_CONNECTIVITY_REQ;
-  esm_sap.is_standalone = FALSE;
-  esm_sap.data.pdn_connect.is_defined = TRUE;
-  esm_sap.data.pdn_connect.cid = 1;
-  /* TODO: PDN type should be set according to the IP capability of the UE */
-  esm_sap.data.pdn_connect.pdn_type = NET_PDN_TYPE_IPV4;
-  esm_sap.data.pdn_connect.apn = NULL;
-  esm_sap.data.pdn_connect.is_emergency = user->emm_data->is_emergency;
-  rc = esm_sap_send(user, &esm_sap);
-
-  if (rc != RETURNerror) {
-    /* Setup EMM procedure handler to be executed upon receiving
-     * lower layer notification */
-    rc = emm_proc_lowerlayer_initialize(user->lowerlayer_data, emm_proc_attach_request,
-                                        emm_proc_attach_failure,
-                                        emm_proc_attach_release, user);
-
-    if (rc != RETURNok) {
-      LOG_TRACE(WARNING, "Failed to initialize EMM procedure handler");
-      LOG_FUNC_RETURN (RETURNerror);
+    /* Set the RRC connection establishment cause */
+    if(user->emm_data->is_emergency)
+    {
+        emm_as->RRCcause = NET_ESTABLISH_CAUSE_EMERGENCY;
+        emm_as->RRCtype = NET_ESTABLISH_TYPE_EMERGENCY_CALLS;
+    }
+    else
+    {
+        emm_as->RRCcause = NET_ESTABLISH_CAUSE_MO_SIGNAL;
+        emm_as->RRCtype = NET_ESTABLISH_TYPE_ORIGINATING_SIGNAL;
     }
 
-    /* Start T3410 timer */
-    emm_timers->T3410.id = nas_timer_start(emm_timers->T3410.sec, emm_attach_t3410_handler, user);
-    LOG_TRACE(INFO,"EMM-PROC  - Timer T3410 (%d) expires in %ld seconds",
-              emm_timers->T3410.id, emm_timers->T3410.sec);
-    /* Stop T3402 and T3411 timers if running */
-    emm_timers->T3402.id = nas_timer_stop(emm_timers->T3402.id);
-    emm_timers->T3411.id = nas_timer_stop(emm_timers->T3411.id);
+    /* Set the PLMN identifier of the selected PLMN */
+    emm_as->plmnID = &user->emm_data->splmn;
+    /*
+        Process the EPS mobile identity
+    */
+    emm_as->UEid.guti = NULL;
+    emm_as->UEid.tai  = NULL;
+    emm_as->UEid.imsi = NULL;
+    emm_as->UEid.imei = NULL;
+
+    /* Check whether the UE is configured for "AttachWithIMSI" */
+    if(user->emm_data->AttachWithImsi)
+    {
+        /*  Check whether the selected PLMN is neither the registered PLMN
+            nor in the list of equivalent PLMNs */
+        if((!user->emm_data->is_rplmn) && (!user->emm_data->is_eplmn))
+        {
+            LOG_TRACE(INFO, "EMM-PROC  - Initiate EPS attach with IMSI");
+            /* Include the IMSI */
+            emm_as->UEid.imsi = user->emm_data->imsi;
+        }
+        else
+        {
+            LOG_TRACE(INFO,
+                      "EMM-PROC  - Initiate EPS attach with NO IMSI, is registered PLMN %d, is equivalent PLMN %d",
+                      user->emm_data->is_rplmn,
+                      user->emm_data->is_eplmn);
+        }
+    }
+    else if(user->emm_data->guti)
+    {
+        LOG_TRACE(INFO, "EMM-PROC  - Initiate EPS attach with GUTI");
+        /* Include a valid GUTI and the last visited registered TAI */
+        emm_as->UEid.guti = user->emm_data->guti;
+        emm_as->UEid.tai = user->emm_data->tai;
+    }
+    else if(!user->emm_data->is_emergency)
+    {
+        LOG_TRACE(INFO, "EMM-PROC  - Initiate EPS attach with IMSI cause is no emergency and no GUTI");
+        /* Include the IMSI if no valid GUTI is available */
+        emm_as->UEid.imsi = user->emm_data->imsi;
+    }
+    else
+    {
+        /*  The UE is attaching for emergency bearer services and
+            does not hold a valid GUTI */
+        if(user->emm_data->imsi)
+        {
+            /* Include the IMSI if valid (USIM is present) */
+            LOG_TRACE(INFO, "EMM-PROC  - Initiate EPS attach with IMSI cause is emergency and no GUTI");
+            emm_as->UEid.imsi = user->emm_data->imsi;
+        }
+        else
+        {
+            LOG_TRACE(INFO, "EMM-PROC  - Initiate EPS attach with IMSI cause is emergency and no GUTI and no IMSI");
+            /* Include the IMEI if the IMSI is not valid */
+            emm_as->UEid.imei = user->emm_data->imei;
+        }
+    }
+
+    /* Setup EPS NAS security data */
+    emm_as_set_security_data(&emm_as->sctx, user->emm_data->security, FALSE, FALSE);
+    emm_as->ksi = EMM_AS_NO_KEY_AVAILABLE;
+
+    if(user->emm_data->security)
+    {
+        if(user->emm_data->security->type != EMM_KSI_NOT_AVAILABLE)
+        {
+            emm_as->ksi = user->emm_data->security->eksi;
+        }
+
+        LOG_TRACE(INFO, "EMM-PROC  - eps_encryption 0x%X", user->emm_data->security->capability.eps_encryption);
+        LOG_TRACE(INFO, "EMM-PROC  - eps_integrity  0x%X", user->emm_data->security->capability.eps_integrity);
+        emm_as->encryption = user->emm_data->security->capability.eps_encryption;
+        emm_as->integrity = user->emm_data->security->capability.eps_integrity;
+    }
 
     /*
-     * Notify EMM-AS SAP that a RRC connection establishment procedure
-     * is requested from the Access-Stratum to send initial NAS message
-     * attach request to the network
-     */
-    emm_sap.primitive = EMMAS_ESTABLISH_REQ;
-    /* Get the PDN connectivity request to transfer within the ESM
-     * container of the initial attach request message */
-    emm_sap.u.emm_as.u.establish.NASmsg = esm_sap.send;
-    rc = emm_sap_send(user, &emm_sap);
-  }
+        Notify ESM that initiation of a PDN connectivity procedure
+        is requested to setup a default EPS bearer
+    */
+    esm_sap.primitive = ESM_PDN_CONNECTIVITY_REQ;
+    esm_sap.is_standalone = FALSE;
+    esm_sap.data.pdn_connect.is_defined = TRUE;
+    esm_sap.data.pdn_connect.cid = 1;
+    /* TODO: PDN type should be set according to the IP capability of the UE */
+    esm_sap.data.pdn_connect.pdn_type = NET_PDN_TYPE_IPV4;
+    esm_sap.data.pdn_connect.apn = NULL;
+    esm_sap.data.pdn_connect.is_emergency = user->emm_data->is_emergency;
+    rc = esm_sap_send(user, &esm_sap);
 
-  LOG_FUNC_RETURN(rc);
+    if(rc != RETURNerror)
+    {
+        /*  Setup EMM procedure handler to be executed upon receiving
+            lower layer notification */
+        rc = emm_proc_lowerlayer_initialize(user->lowerlayer_data, emm_proc_attach_request,
+                                            emm_proc_attach_failure,
+                                            emm_proc_attach_release, user);
+
+        if(rc != RETURNok)
+        {
+            LOG_TRACE(WARNING, "Failed to initialize EMM procedure handler");
+            LOG_FUNC_RETURN(RETURNerror);
+        }
+
+        /* Start T3410 timer */
+        emm_timers->T3410.id = nas_timer_start(emm_timers->T3410.sec, emm_attach_t3410_handler, user);
+        LOG_TRACE(INFO, "EMM-PROC  - Timer T3410 (%d) expires in %ld seconds",
+                  emm_timers->T3410.id, emm_timers->T3410.sec);
+        /* Stop T3402 and T3411 timers if running */
+        emm_timers->T3402.id = nas_timer_stop(emm_timers->T3402.id);
+        emm_timers->T3411.id = nas_timer_stop(emm_timers->T3411.id);
+
+        /*
+            Notify EMM-AS SAP that a RRC connection establishment procedure
+            is requested from the Access-Stratum to send initial NAS message
+            attach request to the network
+        */
+        emm_sap.primitive = EMMAS_ESTABLISH_REQ;
+        /*  Get the PDN connectivity request to transfer within the ESM
+            container of the initial attach request message */
+        emm_sap.u.emm_as.u.establish.NASmsg = esm_sap.send;
+        rc = emm_sap_send(user, &emm_sap);
+    }
+
+    LOG_FUNC_RETURN(rc);
 }
 
 /****************************************************************************
@@ -292,18 +315,18 @@ int emm_proc_attach(nas_user_t *user, emm_proc_attach_type_t type)
  ***************************************************************************/
 int emm_proc_attach_request(void *args)
 {
-  LOG_FUNC_IN;
-  nas_user_t *user=args;
-  emm_sap_t emm_sap;
-  int rc;
+    LOG_FUNC_IN;
+    nas_user_t *user = args;
+    emm_sap_t emm_sap;
+    int rc;
 
-  /*
-   * Notify EMM that Attach Request has been sent to the network
-   */
-  emm_sap.primitive = EMMREG_ATTACH_REQ;
-  rc = emm_sap_send(user, &emm_sap);
+    /*
+        Notify EMM that Attach Request has been sent to the network
+    */
+    emm_sap.primitive = EMMREG_ATTACH_REQ;
+    rc = emm_sap_send(user, &emm_sap);
 
-  LOG_FUNC_RETURN(rc);
+    LOG_FUNC_RETURN(rc);
 }
 
 /****************************************************************************
@@ -342,134 +365,151 @@ int emm_proc_attach_accept(nas_user_t *user, long t3412, long t3402, long t3423,
                            int n_eplmns, plmn_t *eplmn,
                            const OctetString *esm_msg_pP)
 {
-  LOG_FUNC_IN;
+    LOG_FUNC_IN;
 
-  emm_sap_t emm_sap;
-  esm_sap_t esm_sap;
-  int rc;
-  int i;
-  int j;
-  emm_timers_t *emm_timers = user->emm_data->emm_timers;
+    emm_sap_t emm_sap;
+    esm_sap_t esm_sap;
+    int rc;
+    int i;
+    int j;
+    emm_timers_t *emm_timers = user->emm_data->emm_timers;
 
-  LOG_TRACE(INFO, "EMM-PROC  - EPS attach accepted by the network");
+    LOG_TRACE(INFO, "EMM-PROC  - EPS attach accepted by the network");
 
-  /* Stop timer T3410 */
-  LOG_TRACE(INFO, "EMM-PROC  - Stop timer T3410 (%d)", emm_timers->T3410.id);
-  emm_timers->T3410.id = nas_timer_stop(emm_timers->T3410.id);
+    /* Stop timer T3410 */
+    LOG_TRACE(INFO, "EMM-PROC  - Stop timer T3410 (%d)", emm_timers->T3410.id);
+    emm_timers->T3410.id = nas_timer_stop(emm_timers->T3410.id);
 
-  /* Delete old TAI list and store the received TAI list */
-  user->emm_data->ltai.n_tais = n_tais;
+    /* Delete old TAI list and store the received TAI list */
+    user->emm_data->ltai.n_tais = n_tais;
 
-  for (i = 0; (i < n_tais) && (i < EMM_DATA_TAI_MAX); i++) {
-    user->emm_data->ltai.tai[i] = tai[i];
-  }
+    for(i = 0; (i < n_tais) && (i < EMM_DATA_TAI_MAX); i++)
+    {
+        user->emm_data->ltai.tai[i] = tai[i];
+    }
 
-  /* Update periodic tracking area update timer value */
-  emm_timers->T3412.sec = t3412;
+    /* Update periodic tracking area update timer value */
+    emm_timers->T3412.sec = t3412;
 
-  /* Update attach failure timer value */
-  if ( !(t3402 < 0) ) {
-    emm_timers->T3402.sec = t3402;
-  }
+    /* Update attach failure timer value */
+    if(!(t3402 < 0))
+    {
+        emm_timers->T3402.sec = t3402;
+    }
 
-  /* Update E-UTRAN deactivate ISR timer value */
-  if ( !(t3423 < 0) ) {
-    emm_timers->T3423.sec = t3423;
-  }
+    /* Update E-UTRAN deactivate ISR timer value */
+    if(!(t3423 < 0))
+    {
+        emm_timers->T3423.sec = t3423;
+    }
 
-  /* Delete old GUTI and store the new assigned GUTI if provided */
-  if (guti) {
-    *user->emm_data->guti = *guti;
-  }
+    /* Delete old GUTI and store the new assigned GUTI if provided */
+    if(guti)
+    {
+        *user->emm_data->guti = *guti;
+    }
 
-  /* Update the stored list of equivalent PLMNs */
-  user->emm_data->nvdata.eplmn.n_plmns = 0;
+    /* Update the stored list of equivalent PLMNs */
+    user->emm_data->nvdata.eplmn.n_plmns = 0;
 
-  if (n_eplmns > 0) {
-    for (i = 0; (i < n_eplmns) && (i < EMM_DATA_EPLMN_MAX); i++) {
-      int is_forbidden = FALSE;
+    if(n_eplmns > 0)
+    {
+        for(i = 0; (i < n_eplmns) && (i < EMM_DATA_EPLMN_MAX); i++)
+        {
+            int is_forbidden = FALSE;
 
-      if (!user->emm_data->is_emergency) {
-        /* If the attach procedure is not for emergency bearer
-         * services, the UE shall remove from the list any PLMN
-         * code that is already in the list of forbidden PLMNs */
-        for (j = 0; j < user->emm_data->fplmn.n_plmns; j++) {
-          if (PLMNS_ARE_EQUAL(eplmn[i], user->emm_data->fplmn.plmn[j])) {
-            is_forbidden = TRUE;
-            break;
-          }
+            if(!user->emm_data->is_emergency)
+            {
+                /*  If the attach procedure is not for emergency bearer
+                    services, the UE shall remove from the list any PLMN
+                    code that is already in the list of forbidden PLMNs */
+                for(j = 0; j < user->emm_data->fplmn.n_plmns; j++)
+                {
+                    if(PLMNS_ARE_EQUAL(eplmn[i], user->emm_data->fplmn.plmn[j]))
+                    {
+                        is_forbidden = TRUE;
+                        break;
+                    }
+                }
+            }
+
+            if(!is_forbidden)
+            {
+                user->emm_data->nvdata.eplmn.plmn[user->emm_data->nvdata.eplmn.n_plmns++] =
+                    eplmn[i];
+            }
         }
-      }
 
-      if ( !is_forbidden ) {
-        user->emm_data->nvdata.eplmn.plmn[user->emm_data->nvdata.eplmn.n_plmns++] =
-          eplmn[i];
-      }
-    }
-
-    /* Add the PLMN code of the registered PLMN that sent the list */
-    if (user->emm_data->nvdata.eplmn.n_plmns < EMM_DATA_EPLMN_MAX) {
-      user->emm_data->nvdata.eplmn.plmn[user->emm_data->nvdata.eplmn.n_plmns++] =
-        user->emm_data->splmn;
-    }
-  }
-
-  /*
-   * Notify ESM that a default EPS bearer has to be activated
-   */
-  esm_sap.primitive = ESM_DEFAULT_EPS_BEARER_CONTEXT_ACTIVATE_REQ;
-  esm_sap.is_standalone = FALSE;
-  esm_sap.recv = esm_msg_pP;
-  rc = esm_sap_send(user, &esm_sap);
-
-  if ( (rc != RETURNerror) && (esm_sap.err == ESM_SAP_SUCCESS) ) {
-    /* Setup EMM procedure handler to be executed upon receiving
-     * lower layer notification */
-    rc = emm_proc_lowerlayer_initialize(user->lowerlayer_data, emm_proc_attach_complete,
-                                        emm_proc_attach_failure,
-                                        NULL, user);
-
-    if (rc != RETURNok) {
-      LOG_TRACE(WARNING,
-                "EMM-PROC  - Failed to initialize EMM procedure handler");
-      LOG_FUNC_RETURN (RETURNerror);
+        /* Add the PLMN code of the registered PLMN that sent the list */
+        if(user->emm_data->nvdata.eplmn.n_plmns < EMM_DATA_EPLMN_MAX)
+        {
+            user->emm_data->nvdata.eplmn.plmn[user->emm_data->nvdata.eplmn.n_plmns++] =
+                user->emm_data->splmn;
+        }
     }
 
     /*
-     * Notify EMM-AS SAP that Attach Complete message together with
-     * an Activate Default EPS Bearer Context Accept message has to
-     * be sent to the network
-     */
-    emm_sap.primitive = EMMAS_DATA_REQ;
-    emm_sap.u.emm_as.u.data.guti = user->emm_data->guti;
-    emm_sap.u.emm_as.u.data.ueid = user->ueid;
-    /* Setup EPS NAS security data */
-    emm_as_set_security_data(&emm_sap.u.emm_as.u.data.sctx,
-                             user->emm_data->security, FALSE, TRUE);
-    /* Get the activate default EPS bearer context accept message
-     * to be transfered within the ESM container of the attach
-     * complete message */
-    emm_sap.u.emm_as.u.data.NASinfo = EMM_AS_NAS_DATA_ATTACH;
-    emm_sap.u.emm_as.u.data.NASmsg = esm_sap.send;
-    rc = emm_sap_send(user, &emm_sap);
-  } else if (esm_sap.err != ESM_SAP_DISCARDED) {
-    /* 3GPP TS 24.301, section 5.5.1.2.6, case j
-     * If the ACTIVATE DEFAULT BEARER CONTEXT REQUEST message combined
-     * with the ATTACH ACCEPT is not accepted by the UE due to failure
-     * in the UE ESM sublayer, then the UE shall initiate the detach
-     * procedure by sending a DETACH REQUEST message to the network.
-     */
-    emm_sap.primitive = EMMREG_DETACH_INIT;
-    rc = emm_sap_send(user, &emm_sap);
-  } else {
-    /*
-     * ESM procedure failed and, received message has been discarded or
-     * Status message has been returned; ignore ESM procedure failure
-     */
-    rc = RETURNok;
-  }
+        Notify ESM that a default EPS bearer has to be activated
+    */
+    esm_sap.primitive = ESM_DEFAULT_EPS_BEARER_CONTEXT_ACTIVATE_REQ;
+    esm_sap.is_standalone = FALSE;
+    esm_sap.recv = esm_msg_pP;
+    rc = esm_sap_send(user, &esm_sap);
 
-  LOG_FUNC_RETURN(rc);
+    if((rc != RETURNerror) && (esm_sap.err == ESM_SAP_SUCCESS))
+    {
+        /*  Setup EMM procedure handler to be executed upon receiving
+            lower layer notification */
+        rc = emm_proc_lowerlayer_initialize(user->lowerlayer_data, emm_proc_attach_complete,
+                                            emm_proc_attach_failure,
+                                            NULL, user);
+
+        if(rc != RETURNok)
+        {
+            LOG_TRACE(WARNING,
+                      "EMM-PROC  - Failed to initialize EMM procedure handler");
+            LOG_FUNC_RETURN(RETURNerror);
+        }
+
+        /*
+            Notify EMM-AS SAP that Attach Complete message together with
+            an Activate Default EPS Bearer Context Accept message has to
+            be sent to the network
+        */
+        emm_sap.primitive = EMMAS_DATA_REQ;
+        emm_sap.u.emm_as.u.data.guti = user->emm_data->guti;
+        emm_sap.u.emm_as.u.data.ueid = user->ueid;
+        /* Setup EPS NAS security data */
+        emm_as_set_security_data(&emm_sap.u.emm_as.u.data.sctx,
+                                 user->emm_data->security, FALSE, TRUE);
+        /*  Get the activate default EPS bearer context accept message
+            to be transfered within the ESM container of the attach
+            complete message */
+        emm_sap.u.emm_as.u.data.NASinfo = EMM_AS_NAS_DATA_ATTACH;
+        emm_sap.u.emm_as.u.data.NASmsg = esm_sap.send;
+        rc = emm_sap_send(user, &emm_sap);
+    }
+    else if(esm_sap.err != ESM_SAP_DISCARDED)
+    {
+        /*  3GPP TS 24.301, section 5.5.1.2.6, case j
+            If the ACTIVATE DEFAULT BEARER CONTEXT REQUEST message combined
+            with the ATTACH ACCEPT is not accepted by the UE due to failure
+            in the UE ESM sublayer, then the UE shall initiate the detach
+            procedure by sending a DETACH REQUEST message to the network.
+        */
+        emm_sap.primitive = EMMREG_DETACH_INIT;
+        rc = emm_sap_send(user, &emm_sap);
+    }
+    else
+    {
+        /*
+            ESM procedure failed and, received message has been discarded or
+            Status message has been returned; ignore ESM procedure failure
+        */
+        rc = RETURNok;
+    }
+
+    LOG_FUNC_RETURN(rc);
 }
 
 /****************************************************************************
@@ -494,200 +534,208 @@ int emm_proc_attach_accept(nas_user_t *user, long t3412, long t3402, long t3423,
  ***************************************************************************/
 int emm_proc_attach_reject(nas_user_t *user, int emm_cause, const OctetString *esm_msg_pP)
 {
-  LOG_FUNC_IN;
+    LOG_FUNC_IN;
 
-  emm_sap_t emm_sap;
-  int rc;
-  emm_timers_t *emm_timers = user->emm_data->emm_timers;
-  emm_attach_data_t *emm_attach_data = user->emm_data->emm_attach_data;
+    emm_sap_t emm_sap;
+    int rc;
+    emm_timers_t *emm_timers = user->emm_data->emm_timers;
+    emm_attach_data_t *emm_attach_data = user->emm_data->emm_attach_data;
 
-  LOG_TRACE(WARNING, "EMM-PROC  - EPS attach rejected by the network, "
-            "EMM cause = %d", emm_cause);
+    LOG_TRACE(WARNING, "EMM-PROC  - EPS attach rejected by the network, "
+              "EMM cause = %d", emm_cause);
 
-  /* Stop timer T3410 */
-  LOG_TRACE(INFO, "EMM-PROC  - Stop timer T3410 (%d)", emm_timers->T3410.id);
-  emm_timers->T3410.id = nas_timer_stop(emm_timers->T3410.id);
+    /* Stop timer T3410 */
+    LOG_TRACE(INFO, "EMM-PROC  - Stop timer T3410 (%d)", emm_timers->T3410.id);
+    emm_timers->T3410.id = nas_timer_stop(emm_timers->T3410.id);
 
-  /* Update the EPS update status, the GUTI, the visited registered TAI and
-   * the eKSI */
-  switch (emm_cause) {
-  case EMM_CAUSE_ILLEGAL_UE:
-  case EMM_CAUSE_ILLEGAL_ME:
-  case EMM_CAUSE_EPS_NOT_ALLOWED:
-  case EMM_CAUSE_BOTH_NOT_ALLOWED:
-  case EMM_CAUSE_PLMN_NOT_ALLOWED:
-  case EMM_CAUSE_NOT_AUTHORIZED_IN_PLMN:
-  case EMM_CAUSE_EPS_NOT_ALLOWED_IN_PLMN:
-  case EMM_CAUSE_TA_NOT_ALLOWED:
-  case EMM_CAUSE_ROAMING_NOT_ALLOWED:
-  case EMM_CAUSE_NO_SUITABLE_CELLS:
-    /* Set the EPS update status to EU3 ROAMING NOT ALLOWED */
-    user->emm_data->status = EU3_ROAMING_NOT_ALLOWED;
-    /* Delete the GUTI */
-    user->emm_data->guti = NULL;
-    /* Delete the last visited registered TAI */
-    user->emm_data->tai = NULL;
+    /*  Update the EPS update status, the GUTI, the visited registered TAI and
+        the eKSI */
+    switch(emm_cause)
+    {
+        case EMM_CAUSE_ILLEGAL_UE:
+        case EMM_CAUSE_ILLEGAL_ME:
+        case EMM_CAUSE_EPS_NOT_ALLOWED:
+        case EMM_CAUSE_BOTH_NOT_ALLOWED:
+        case EMM_CAUSE_PLMN_NOT_ALLOWED:
+        case EMM_CAUSE_NOT_AUTHORIZED_IN_PLMN:
+        case EMM_CAUSE_EPS_NOT_ALLOWED_IN_PLMN:
+        case EMM_CAUSE_TA_NOT_ALLOWED:
+        case EMM_CAUSE_ROAMING_NOT_ALLOWED:
+        case EMM_CAUSE_NO_SUITABLE_CELLS:
+            /* Set the EPS update status to EU3 ROAMING NOT ALLOWED */
+            user->emm_data->status = EU3_ROAMING_NOT_ALLOWED;
+            /* Delete the GUTI */
+            user->emm_data->guti = NULL;
+            /* Delete the last visited registered TAI */
+            user->emm_data->tai = NULL;
 
-    /* Delete the eKSI */
-    if (user->emm_data->security) {
-      user->emm_data->security->type = EMM_KSI_NOT_AVAILABLE;
+            /* Delete the eKSI */
+            if(user->emm_data->security)
+            {
+                user->emm_data->security->type = EMM_KSI_NOT_AVAILABLE;
+            }
+
+            break;
+
+        default :
+            break;
     }
 
-    break;
+    /* Update list of equivalents PLMNs and attach attempt counter */
+    switch(emm_cause)
+    {
+        case EMM_CAUSE_ILLEGAL_UE:
+        case EMM_CAUSE_ILLEGAL_ME:
+        case EMM_CAUSE_EPS_NOT_ALLOWED:
+        case EMM_CAUSE_BOTH_NOT_ALLOWED:
+            /* Consider the USIM as invalid for EPS services */
+            user->emm_data->usim_is_valid = FALSE;
+            /* Delete the list of equivalent PLMNs */
+            user->emm_data->nvdata.eplmn.n_plmns = 0;
+            break;
 
-  default :
-    break;
-  }
+        case EMM_CAUSE_PLMN_NOT_ALLOWED:
+        case EMM_CAUSE_NOT_AUTHORIZED_IN_PLMN:
+        case EMM_CAUSE_ROAMING_NOT_ALLOWED:
+            /* Delete the list of equivalent PLMNs */
+            user->emm_data->nvdata.eplmn.n_plmns = 0;
+            /* Reset the attach attempt counter */
+            emm_attach_data->attempt_count = 0;
+            break;
 
-  /* Update list of equivalents PLMNs and attach attempt counter */
-  switch (emm_cause) {
-  case EMM_CAUSE_ILLEGAL_UE:
-  case EMM_CAUSE_ILLEGAL_ME:
-  case EMM_CAUSE_EPS_NOT_ALLOWED:
-  case EMM_CAUSE_BOTH_NOT_ALLOWED:
-    /* Consider the USIM as invalid for EPS services */
-    user->emm_data->usim_is_valid = FALSE;
-    /* Delete the list of equivalent PLMNs */
-    user->emm_data->nvdata.eplmn.n_plmns = 0;
-    break;
+        case EMM_CAUSE_TA_NOT_ALLOWED:
+        case EMM_CAUSE_EPS_NOT_ALLOWED_IN_PLMN:
+        case EMM_CAUSE_NO_SUITABLE_CELLS:
+            /* Reset the attach attempt counter */
+            emm_attach_data->attempt_count = 0;
+            break;
 
-  case EMM_CAUSE_PLMN_NOT_ALLOWED:
-  case EMM_CAUSE_NOT_AUTHORIZED_IN_PLMN:
-  case EMM_CAUSE_ROAMING_NOT_ALLOWED:
-    /* Delete the list of equivalent PLMNs */
-    user->emm_data->nvdata.eplmn.n_plmns = 0;
-    /* Reset the attach attempt counter */
-    emm_attach_data->attempt_count = 0;
-    break;
+        case EMM_CAUSE_ESM_FAILURE:
 
-  case EMM_CAUSE_TA_NOT_ALLOWED:
-  case EMM_CAUSE_EPS_NOT_ALLOWED_IN_PLMN:
-  case EMM_CAUSE_NO_SUITABLE_CELLS:
-    /* Reset the attach attempt counter */
-    emm_attach_data->attempt_count = 0;
-    break;
+            /* 3GPP TS 24.301, section 5.5.1.2.6, case d */
+            if(user->emm_data->NAS_SignallingPriority != 1)
+            {
+                /*  The UE is not configured for NAS signalling low priority;
+                    set the attach attempt counter to 5 */
+                emm_attach_data->attempt_count = EMM_ATTACH_COUNTER_MAX;
+            }
 
-  case EMM_CAUSE_ESM_FAILURE:
+            break;
 
-    /* 3GPP TS 24.301, section 5.5.1.2.6, case d */
-    if (user->emm_data->NAS_SignallingPriority != 1) {
-      /* The UE is not configured for NAS signalling low priority;
-       * set the attach attempt counter to 5 */
-      emm_attach_data->attempt_count = EMM_ATTACH_COUNTER_MAX;
+        case EMM_CAUSE_SEMANTICALLY_INCORRECT:
+        case EMM_CAUSE_INVALID_MANDATORY_INFO:
+        case EMM_CAUSE_MESSAGE_TYPE_NOT_IMPLEMENTED:
+        case EMM_CAUSE_IE_NOT_IMPLEMENTED:
+        case EMM_CAUSE_PROTOCOL_ERROR:
+            /*  3GPP TS 24.301, section 5.5.1.2.6, case d
+                Set the attach attempt counter to 5 */
+            emm_attach_data->attempt_count = EMM_ATTACH_COUNTER_MAX;
+            break;
+
+        default :
+            break;
     }
 
-    break;
+    /* Update "forbidden lists" */
+    switch(emm_cause)
+    {
+        case EMM_CAUSE_PLMN_NOT_ALLOWED:
+        case EMM_CAUSE_NOT_AUTHORIZED_IN_PLMN:
+            /* Store the PLMN identity in the "forbidden PLMN list" */
+            user->emm_data->fplmn.plmn[user->emm_data->fplmn.n_plmns++] = user->emm_data->splmn;
+            break;
 
-  case EMM_CAUSE_SEMANTICALLY_INCORRECT:
-  case EMM_CAUSE_INVALID_MANDATORY_INFO:
-  case EMM_CAUSE_MESSAGE_TYPE_NOT_IMPLEMENTED:
-  case EMM_CAUSE_IE_NOT_IMPLEMENTED:
-  case EMM_CAUSE_PROTOCOL_ERROR:
-    /* 3GPP TS 24.301, section 5.5.1.2.6, case d
-     * Set the attach attempt counter to 5 */
-    emm_attach_data->attempt_count = EMM_ATTACH_COUNTER_MAX;
-    break;
+        case EMM_CAUSE_TA_NOT_ALLOWED:
+            /*  Store the current TAI in the list of "forbidden tracking
+                areas for regional provision of service" */
+            user->emm_data->ftai.tai[user->emm_data->ftai.n_tais++] = *user->emm_data->tai;
+            break;
 
-  default :
-    break;
-  }
+        case EMM_CAUSE_ROAMING_NOT_ALLOWED:
+            /*  Store the current TAI in the list of "forbidden tracking
+                areas for roaming" */
+            user->emm_data->ftai_roaming.tai[user->emm_data->ftai_roaming.n_tais++] = *user->emm_data->tai;
+            break;
 
-  /* Update "forbidden lists" */
-  switch (emm_cause) {
-  case EMM_CAUSE_PLMN_NOT_ALLOWED:
-  case EMM_CAUSE_NOT_AUTHORIZED_IN_PLMN:
-    /* Store the PLMN identity in the "forbidden PLMN list" */
-    user->emm_data->fplmn.plmn[user->emm_data->fplmn.n_plmns++] = user->emm_data->splmn;
-    break;
+        case EMM_CAUSE_EPS_NOT_ALLOWED_IN_PLMN:
+            /*  Store the PLMN identity in the "forbidden PLMNs for GPRS
+                service" list */
+            user->emm_data->fplmn_gprs.plmn[user->emm_data->fplmn_gprs.n_plmns++] = user->emm_data->splmn;
+            break;
 
-  case EMM_CAUSE_TA_NOT_ALLOWED:
-    /* Store the current TAI in the list of "forbidden tracking
-     * areas for regional provision of service" */
-    user->emm_data->ftai.tai[user->emm_data->ftai.n_tais++] = *user->emm_data->tai;
-    break;
-
-  case EMM_CAUSE_ROAMING_NOT_ALLOWED:
-    /* Store the current TAI in the list of "forbidden tracking
-     * areas for roaming" */
-    user->emm_data->ftai_roaming.tai[user->emm_data->ftai_roaming.n_tais++] = *user->emm_data->tai;
-    break;
-
-  case EMM_CAUSE_EPS_NOT_ALLOWED_IN_PLMN:
-    /* Store the PLMN identity in the "forbidden PLMNs for GPRS
-     * service" list */
-    user->emm_data->fplmn_gprs.plmn[user->emm_data->fplmn_gprs.n_plmns++] = user->emm_data->splmn;
-    break;
-
-  default :
-    break;
-  }
-
-  /* Update state of EMM sublayer */
-  switch (emm_cause) {
-  case EMM_CAUSE_ILLEGAL_UE:
-  case EMM_CAUSE_ILLEGAL_ME:
-  case EMM_CAUSE_EPS_NOT_ALLOWED:
-  case EMM_CAUSE_BOTH_NOT_ALLOWED:
-    /*
-     * Notify EMM that EPS attach is rejected
-     */
-    emm_sap.primitive = EMMREG_ATTACH_REJ;
-    break;
-
-  case EMM_CAUSE_PLMN_NOT_ALLOWED:
-  case EMM_CAUSE_NOT_AUTHORIZED_IN_PLMN:
-  case EMM_CAUSE_EPS_NOT_ALLOWED_IN_PLMN:
-    /*
-     * Notify EMM that the UE has to perform a PLMN selection because
-     * it is not allowed to operate in the currently selected PLMN
-     */
-    emm_sap.primitive = EMMREG_REGISTER_REQ;
-    break;
-
-  case EMM_CAUSE_TA_NOT_ALLOWED:
-  case EMM_CAUSE_ROAMING_NOT_ALLOWED:
-  case EMM_CAUSE_NO_SUITABLE_CELLS:
-    /*
-     * Notify EMM that the UE failed to register to the network for
-     * EPS services because it is not allowed to operate in the
-     * requested tracking area
-     */
-    emm_sap.primitive = EMMREG_REGISTER_REJ;
-    break;
-
-  case EMM_CAUSE_IMEI_NOT_ACCEPTED:
-    if (user->emm_data->is_emergency) {
-      /*
-       * Notify EMM that the UE failed to register to the network
-       * for emergency bearer services because "IMEI not accepted"
-       */
-      emm_sap.primitive = EMMREG_NO_IMSI;
-      break;
+        default :
+            break;
     }
 
-    /* break is volontary missing */
+    /* Update state of EMM sublayer */
+    switch(emm_cause)
+    {
+        case EMM_CAUSE_ILLEGAL_UE:
+        case EMM_CAUSE_ILLEGAL_ME:
+        case EMM_CAUSE_EPS_NOT_ALLOWED:
+        case EMM_CAUSE_BOTH_NOT_ALLOWED:
+            /*
+                Notify EMM that EPS attach is rejected
+            */
+            emm_sap.primitive = EMMREG_ATTACH_REJ;
+            break;
 
-  default :
-    /* Other values are considered as abnormal cases
-     * 3GPP TS 24.301, section 5.5.1.2.6, case d */
-    _emm_attach_abnormal_cases_bcd(user, &emm_sap);
-    break;
-  }
+        case EMM_CAUSE_PLMN_NOT_ALLOWED:
+        case EMM_CAUSE_NOT_AUTHORIZED_IN_PLMN:
+        case EMM_CAUSE_EPS_NOT_ALLOWED_IN_PLMN:
+            /*
+                Notify EMM that the UE has to perform a PLMN selection because
+                it is not allowed to operate in the currently selected PLMN
+            */
+            emm_sap.primitive = EMMREG_REGISTER_REQ;
+            break;
 
-  rc = emm_sap_send(user, &emm_sap);
+        case EMM_CAUSE_TA_NOT_ALLOWED:
+        case EMM_CAUSE_ROAMING_NOT_ALLOWED:
+        case EMM_CAUSE_NO_SUITABLE_CELLS:
+            /*
+                Notify EMM that the UE failed to register to the network for
+                EPS services because it is not allowed to operate in the
+                requested tracking area
+            */
+            emm_sap.primitive = EMMREG_REGISTER_REJ;
+            break;
 
-  /*
-   * Notify ESM that the network rejected connectivity to the PDN
-   */
-  if (esm_msg_pP != NULL) {
-    esm_sap_t esm_sap;
-    esm_sap.primitive = ESM_PDN_CONNECTIVITY_REJ;
-    esm_sap.is_standalone = FALSE;
-    esm_sap.recv = esm_msg_pP;
-    rc = esm_sap_send(user, &esm_sap);
-  }
+        case EMM_CAUSE_IMEI_NOT_ACCEPTED:
+            if(user->emm_data->is_emergency)
+            {
+                /*
+                    Notify EMM that the UE failed to register to the network
+                    for emergency bearer services because "IMEI not accepted"
+                */
+                emm_sap.primitive = EMMREG_NO_IMSI;
+                break;
+            }
 
-  LOG_FUNC_RETURN(rc);
+        /* break is volontary missing */
+
+        default :
+            /*  Other values are considered as abnormal cases
+                3GPP TS 24.301, section 5.5.1.2.6, case d */
+            _emm_attach_abnormal_cases_bcd(user, &emm_sap);
+            break;
+    }
+
+    rc = emm_sap_send(user, &emm_sap);
+
+    /*
+        Notify ESM that the network rejected connectivity to the PDN
+    */
+    if(esm_msg_pP != NULL)
+    {
+        esm_sap_t esm_sap;
+        esm_sap.primitive = ESM_PDN_CONNECTIVITY_REJ;
+        esm_sap.is_standalone = FALSE;
+        esm_sap.recv = esm_msg_pP;
+        rc = esm_sap_send(user, &esm_sap);
+    }
+
+    LOG_FUNC_RETURN(rc);
 }
 
 /****************************************************************************
@@ -712,46 +760,47 @@ int emm_proc_attach_reject(nas_user_t *user, int emm_cause, const OctetString *e
  ***************************************************************************/
 int emm_proc_attach_complete(void *args)
 {
-  LOG_FUNC_IN;
+    LOG_FUNC_IN;
 
-  nas_user_t *user = args;
-  emm_attach_data_t *emm_attach_data = user->emm_data->emm_attach_data;
-  emm_sap_t emm_sap;
-  esm_sap_t esm_sap;
-  int rc;
+    nas_user_t *user = args;
+    emm_attach_data_t *emm_attach_data = user->emm_data->emm_attach_data;
+    emm_sap_t emm_sap;
+    esm_sap_t esm_sap;
+    int rc;
 
-  LOG_TRACE(INFO, "EMM-PROC  - EPS attach complete");
+    LOG_TRACE(INFO, "EMM-PROC  - EPS attach complete");
 
-  /* Reset EMM procedure handler */
-  emm_proc_lowerlayer_initialize(user->lowerlayer_data, NULL, NULL, NULL, NULL);
+    /* Reset EMM procedure handler */
+    emm_proc_lowerlayer_initialize(user->lowerlayer_data, NULL, NULL, NULL, NULL);
 
-  /* Reset the attach attempt counter */
-  emm_attach_data->attempt_count = 0;
-  /* TODO: Reset the tracking area updating attempt counter */
+    /* Reset the attach attempt counter */
+    emm_attach_data->attempt_count = 0;
+    /* TODO: Reset the tracking area updating attempt counter */
 
-  /* Set the EPS update status to EU1 UPDATED */
-  user->emm_data->status = EU1_UPDATED;
-  user->emm_data->is_attached = TRUE;
+    /* Set the EPS update status to EU1 UPDATED */
+    user->emm_data->status = EU1_UPDATED;
+    user->emm_data->is_attached = TRUE;
 
-  /*
-   * Notify EMM that network attach complete message has been delivered
-   * to the network
-   */
-  emm_sap.primitive = EMMREG_ATTACH_CNF;
-  rc = emm_sap_send(user, &emm_sap);
-
-  if (rc != RETURNerror) {
     /*
-     * Notify ESM that the Activate Default EPS Bearer Context Accept
-     * message has been delivered to the network within the Attach
-     * Complete message
-     */
-    esm_sap.primitive = ESM_DEFAULT_EPS_BEARER_CONTEXT_ACTIVATE_CNF;
-    esm_sap.is_standalone = FALSE;
-    rc = esm_sap_send(user, &esm_sap);
-  }
+        Notify EMM that network attach complete message has been delivered
+        to the network
+    */
+    emm_sap.primitive = EMMREG_ATTACH_CNF;
+    rc = emm_sap_send(user, &emm_sap);
 
-  LOG_FUNC_RETURN(rc);
+    if(rc != RETURNerror)
+    {
+        /*
+            Notify ESM that the Activate Default EPS Bearer Context Accept
+            message has been delivered to the network within the Attach
+            Complete message
+        */
+        esm_sap.primitive = ESM_DEFAULT_EPS_BEARER_CONTEXT_ACTIVATE_CNF;
+        esm_sap.is_standalone = FALSE;
+        rc = esm_sap_send(user, &esm_sap);
+    }
+
+    LOG_FUNC_RETURN(rc);
 }
 
 /****************************************************************************
@@ -780,53 +829,58 @@ int emm_proc_attach_complete(void *args)
  ***************************************************************************/
 int emm_proc_attach_failure(int is_initial, void *args)
 {
-  LOG_FUNC_IN;
-  int rc = RETURNok;
-  esm_sap_t esm_sap;
-  nas_user_t *user=args;
-  emm_timers_t *emm_timers = user->emm_data->emm_timers;
+    LOG_FUNC_IN;
+    int rc = RETURNok;
+    esm_sap_t esm_sap;
+    nas_user_t *user = args;
+    emm_timers_t *emm_timers = user->emm_data->emm_timers;
 
-  LOG_TRACE(WARNING, "EMM-PROC  - EPS attach failure");
+    LOG_TRACE(WARNING, "EMM-PROC  - EPS attach failure");
 
-  /* Reset EMM procedure handler */
-  emm_proc_lowerlayer_initialize(user->lowerlayer_data, NULL, NULL, NULL, NULL);
+    /* Reset EMM procedure handler */
+    emm_proc_lowerlayer_initialize(user->lowerlayer_data, NULL, NULL, NULL, NULL);
 
-  /* Stop timer T3410 if still running */
-  if (emm_timers->T3410.id != NAS_TIMER_INACTIVE_ID) {
-    LOG_TRACE(INFO, "EMM-PROC  - Stop timer T3410 (%d)", emm_timers->T3410.id);
-    emm_timers->T3410.id = nas_timer_stop(emm_timers->T3410.id);
-  }
+    /* Stop timer T3410 if still running */
+    if(emm_timers->T3410.id != NAS_TIMER_INACTIVE_ID)
+    {
+        LOG_TRACE(INFO, "EMM-PROC  - Stop timer T3410 (%d)", emm_timers->T3410.id);
+        emm_timers->T3410.id = nas_timer_stop(emm_timers->T3410.id);
+    }
 
-  if (is_initial) {
-    /*
-     * Notify ESM that the PDN CONNECTIVITY REQUEST message contained
-     * in the ESM message container IE of the ATTACH REQUEST has failed
-     * to be transmitted
-     */
-    esm_sap.primitive = ESM_PDN_CONNECTIVITY_REJ;
-    esm_sap.is_standalone = FALSE;
-    esm_sap.recv = NULL;
-  } else {
-    /*
-     * Notify ESM that ACTIVATE DEFAULT EPS BEARER CONTEXT REQUEST message
-     * contained in the ESM message container IE of the ATTACH COMPLETE
-     * has failed to be transmitted
-     */
-    esm_sap.primitive = ESM_DEFAULT_EPS_BEARER_CONTEXT_ACTIVATE_REJ;
-    esm_sap.is_standalone = FALSE;
-    esm_sap.recv = NULL;
-  }
+    if(is_initial)
+    {
+        /*
+            Notify ESM that the PDN CONNECTIVITY REQUEST message contained
+            in the ESM message container IE of the ATTACH REQUEST has failed
+            to be transmitted
+        */
+        esm_sap.primitive = ESM_PDN_CONNECTIVITY_REJ;
+        esm_sap.is_standalone = FALSE;
+        esm_sap.recv = NULL;
+    }
+    else
+    {
+        /*
+            Notify ESM that ACTIVATE DEFAULT EPS BEARER CONTEXT REQUEST message
+            contained in the ESM message container IE of the ATTACH COMPLETE
+            has failed to be transmitted
+        */
+        esm_sap.primitive = ESM_DEFAULT_EPS_BEARER_CONTEXT_ACTIVATE_REJ;
+        esm_sap.is_standalone = FALSE;
+        esm_sap.recv = NULL;
+    }
 
-  rc = esm_sap_send(user, &esm_sap);
+    rc = esm_sap_send(user, &esm_sap);
 
-  if (rc != RETURNerror) {
-    /* Start T3411 timer */
-    emm_timers->T3411.id = nas_timer_start(emm_timers->T3411.sec, _emm_attach_t3411_handler, NULL);
-    LOG_TRACE(INFO, "EMM-PROC  - Timer T3411 (%d) expires in %ld seconds",
-              emm_timers->T3411.id, emm_timers->T3411.sec);
-  }
+    if(rc != RETURNerror)
+    {
+        /* Start T3411 timer */
+        emm_timers->T3411.id = nas_timer_start(emm_timers->T3411.sec, _emm_attach_t3411_handler, NULL);
+        LOG_TRACE(INFO, "EMM-PROC  - Timer T3411 (%d) expires in %ld seconds",
+                  emm_timers->T3411.id, emm_timers->T3411.sec);
+    }
 
-  LOG_FUNC_RETURN(rc);
+    LOG_FUNC_RETURN(rc);
 }
 
 /****************************************************************************
@@ -850,19 +904,19 @@ int emm_proc_attach_failure(int is_initial, void *args)
  ***************************************************************************/
 int emm_proc_attach_release(void *args)
 {
-  LOG_FUNC_IN;
-  nas_user_t *user=args;
-  emm_sap_t emm_sap;
-  int rc;
+    LOG_FUNC_IN;
+    nas_user_t *user = args;
+    emm_sap_t emm_sap;
+    int rc;
 
-  LOG_TRACE(WARNING, "EMM-PROC  - NAS signalling connection released");
+    LOG_TRACE(WARNING, "EMM-PROC  - NAS signalling connection released");
 
-  /* Execute abnormal case attach procedure */
-  _emm_attach_abnormal_cases_bcd(user, &emm_sap);
+    /* Execute abnormal case attach procedure */
+    _emm_attach_abnormal_cases_bcd(user, &emm_sap);
 
-  rc = emm_sap_send(user, &emm_sap);
+    rc = emm_sap_send(user, &emm_sap);
 
-  LOG_FUNC_RETURN(rc);
+    LOG_FUNC_RETURN(rc);
 }
 
 /****************************************************************************
@@ -881,21 +935,21 @@ int emm_proc_attach_release(void *args)
  ***************************************************************************/
 int emm_proc_attach_restart(nas_user_t *user)
 {
-  LOG_FUNC_IN;
+    LOG_FUNC_IN;
 
-  emm_sap_t emm_sap;
-  int rc;
+    emm_sap_t emm_sap;
+    int rc;
 
-  LOG_TRACE(INFO, "EMM-PROC  - Restart EPS attach procedure");
+    LOG_TRACE(INFO, "EMM-PROC  - Restart EPS attach procedure");
 
-  /*
-   * Notify EMM that the attach procedure has to be restarted
-   */
-  emm_sap.primitive = EMMREG_ATTACH_INIT;
-  emm_sap.u.emm_reg.u.attach.is_emergency = user->emm_data->is_emergency;
-  rc = emm_sap_send(user, &emm_sap);
+    /*
+        Notify EMM that the attach procedure has to be restarted
+    */
+    emm_sap.primitive = EMMREG_ATTACH_INIT;
+    emm_sap.u.emm_reg.u.attach.is_emergency = user->emm_data->is_emergency;
+    rc = emm_sap_send(user, &emm_sap);
 
-  LOG_FUNC_RETURN(rc);
+    LOG_FUNC_RETURN(rc);
 }
 
 /****************************************************************************
@@ -914,14 +968,14 @@ int emm_proc_attach_restart(nas_user_t *user)
  ***************************************************************************/
 int emm_proc_attach_set_emergency(emm_data_t *emm_data)
 {
-  LOG_FUNC_IN;
+    LOG_FUNC_IN;
 
-  LOG_TRACE(WARNING, "EMM-PROC  - UE is now attached to the network for "
-            "emergency bearer services only");
+    LOG_TRACE(WARNING, "EMM-PROC  - UE is now attached to the network for "
+              "emergency bearer services only");
 
-  emm_data->is_emergency = TRUE;
+    emm_data->is_emergency = TRUE;
 
-  LOG_FUNC_RETURN(RETURNok);
+    LOG_FUNC_RETURN(RETURNok);
 }
 
 /****************************************************************************
@@ -941,24 +995,24 @@ int emm_proc_attach_set_emergency(emm_data_t *emm_data)
  ***************************************************************************/
 int emm_proc_attach_set_detach(void *nas_user)
 {
-  LOG_FUNC_IN;
+    LOG_FUNC_IN;
 
-  nas_user_t *user=nas_user;
-  int rc;
+    nas_user_t *user = nas_user;
+    int rc;
 
-  LOG_TRACE(WARNING,
-            "EMM-PROC  - UE is now locally detached from the network");
+    LOG_TRACE(WARNING,
+              "EMM-PROC  - UE is now locally detached from the network");
 
-  /* Reset the network attachment indicator */
-  user->emm_data->is_attached = FALSE;
-  /*
-   * Notify that the UE is locally detached from the network
-   */
-  emm_sap_t emm_sap;
-  emm_sap.primitive = EMMREG_DETACH_CNF;
-  rc = emm_sap_send(user, &emm_sap);
+    /* Reset the network attachment indicator */
+    user->emm_data->is_attached = FALSE;
+    /*
+        Notify that the UE is locally detached from the network
+    */
+    emm_sap_t emm_sap;
+    emm_sap.primitive = EMMREG_DETACH_CNF;
+    rc = emm_sap_send(user, &emm_sap);
 
-  LOG_FUNC_RETURN(rc);
+    LOG_FUNC_RETURN(rc);
 }
 
 
@@ -967,10 +1021,10 @@ int emm_proc_attach_set_detach(void *nas_user)
 /****************************************************************************/
 
 /*
- * --------------------------------------------------------------------------
- *              Timer handlers
- * --------------------------------------------------------------------------
- */
+    --------------------------------------------------------------------------
+                Timer handlers
+    --------------------------------------------------------------------------
+*/
 
 /****************************************************************************
  **                                                                        **
@@ -994,28 +1048,29 @@ int emm_proc_attach_set_detach(void *nas_user)
  ***************************************************************************/
 void *emm_attach_t3410_handler(void *args)
 {
-  LOG_FUNC_IN;
+    LOG_FUNC_IN;
 
-  nas_user_t *user=args;
-  emm_timers_t *emm_timers = user->emm_data->emm_timers;
-  emm_sap_t emm_sap;
-  int rc;
+    nas_user_t *user = args;
+    emm_timers_t *emm_timers = user->emm_data->emm_timers;
+    emm_sap_t emm_sap;
+    int rc;
 
-  LOG_TRACE(WARNING, "EMM-PROC  - T3410 timer expired");
+    LOG_TRACE(WARNING, "EMM-PROC  - T3410 timer expired");
 
-  /* Stop T3410 timer */
-  emm_timers->T3410.id = nas_timer_stop(emm_timers->T3410.id);
-  /* Execute abnormal case attach procedure */
-  _emm_attach_abnormal_cases_bcd(user, &emm_sap);
+    /* Stop T3410 timer */
+    emm_timers->T3410.id = nas_timer_stop(emm_timers->T3410.id);
+    /* Execute abnormal case attach procedure */
+    _emm_attach_abnormal_cases_bcd(user, &emm_sap);
 
-  rc = emm_sap_send(user, &emm_sap);
+    rc = emm_sap_send(user, &emm_sap);
 
-  if (rc != RETURNerror) {
-    /* Locally release the NAS signalling connection */
-    user->emm_data->ecm_status = ECM_IDLE;
-  }
+    if(rc != RETURNerror)
+    {
+        /* Locally release the NAS signalling connection */
+        user->emm_data->ecm_status = ECM_IDLE;
+    }
 
-  LOG_FUNC_RETURN(NULL);
+    LOG_FUNC_RETURN(NULL);
 }
 
 /****************************************************************************
@@ -1038,26 +1093,26 @@ void *emm_attach_t3410_handler(void *args)
  ***************************************************************************/
 static void *_emm_attach_t3411_handler(void *args)
 {
-  LOG_FUNC_IN;
+    LOG_FUNC_IN;
 
-  nas_user_t *user=args;
-  emm_timers_t *emm_timers = user->emm_data->emm_timers;
-  emm_sap_t emm_sap;
+    nas_user_t *user = args;
+    emm_timers_t *emm_timers = user->emm_data->emm_timers;
+    emm_sap_t emm_sap;
 
-  LOG_TRACE(WARNING, "EMM-PROC  - T3411 timer expired");
+    LOG_TRACE(WARNING, "EMM-PROC  - T3411 timer expired");
 
-  /* Stop T3411 timer */
-  emm_timers->T3411.id = nas_timer_stop(emm_timers->T3411.id);
-  /*
-   * Notify EMM that timer T3411 expired and attach procedure has to be
-   * restarted
-   */
-  emm_sap.primitive = EMMREG_ATTACH_INIT;
-  emm_sap.u.emm_reg.u.attach.is_emergency = user->emm_data->is_emergency;
+    /* Stop T3411 timer */
+    emm_timers->T3411.id = nas_timer_stop(emm_timers->T3411.id);
+    /*
+        Notify EMM that timer T3411 expired and attach procedure has to be
+        restarted
+    */
+    emm_sap.primitive = EMMREG_ATTACH_INIT;
+    emm_sap.u.emm_reg.u.attach.is_emergency = user->emm_data->is_emergency;
 
-  (void) emm_sap_send(user, &emm_sap);
+    (void) emm_sap_send(user, &emm_sap);
 
-  LOG_FUNC_RETURN(NULL);
+    LOG_FUNC_RETURN(NULL);
 }
 
 /****************************************************************************
@@ -1083,36 +1138,36 @@ static void *_emm_attach_t3411_handler(void *args)
  ***************************************************************************/
 static void *_emm_attach_t3402_handler(void *args)
 {
-  LOG_FUNC_IN;
+    LOG_FUNC_IN;
 
-  nas_user_t *user = args;
-  emm_timers_t *emm_timers = user->emm_data->emm_timers;
-  emm_attach_data_t *emm_attach_data = user->emm_data->emm_attach_data;
-  emm_sap_t emm_sap;
+    nas_user_t *user = args;
+    emm_timers_t *emm_timers = user->emm_data->emm_timers;
+    emm_attach_data_t *emm_attach_data = user->emm_data->emm_attach_data;
+    emm_sap_t emm_sap;
 
-  LOG_TRACE(WARNING, "EMM-PROC  - T3402 timer expired");
+    LOG_TRACE(WARNING, "EMM-PROC  - T3402 timer expired");
 
-  /* Stop T3402 timer */
-  emm_timers->T3402.id = nas_timer_stop(emm_timers->T3402.id);
-  /* Reset the attach attempt counter */
-  emm_attach_data->attempt_count = 0;
-  /*
-   * Notify EMM that timer T3402 expired and attach procedure has to be
-   * restarted
-   */
-  emm_sap.primitive = EMMREG_ATTACH_INIT;
-  emm_sap.u.emm_reg.u.attach.is_emergency = user->emm_data->is_emergency;
+    /* Stop T3402 timer */
+    emm_timers->T3402.id = nas_timer_stop(emm_timers->T3402.id);
+    /* Reset the attach attempt counter */
+    emm_attach_data->attempt_count = 0;
+    /*
+        Notify EMM that timer T3402 expired and attach procedure has to be
+        restarted
+    */
+    emm_sap.primitive = EMMREG_ATTACH_INIT;
+    emm_sap.u.emm_reg.u.attach.is_emergency = user->emm_data->is_emergency;
 
-  (void) emm_sap_send(user, &emm_sap);
+    (void) emm_sap_send(user, &emm_sap);
 
-  LOG_FUNC_RETURN(NULL);
+    LOG_FUNC_RETURN(NULL);
 }
 
 /*
- * --------------------------------------------------------------------------
- *              Abnormal cases in the UE
- * --------------------------------------------------------------------------
- */
+    --------------------------------------------------------------------------
+                Abnormal cases in the UE
+    --------------------------------------------------------------------------
+*/
 
 /****************************************************************************
  **                                                                        **
@@ -1136,59 +1191,64 @@ static void *_emm_attach_t3402_handler(void *args)
  ***************************************************************************/
 static void _emm_attach_abnormal_cases_bcd(nas_user_t *user, emm_sap_t *emm_sap)
 {
-  LOG_FUNC_IN;
-  emm_timers_t *emm_timers = user->emm_data->emm_timers;
-  emm_attach_data_t *emm_attach_data = user->emm_data->emm_attach_data;
-  LOG_TRACE(WARNING, "EMM-PROC  - Abnormal case, attach counter = %d",
-            emm_attach_data->attempt_count);
+    LOG_FUNC_IN;
+    emm_timers_t *emm_timers = user->emm_data->emm_timers;
+    emm_attach_data_t *emm_attach_data = user->emm_data->emm_attach_data;
+    LOG_TRACE(WARNING, "EMM-PROC  - Abnormal case, attach counter = %d",
+              emm_attach_data->attempt_count);
 
-  /* Stop timer T3410 */
-  if (emm_timers->T3410.id != NAS_TIMER_INACTIVE_ID) {
-    LOG_TRACE(INFO, "EMM-PROC  - Stop timer T3410 (%d)", emm_timers->T3410.id);
-    emm_timers->T3410.id = nas_timer_stop(emm_timers->T3410.id);
-  }
-
-  if (emm_attach_data->attempt_count < EMM_ATTACH_COUNTER_MAX) {
-    /* Increment the attach attempt counter */
-    emm_attach_data->attempt_count += 1;
-    /* Start T3411 timer */
-    emm_timers->T3411.id = nas_timer_start(emm_timers->T3411.sec, _emm_attach_t3411_handler, NULL);
-    LOG_TRACE(INFO, "EMM-PROC  - Timer T3411 (%d) expires in %ld seconds",
-              emm_timers->T3411.id, emm_timers->T3411.sec);
-    /*
-     * Notify EMM that the attempt to attach for EPS services failed and
-     * the attach attempt counter didn't reach its maximum value; network
-     * attach procedure shall be restarted when timer T3411 expires.
-     */
-    emm_sap->primitive = EMMREG_ATTACH_FAILED;
-  } else {
-    /* Delete the GUTI */
-    user->emm_data->guti = NULL;
-    /* Delete the TAI list */
-    user->emm_data->ltai.n_tais = 0;
-    /* Delete the last visited registered TAI */
-    user->emm_data->tai = NULL;
-    /* Delete the list of equivalent PLMNs */
-    user->emm_data->nvdata.eplmn.n_plmns = 0;
-
-    /* Delete the eKSI */
-    if (user->emm_data->security) {
-      user->emm_data->security->type = EMM_KSI_NOT_AVAILABLE;
+    /* Stop timer T3410 */
+    if(emm_timers->T3410.id != NAS_TIMER_INACTIVE_ID)
+    {
+        LOG_TRACE(INFO, "EMM-PROC  - Stop timer T3410 (%d)", emm_timers->T3410.id);
+        emm_timers->T3410.id = nas_timer_stop(emm_timers->T3410.id);
     }
 
-    /* Set the EPS update status to EU2 NOT UPDATED */
-    user->emm_data->status = EU2_NOT_UPDATED;
+    if(emm_attach_data->attempt_count < EMM_ATTACH_COUNTER_MAX)
+    {
+        /* Increment the attach attempt counter */
+        emm_attach_data->attempt_count += 1;
+        /* Start T3411 timer */
+        emm_timers->T3411.id = nas_timer_start(emm_timers->T3411.sec, _emm_attach_t3411_handler, NULL);
+        LOG_TRACE(INFO, "EMM-PROC  - Timer T3411 (%d) expires in %ld seconds",
+                  emm_timers->T3411.id, emm_timers->T3411.sec);
+        /*
+            Notify EMM that the attempt to attach for EPS services failed and
+            the attach attempt counter didn't reach its maximum value; network
+            attach procedure shall be restarted when timer T3411 expires.
+        */
+        emm_sap->primitive = EMMREG_ATTACH_FAILED;
+    }
+    else
+    {
+        /* Delete the GUTI */
+        user->emm_data->guti = NULL;
+        /* Delete the TAI list */
+        user->emm_data->ltai.n_tais = 0;
+        /* Delete the last visited registered TAI */
+        user->emm_data->tai = NULL;
+        /* Delete the list of equivalent PLMNs */
+        user->emm_data->nvdata.eplmn.n_plmns = 0;
 
-    /* Start T3402 timer */
-    emm_timers->T3402.id = nas_timer_start(emm_timers->T3402.sec, _emm_attach_t3402_handler, user);
-    LOG_TRACE(INFO, "EMM-PROC  - Timer T3402 (%d) expires in %ld seconds",
-              emm_timers->T3402.id, emm_timers->T3402.sec);
-    /*
-     * Notify EMM that the attempt to attach for EPS services failed and
-     * the attach attempt counter reached its maximum value.
-     */
-    emm_sap->primitive = EMMREG_ATTACH_EXCEEDED;
-  }
+        /* Delete the eKSI */
+        if(user->emm_data->security)
+        {
+            user->emm_data->security->type = EMM_KSI_NOT_AVAILABLE;
+        }
 
-  LOG_FUNC_OUT;
+        /* Set the EPS update status to EU2 NOT UPDATED */
+        user->emm_data->status = EU2_NOT_UPDATED;
+
+        /* Start T3402 timer */
+        emm_timers->T3402.id = nas_timer_start(emm_timers->T3402.sec, _emm_attach_t3402_handler, user);
+        LOG_TRACE(INFO, "EMM-PROC  - Timer T3402 (%d) expires in %ld seconds",
+                  emm_timers->T3402.id, emm_timers->T3402.sec);
+        /*
+            Notify EMM that the attempt to attach for EPS services failed and
+            the attach attempt counter reached its maximum value.
+        */
+        emm_sap->primitive = EMMREG_ATTACH_EXCEEDED;
+    }
+
+    LOG_FUNC_OUT;
 }

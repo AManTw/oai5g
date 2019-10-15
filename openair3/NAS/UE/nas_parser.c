@@ -1,38 +1,38 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*****************************************************************************
-Source      nas_parser.c
+    Source      nas_parser.c
 
-Version     0.1
+    Version     0.1
 
-Date        2012/02/27
+    Date        2012/02/27
 
-Product     NAS stack
+    Product     NAS stack
 
-Subsystem   NAS main process
+    Subsystem   NAS main process
 
-Author      Frederic Maurel
+    Author      Frederic Maurel
 
-Description NAS command line parser
+    Description NAS command line parser
 
 *****************************************************************************/
 
@@ -51,65 +51,67 @@ Description NAS command line parser
 /****************************************************************************/
 
 /*
- * Identifiers of the NAS command line options
- */
-enum {
-  NAS_PARSER_UE_ID,           /* User Equipement Identifier   */
-  NAS_PARSER_TRACE_LEVEL,     /* Logging trace level      */
-  NAS_PARSER_USER_HOST,       /* User app layer's hostname    */
-  NAS_PARSER_NETWORK_HOST,        /* Network layer's hostname */
-  NAS_PARSER_USER_PORT,       /* User app layer's port number */
-  NAS_PARSER_NETWORK_PORT,        /* Network layer's port number  */
-  NAS_PARSER_DEVICE_PATH,     /* Device pathname      */
-  NAS_PARSER_DEVICE_ATTR,     /* Device attribute parameters  */
-  NAS_PARSER_NB_OPTIONS
+    Identifiers of the NAS command line options
+*/
+enum
+{
+    NAS_PARSER_UE_ID,           /* User Equipement Identifier   */
+    NAS_PARSER_TRACE_LEVEL,     /* Logging trace level      */
+    NAS_PARSER_USER_HOST,       /* User app layer's hostname    */
+    NAS_PARSER_NETWORK_HOST,        /* Network layer's hostname */
+    NAS_PARSER_USER_PORT,       /* User app layer's port number */
+    NAS_PARSER_NETWORK_PORT,        /* Network layer's port number  */
+    NAS_PARSER_DEVICE_PATH,     /* Device pathname      */
+    NAS_PARSER_DEVICE_ATTR,     /* Device attribute parameters  */
+    NAS_PARSER_NB_OPTIONS
 };
 
-/* -----------------------------------------------------
- * Definition of the internal NAS command line structure
- * -----------------------------------------------------
- *  The command line is defined with a name (default is "NASprocess"
- *  but it will be replaced by the command name actually used at
- *  runtime), a number of options and the list of options.
- *  An option is defined with a name, an argument following the name,
- *  the usage displayed by the usage function and a default value.
- */
-static parser_command_line_t nasParserCommandLine = {
-  "NASprocess",           /* Command name         */
-  NAS_PARSER_NB_OPTIONS,      /* Number of options        */
-  {                 /* Command line options     */
-    {
-      "-ueid", "<ueid>", "UE identifier\t\t\t",
-      NAS_PARSER_DEFAULT_UE_ID
-    },
-    {
-      "-trace", "<mask>", "Logging trace level\t\t",
-      NAS_PARSER_DEFAULT_TRACE_LEVEL
-    },
-    {
-      "-uhost", "<uhost>", "User app layer's hostname\t",
-      NAS_PARSER_DEFAULT_USER_HOSTNAME
-    },
-    {
-      "-nhost", "<nhost>", "Network layer's hostname\t",
-      NAS_PARSER_DEFAULT_NETWORK_HOSTNAME
-    },
-    {
-      "-uport", "<uport>", "User app layer's port number\t",
-      NAS_PARSER_DEFAULT_USER_PORT_NUMBER
-    },
-    {
-      "-nport", "<nport>", "Network layer's port number\t",
-      NAS_PARSER_DEFAULT_NETWORK_PORT_NUMBER
-    },
-    {"-dev", "<devpath>", "Device pathname\t\t", "NULL"},
-    {"-params", "<params>", "Device attribute parameters", "NULL"},
-  }
+/*  -----------------------------------------------------
+    Definition of the internal NAS command line structure
+    -----------------------------------------------------
+    The command line is defined with a name (default is "NASprocess"
+    but it will be replaced by the command name actually used at
+    runtime), a number of options and the list of options.
+    An option is defined with a name, an argument following the name,
+    the usage displayed by the usage function and a default value.
+*/
+static parser_command_line_t nasParserCommandLine =
+{
+    "NASprocess",           /* Command name         */
+    NAS_PARSER_NB_OPTIONS,      /* Number of options        */
+    {                 /* Command line options     */
+        {
+            "-ueid", "<ueid>", "UE identifier\t\t\t",
+            NAS_PARSER_DEFAULT_UE_ID
+        },
+        {
+            "-trace", "<mask>", "Logging trace level\t\t",
+            NAS_PARSER_DEFAULT_TRACE_LEVEL
+        },
+        {
+            "-uhost", "<uhost>", "User app layer's hostname\t",
+            NAS_PARSER_DEFAULT_USER_HOSTNAME
+        },
+        {
+            "-nhost", "<nhost>", "Network layer's hostname\t",
+            NAS_PARSER_DEFAULT_NETWORK_HOSTNAME
+        },
+        {
+            "-uport", "<uport>", "User app layer's port number\t",
+            NAS_PARSER_DEFAULT_USER_PORT_NUMBER
+        },
+        {
+            "-nport", "<nport>", "Network layer's port number\t",
+            NAS_PARSER_DEFAULT_NETWORK_PORT_NUMBER
+        },
+        {"-dev", "<devpath>", "Device pathname\t\t", "NULL"},
+        {"-params", "<params>", "Device attribute parameters", "NULL"},
+    }
 };
 
 /*
- * Converts a string, containing hexadecimal formatted integer, to an integer
- */
+    Converts a string, containing hexadecimal formatted integer, to an integer
+*/
 static int atohex(const char *a_char);
 
 /****************************************************************************/
@@ -133,8 +135,8 @@ static int atohex(const char *a_char);
  ***************************************************************************/
 void nas_parser_print_usage(const char *version)
 {
-  parser_print_usage(&nasParserCommandLine);
-  fprintf(stderr, "Version: %s\n", version);
+    parser_print_usage(&nasParserCommandLine);
+    fprintf(stderr, "Version: %s\n", version);
 }
 
 /****************************************************************************
@@ -153,7 +155,7 @@ void nas_parser_print_usage(const char *version)
  ***************************************************************************/
 int nas_parser_get_options(int argc, const char **argv)
 {
-  return parser_get_options(argc, argv, &nasParserCommandLine);
+    return parser_get_options(argc, argv, &nasParserCommandLine);
 }
 
 /****************************************************************************
@@ -172,7 +174,7 @@ int nas_parser_get_options(int argc, const char **argv)
  ***************************************************************************/
 int nas_parser_get_nb_options(void)
 {
-  return nasParserCommandLine.nb_options;
+    return nasParserCommandLine.nb_options;
 }
 
 /****************************************************************************
@@ -190,7 +192,7 @@ int nas_parser_get_nb_options(void)
  ***************************************************************************/
 int nas_parser_get_trace_level(void)
 {
-  return atohex( nasParserCommandLine.options[NAS_PARSER_TRACE_LEVEL].pvalue );
+    return atohex(nasParserCommandLine.options[NAS_PARSER_TRACE_LEVEL].pvalue);
 }
 
 /****************************************************************************
@@ -208,7 +210,7 @@ int nas_parser_get_trace_level(void)
  ***************************************************************************/
 const char *nas_parser_get_network_host(void)
 {
-  return nasParserCommandLine.options[NAS_PARSER_NETWORK_HOST].pvalue;
+    return nasParserCommandLine.options[NAS_PARSER_NETWORK_HOST].pvalue;
 }
 
 /****************************************************************************
@@ -226,7 +228,7 @@ const char *nas_parser_get_network_host(void)
  ***************************************************************************/
 const char *nas_parser_get_network_port(void)
 {
-  return nasParserCommandLine.options[NAS_PARSER_NETWORK_PORT].pvalue;
+    return nasParserCommandLine.options[NAS_PARSER_NETWORK_PORT].pvalue;
 }
 
 /****************************************************************************
@@ -244,7 +246,7 @@ const char *nas_parser_get_network_port(void)
  ***************************************************************************/
 int nas_parser_get_ueid(void)
 {
-  return atoi( nasParserCommandLine.options[NAS_PARSER_UE_ID].pvalue );
+    return atoi(nasParserCommandLine.options[NAS_PARSER_UE_ID].pvalue);
 }
 
 /****************************************************************************
@@ -262,7 +264,7 @@ int nas_parser_get_ueid(void)
  ***************************************************************************/
 const char *nas_parser_get_user_host(void)
 {
-  return nasParserCommandLine.options[NAS_PARSER_USER_HOST].pvalue;
+    return nasParserCommandLine.options[NAS_PARSER_USER_HOST].pvalue;
 }
 
 /****************************************************************************
@@ -281,7 +283,7 @@ const char *nas_parser_get_user_host(void)
  ***************************************************************************/
 const char *nas_parser_get_user_port(void)
 {
-  return nasParserCommandLine.options[NAS_PARSER_USER_PORT].pvalue;
+    return nasParserCommandLine.options[NAS_PARSER_USER_PORT].pvalue;
 }
 
 /****************************************************************************
@@ -299,7 +301,7 @@ const char *nas_parser_get_user_port(void)
  ***************************************************************************/
 const char *nas_parser_get_device_path(void)
 {
-  return nasParserCommandLine.options[NAS_PARSER_DEVICE_PATH].pvalue;
+    return nasParserCommandLine.options[NAS_PARSER_DEVICE_PATH].pvalue;
 }
 
 /****************************************************************************
@@ -317,7 +319,7 @@ const char *nas_parser_get_device_path(void)
  ***************************************************************************/
 const char *nas_parser_get_device_params(void)
 {
-  return nasParserCommandLine.options[NAS_PARSER_DEVICE_ATTR].pvalue;
+    return nasParserCommandLine.options[NAS_PARSER_DEVICE_ATTR].pvalue;
 }
 
 /****************************************************************************/
@@ -326,19 +328,27 @@ const char *nas_parser_get_device_params(void)
 
 static int atohex(const char *a_char)
 {
-  int result;
+    int result;
 
-  for (result=0; a_char; a_char++) {
-    if (*a_char >= '0' && *a_char <= '9') {
-      result = (result << 4) + (*a_char - '0');
-    } else if (*a_char >= 'A' && *a_char <= 'F') {
-      result = (result << 4) + (*a_char - 'A' + 10);
-    } else if (*a_char >= 'a' && *a_char <= 'f') {
-      result = (result << 4) + (*a_char - 'a' + 10);
-    } else {
-      break;
+    for(result = 0; a_char; a_char++)
+    {
+        if(*a_char >= '0' && *a_char <= '9')
+        {
+            result = (result << 4) + (*a_char - '0');
+        }
+        else if(*a_char >= 'A' && *a_char <= 'F')
+        {
+            result = (result << 4) + (*a_char - 'A' + 10);
+        }
+        else if(*a_char >= 'a' && *a_char <= 'f')
+        {
+            result = (result << 4) + (*a_char - 'a' + 10);
+        }
+        else
+        {
+            break;
+        }
     }
-  }
 
-  return result;
+    return result;
 }

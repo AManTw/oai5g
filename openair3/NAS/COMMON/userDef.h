@@ -1,38 +1,38 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*****************************************************************************
-Source      userDef.h
+    Source      userDef.h
 
-Version     0.1
+    Version     0.1
 
-Date        2012/09/21
+    Date        2012/09/21
 
-Product     NAS stack
+    Product     NAS stack
 
-Subsystem   include
+    Subsystem   include
 
-Author      Frederic Maurel
+    Author      Frederic Maurel
 
-Description Contains user's global definitions
+    Description Contains user's global definitions
 
 *****************************************************************************/
 #ifndef __USERDEF_H__
@@ -45,15 +45,15 @@ Description Contains user's global definitions
 /****************************************************************************/
 
 /*
- * The name of the file used as non-volatile memory device to store
- * UE data parameters
- */
+    The name of the file used as non-volatile memory device to store
+    UE data parameters
+*/
 #define USER_NVRAM_FILENAME ".ue.nvram"
 
 /*
- * The name of the environment variable which defines the directory
- * where the UE data file is located
- */
+    The name of the environment variable which defines the directory
+    where the UE data file is located
+*/
 #define USER_NVRAM_DIRNAME  "NVRAM_DIR"
 
 /****************************************************************************/
@@ -61,23 +61,24 @@ Description Contains user's global definitions
 /****************************************************************************/
 
 /*
- * ------------------------------
- * Structure of the UE parameters
- * ------------------------------
- */
-typedef struct {
-  /* International Mobile Equipment Identity  */
+    ------------------------------
+    Structure of the UE parameters
+    ------------------------------
+*/
+typedef struct
+{
+    /* International Mobile Equipment Identity  */
 #define USER_IMEI_SIZE          15
-  char IMEI[USER_IMEI_SIZE+1];
-  /* Manufacturer identifier          */
+    char IMEI[USER_IMEI_SIZE + 1];
+    /* Manufacturer identifier          */
 #define USER_MANUFACTURER_SIZE      16
-  char manufacturer[USER_MANUFACTURER_SIZE+1];
-  /* Model identifier             */
+    char manufacturer[USER_MANUFACTURER_SIZE + 1];
+    /* Model identifier             */
 #define USER_MODEL_SIZE         16
-  char model[USER_MODEL_SIZE+1];
-  /* SIM Personal Identification Number   */
+    char model[USER_MODEL_SIZE + 1];
+    /* SIM Personal Identification Number   */
 #define USER_PIN_SIZE           4
-  char PIN[USER_PIN_SIZE+1];
+    char PIN[USER_PIN_SIZE + 1];
 } user_nvdata_t;
 
 /****************************************************************************/

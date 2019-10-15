@@ -1,38 +1,38 @@
 /*
- * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.openairinterface.org/?page_id=698
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *-------------------------------------------------------------------------------
- * For more information about the OpenAirInterface (OAI) Software Alliance:
- *      contact@openairinterface.org
- */
+    Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The OpenAirInterface Software Alliance licenses this file to You under
+    the OAI Public License, Version 1.1  (the "License"); you may not use this file
+    except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.openairinterface.org/?page_id=698
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    -------------------------------------------------------------------------------
+    For more information about the OpenAirInterface (OAI) Software Alliance:
+        contact@openairinterface.org
+*/
 
 /*****************************************************************************
-Source      nas_timer.h
+    Source      nas_timer.h
 
-Version     0.1
+    Version     0.1
 
-Date        2012/11/22
+    Date        2012/11/22
 
-Product     NAS stack
+    Product     NAS stack
 
-Subsystem   Utilities
+    Subsystem   Utilities
 
-Author      Frederic Maurel
+    Author      Frederic Maurel
 
-Description Timer utilities
+    Description Timer utilities
 
 *****************************************************************************/
 #ifndef __NAS_TIMER_H__
@@ -43,9 +43,9 @@ Description Timer utilities
 /****************************************************************************/
 
 /*
- * Timer identifier returned when in inactive state (timer is stopped or has
- * failed to be started)
- */
+    Timer identifier returned when in inactive state (timer is stopped or has
+    failed to be started)
+*/
 #define NAS_TIMER_INACTIVE_ID   (-1)
 
 /****************************************************************************/
@@ -53,9 +53,10 @@ Description Timer utilities
 /****************************************************************************/
 
 /* Timer structure */
-struct nas_timer_t {
-  int id;         /* The timer identifier                 */
-  long sec;       /* The timer interval value in seconds  */
+struct nas_timer_t
+{
+    int id;         /* The timer identifier                 */
+    long sec;       /* The timer interval value in seconds  */
 };
 
 /* Type of the callback executed when the timer expired */
@@ -75,7 +76,7 @@ int nas_timer_stop(int id);
 int nas_timer_restart(int id);
 
 #if defined(NAS_BUILT_IN_EPC)
-void nas_timer_handle_signal_expiry(long timer_id, void *arg_p);
+    void nas_timer_handle_signal_expiry(long timer_id, void *arg_p);
 #endif
 
 #endif /* __NAS_TIMER_H__ */
